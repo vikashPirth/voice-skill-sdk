@@ -10,9 +10,14 @@ and <a href="https://pip.pypa.io/en/stable/">**pip**</a>:
 > Run `apt-get install python3-venv` if you encounter difficulties when creating virtual environments for new projects. 
 
 1. Clone the repo: `https://github.com/telekom/voice-skill-sdk.git`
-    > Alternatively if you have received a source distribution archive, unpack it with `tar xvzf skill-sdk-*.tar.gz` command   
 2. Change to SDK dir: `cd voice-skill-sdk`
-3. Run *new-skill* install:   `python setup.py new_skill`
+3. Run *new-skill* install:  `python setup.py new_skill`
+
+> Alternatively, a one-liner for [@4thel00z](https://github.com/4thel00z)
+>
+> `pip download --no-deps --no-binary :all: skill_sdk && tar xzf skill-sdk-*.tar.gz && python skill-sdk-*/setup.py new_skill`
+>
+
 
 You'll be prompted for:
 - The skill name. Give it an Awesome Name! 
