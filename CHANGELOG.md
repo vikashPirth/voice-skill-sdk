@@ -2,7 +2,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased 
+## [v0.9.1] - 2020-11-24  
 
 **Bugfixes**
 
