@@ -158,11 +158,3 @@ class TestSkillGenerator(unittest.TestCase):
             exit_mock.reset_mock()
             create_implementation(io.StringIO(''), test_dir)
             exit_mock.assert_called_once_with(1)
-
-    def test_wheel_version_in_template(self):
-        """ Ensure skill template contains latest available wheel """
-        from skill_sdk.__version__ import __version__
-        from skill_generator import __file__ as generator_dir
-        template_dir = 'skill-{{cookiecutter.skill_name_slug}}-{{cookiecutter.programming_language}}'
-        wheel = pathlib.Path(generator_dir).parent / 'skill_template' / template_dir / f'skill_sdk-{__version__}-py3-none-any.whl'
-        self.assertTrue(wheel.exists())
