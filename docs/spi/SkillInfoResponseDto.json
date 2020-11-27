@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "skillSpiVersion": "0.7",
+  "skillVersion": "skill-version",
+  "id": "id",
+  "skillId": "skillId",
+  "supportedLocales": [
+    "de",
+    "en",
+    "fr"
+  ]
+}

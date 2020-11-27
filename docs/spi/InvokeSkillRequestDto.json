@@ -1,0 +1,59 @@
+{
+  "context": {
+    "intent": "intent",
+    "attributes": {
+      "attribute-1": [
+        "value-1"
+      ],
+      "attribute-2": [
+        "value-2"
+      ]
+    },
+    "attributesV2": {
+      "attribute-1": [
+        {
+          "id": 1,
+          "value": "value-1",
+          "nestedIn": null,
+          "overlapsWith": null,
+          "extras": {}
+        }
+      ],
+      "attribute-2": [
+        {
+          "id": 1,
+          "value": "value-2",
+          "nestedIn": null,
+          "overlapsWith": null,
+          "extras": {}
+        }
+      ]
+    },
+    "tokens": {
+      "token-1": "token-value-1",
+      "token-2": "token-value-2"
+    },
+    "locale": "de-DE",
+    "configuration": {
+      "favourite-team": [
+        "1860"
+      ],
+      "activateSomeFeature": [
+        true
+      ],
+      "pickSomeStuff": [
+        "item-1",
+        "item-2"
+      ]
+    }
+  },
+  "session": {
+    "id": "session-1",
+    "attributes": {
+      "session-1": "session-value-1",
+      "session-2": "session-value-2"
+    },
+    "new": true
+  },
+  "spiVersion": "1.0"
+}

@@ -1,0 +1,30 @@
+{
+  "type": "ASK",
+  "card": {
+    "type": "cardtype",
+    "version": 1,
+    "data": {
+      "card-key-1": "card-value-1",
+      "card-key-2": "card-value-2"
+    }
+  },
+  "pushNotification": {
+    "targetName": "SVH-TEST0DEVICE1ID",
+    "messagePayload": "example message"
+  },
+  "text": "text",
+  "result": {
+    "local": true,
+    "data": {
+      "data-1": "data-value-1",
+      "data-2": "data-value-2"
+    },
+    "targetDeviceId": "target-device-id"
+  },
+  "session": {
+    "attributes": {
+      "session-1": "session-value-1",
+      "session-2": "session-value-2"
+    }
+  }
+}

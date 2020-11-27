@@ -1,7 +1,6 @@
 # Introduction
 
-The Smart Voice Hub Skill SDK for Python is a Python package that assists in creating skill implementations for the
-Smart Voice Hub in Python.
+Magenta Skill SDK for Python is a Python package that assists in creating skill implementations for Magenta Smart Ppeaker in Python.
 
 It contains 
 
@@ -11,18 +10,16 @@ It contains
 - a few scripts and 
 - other useful contributions.
 
-SDK for Python tries to handle the [Skill SPI](https://smarthub-wbench.wesp.telekom.net/pages/smarthub_cloud/skill-spi/public/index.html) (Service Provider Interface).  
+Skill SDK for Python handles the [Skill SPI](https://htmlpreview.github.io/?https://raw.githubusercontent.com/telekom/voice-skill-sdk/master/docs/spi/index.html) (Service Provider Interface).  
 The SPI defines the communication between CVI core and the skills.  
 This SPI is maintained by the CVI core developers and represents the current interface between the CVI core and the skills.
 
 **Further information**
 
-- [Skill SPI](https://smarthub-wbench.wesp.telekom.net/gitlab/smarthub_cloud/skill-spi)
-- [Skill SPI Documentation](https://smarthub-wbench.wesp.telekom.net/pages/smarthub_cloud/skill-spi/public/index.html)
-- [Skill API Documentation](https://smarthub-wbench.wesp.telekom.net/pages/smarthub_cloud/svh-cloud-doc/public/skill-api/skill-api.html)
-- [Changelog](https://smarthub-wbench.wesp.telekom.net/gitlab/smarthub_cloud/skill-spi/blob/master/CHANGELOG.md)
+- [Skill SPI Documentation](spi/index.html)
+- [Changelog](spi/CHANGELOG.md)
 - Example requests/responses as JSON files:
-    - [Skill info - SkillInfoResponseDto](https://smarthub-wbench.wesp.telekom.net/gitlab/smarthub_cloud/skill-spi/blob/master/src/test/resources/serialized/SkillInfoResponseDto.json)
-    * [Skill invoke - InvokeSkillRequestDto](https://smarthub-wbench.wesp.telekom.net/gitlab/smarthub_cloud/skill-spi/blob/master/src/test/resources/serialized/InvokeSkillRequestDto.json)
-    * [Skill response - InvokeSkillResponseDto](https://smarthub-wbench.wesp.telekom.net/gitlab/smarthub_cloud/skill-spi/blob/master/src/test/resources/serialized/InvokeSkillResponseDto.json)
+    * [Skill info - SkillInfoResponseDto](spi/SkillInfoResponseDto.json)
+    * [Skill invoke - InvokeSkillRequestDto](spi/InvokeSkillRequestDto.json)
+    * [Skill response - InvokeSkillResponseDto](spi/InvokeSkillResponseDto.json)
 
