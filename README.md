@@ -42,7 +42,7 @@ Requires Python 3.7! [Type hints](https://docs.python.org/3/library/typing.html)
 
 This repository uses the `*_test.py` naming schema. PyCharm discovers everything automatically. But if you like to invoke unit tests from the command line, and you are not sure about how, please check `scripts/test`.
 
-### Build
+### Quickstart
 
 Make sure to have an actual version of <a href="https://docs.python.org/3/">**Python 3**</a> (3.7 is minimum required)
 and <a href="https://pip.pypa.io/en/stable/">**pip**</a> installed. Use
@@ -57,7 +57,7 @@ and <a href="https://pip.pypa.io/en/stable/">**pip**</a> installed. Use
 
 > Alternatively, a one-liner for [@4thel00z](https://github.com/4thel00z)
 >
-> `pip download --no-deps --no-binary :all: skill_sdk && tar xzf skill-sdk-*.tar.gz && python skill-sdk-*/setup.py new_skill`
+> `pip download --no-deps --no-binary :all: skill-sdk && tar xzf skill-sdk-*.tar.gz && python skill-sdk-*/setup.py new_skill`
 >
 
 
