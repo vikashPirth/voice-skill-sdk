@@ -1,3 +1,4 @@
+.venv
 /.coverage
 /.idea/
 /cover/
@@ -6,3 +7,4 @@ __pycache__
 /.project
 /.pydevproject
 skill_sdk.egg-info/
+locale/*.mo
