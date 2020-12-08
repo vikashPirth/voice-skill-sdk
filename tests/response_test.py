@@ -69,6 +69,11 @@ class TestCard(unittest.TestCase):
             'action': 'internal://deeplink/openapp?aos=package&iosScheme=urlScheme&iosAppStoreId=appStoreId',
             'actionText': 'Open App'}}, sc.dict())
 
+        sc = Card().with_action('Click this URL',
+                                'http://example.com')
+        self.assertEqual({'type': 'GENERIC_DEFAULT', 'version': 1, 'data': {
+            'action': 'internal://deeplink/call/1234567890', 'actionText': 'Call this number'}}, sc.dict())
+
 
 class TestErrorResponse(unittest.TestCase):
 
@@ -235,8 +240,12 @@ class TestResponse(unittest.TestCase):
                          "'push_notification': None, 'result': {'data': {}, 'local': True}}", repr(response))
 
     def test_response_with_card(self):
-        response = tell('Hola').with_card(title_text='Title', text='Text', action=CardAction.INTERNAL_RESPONSE_TEXT).\
-            dict(self.ctx)
+        response = tell('Hola').with_card(
+            title_text='Title',
+            text='Text',
+            action=CardAction.INTERNAL_RESPONSE_TEXT
+        ).dict(self.ctx)
+
         self.assertEqual({'type': 'TELL', 'text': 'Hola', 'card': {
             'type': 'GENERIC_DEFAULT', 'version': 1, 'data': {
                 'titleText': 'Title', 'text': 'Text', 'action': 'internal://showResponseText'

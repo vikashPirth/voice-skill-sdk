@@ -13,7 +13,7 @@
 
 from enum import Enum
 from dataclasses import dataclass
-from typing import List, Optional, Text
+from typing import List, Optional, Text, Union
 import json
 
 from . import skill
@@ -53,9 +53,9 @@ class ListSection:
 
 class CardAction(str, Enum):
     """
-    Card action link can be either one of internal "deep links"
-    This is the url that should be linked to the actionText-view and/or actionProminentText-view.
-    This can be one of the internal deep links or an external url to a website or whatever.
+    Card action link can be either one of internal "deep links" (enumerated below)
+        or any external "http/https" URL
+
     """
 
     # Present skill details view
@@ -172,7 +172,7 @@ class Card:
     def with_action(
             self,
             action_text: Text,
-            action: CardAction,
+            action: Union[CardAction, Text],
             action_prominent_text: Text = None,
             **kwargs
     ) -> 'Card':
