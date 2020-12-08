@@ -17,36 +17,57 @@ from bottle import HTTPResponse
 from skill_sdk import l10n, tell, ask, ask_freetext
 from skill_sdk.test_helpers import create_context
 from skill_sdk.intents import Context
-from skill_sdk.responses import (Card, GENERIC_DEFAULT, ErrorResponse, Response, Reprompt,
+from skill_sdk.responses import (Card, GENERIC_DEFAULT, ListItem, ListSection, CardAction,
+                                 ErrorResponse, Response, Reprompt,
                                  RESPONSE_TYPE_ASK, RESPONSE_TYPE_TELL, RESPONSE_TYPE_ASK_FREETEXT)
 
 
 class TestCard(unittest.TestCase):
 
     def test_init(self):
-        sc = Card('DEMOTYPE', title="Title", text="Text")
-        self.assertEqual(sc.data['title'], "Title")
-        self.assertEqual(sc.data['text'], "Text")
-
-    def test_init_no_type(self):
-        with self.assertRaises(ValueError):
-            Card(None)
+        sc = Card('DEMOTYPE', title_text="Title", text="Text")
+        self.assertEqual(sc.title_text, "Title")
+        self.assertEqual(sc.text, "Text")
 
     def test_dict(self):
         sc = Card('DEMOTYPE')
         self.assertDictEqual(sc.dict(), {
-            'type': 'DEMOTYPE',
+            'type': GENERIC_DEFAULT,
             'version': 1,
+            'data': {}
         })
-        sc = Card('DEMOTYPE', title="Title", text="Text", key_a=1)
+        sc = Card('DEMOTYPE', title_text="Title", text="Text")
         self.assertDictEqual(sc.dict(), {
-            'type': 'DEMOTYPE',
+            'type': GENERIC_DEFAULT,
             'version': 1,
-            'data': {'title': 'Title', 'text': 'Text', 'keyA': 1},
+            'data': {'titleText': 'Title', 'text': 'Text'},
         })
 
-    def test_init_default_type(self):
-        self.assertEqual(GENERIC_DEFAULT, Card().type_)
+    def test_list_sections(self):
+        sc = Card(list_sections=[ListSection('Section Title', [
+            ListItem('Item 1'),
+            ListItem('Item 2')
+        ])]).dict()
+        self.assertEqual({"type": "GENERIC_DEFAULT", "version": 1,
+                          "data": {"listSections": tuple([
+                              {"title": "Section Title", "items": tuple([
+                                  {"title": "Item 1"}, {"title": "Item 2"}])}])}}, sc)
+
+    def test_with_action(self):
+        sc = Card().with_action('Call this number',
+                                CardAction.INTERNAL_CALL,
+                                number='1234567890')
+        self.assertEqual({'type': 'GENERIC_DEFAULT', 'version': 1, 'data': {
+            'action': 'internal://deeplink/call/1234567890', 'actionText': 'Call this number'}}, sc.dict())
+
+        sc = sc.with_action('Open App',
+                            CardAction.INTERNAL_OPEN_APP,
+                            AosPackageName='package',
+                            iOSURLScheme='urlScheme',
+                            iOSAppStoreId='appStoreId')
+        self.assertEqual({'type': 'GENERIC_DEFAULT', 'version': 1, 'data': {
+            'action': 'internal://deeplink/openapp?aos=package&iosScheme=urlScheme&iosAppStoreId=appStoreId',
+            'actionText': 'Open App'}}, sc.dict())
 
 
 class TestErrorResponse(unittest.TestCase):
@@ -76,8 +97,8 @@ class TestResponse(unittest.TestCase):
 
     def setUp(self):
         self.simple_response = Response('abc123')
-        self.ask_response = Response('abc123', RESPONSE_TYPE_ASK, ask_for=('location', 'CITY'))
-        card = Card('SIMPLE', title='cardtitle', text='cardtext', token_id={'secret': 'token'})
+        self.ask_response = Response('abc123', RESPONSE_TYPE_ASK)
+        card = Card('SIMPLE', title_text='cardtitle', text='cardtext')
         self.card_response = Response('abc123', RESPONSE_TYPE_TELL, card=card, result={'code': 22})
 
         session = {'attributes': {"key-1": "value-1",
@@ -91,7 +112,7 @@ class TestResponse(unittest.TestCase):
     def test_init_full(self):
         self.assertEqual(self.card_response.text, 'abc123')
         self.assertEqual(self.card_response.type_, RESPONSE_TYPE_TELL)
-        self.assertEqual(self.card_response.card.data['title'], 'cardtitle')
+        self.assertEqual(self.card_response.card.title_text, 'cardtitle')
         self.assertEqual(self.card_response.result['code'], 22)
         self.assertEqual(self.card_response.push_notification, None)
 
@@ -111,12 +132,6 @@ class TestResponse(unittest.TestCase):
         self.assertEqual(response['text'], 'abc123')
         self.assertEqual(response['type'], 'ASK')
 
-    @patch('skill_sdk.responses.warn')
-    def test_dict_ask_deprecated(self, warn_mock):
-        response = Response('abc123', RESPONSE_TYPE_ASK, ask_for=('location', 'CITY')).dict(self.ctx)
-        self.assertNotIn('askForAttribute', response)
-        warn_mock.assert_called_with('"ask_for" parameter is deprecated.', DeprecationWarning, stacklevel=2)
-
     def test_dict_simple(self):
         response = self.simple_response.dict(self.ctx)
         self.assertEqual(response['text'], 'abc123')
@@ -127,9 +142,8 @@ class TestResponse(unittest.TestCase):
         response = self.card_response.dict(self.ctx)
         self.assertEqual(response['text'], 'abc123')
         self.assertEqual(response['type'], 'TELL')
-        self.assertEqual(response['card']['data']['title'], 'cardtitle')
+        self.assertEqual(response['card']['data']['titleText'], 'cardtitle')
         self.assertEqual(response['result']['data']['code'], 22)
-        self.assertEqual(response['card']['tokenId'], {'secret': 'token'})
 
     @patch.object(Response, 'dict', return_value='{}')
     def test_response(self, dict_mock):
@@ -219,3 +233,11 @@ class TestResponse(unittest.TestCase):
         response = Response('Hola', RESPONSE_TYPE_ASK)
         self.assertEqual("{'text': 'Hola', 'type_': 'ASK', 'card': None, "
                          "'push_notification': None, 'result': {'data': {}, 'local': True}}", repr(response))
+
+    def test_response_with_card(self):
+        response = tell('Hola').with_card(title_text='Title', text='Text', action=CardAction.INTERNAL_RESPONSE_TEXT).\
+            dict(self.ctx)
+        self.assertEqual({'type': 'TELL', 'text': 'Hola', 'card': {
+            'type': 'GENERIC_DEFAULT', 'version': 1, 'data': {
+                'titleText': 'Title', 'text': 'Text', 'action': 'internal://showResponseText'
+            }}, 'session': {'attributes': {'key-1': 'value-1', 'key-2': 'value-2'}}}, response)
