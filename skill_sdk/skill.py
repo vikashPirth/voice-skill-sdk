@@ -66,6 +66,8 @@ def initialize(config_file: str = None, dev: bool = False, local: bool = False, 
         if not skill.get_intents():
             raise RuntimeError("No intent handlers loaded. Check the log messages for import errors...")
 
+        logger.info("Loaded handlers: %s", list(skill.get_intents()))
+
         if not l10n.translations:
             l10n.translations = l10n.load_translations()
 

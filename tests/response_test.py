@@ -20,6 +20,7 @@ from skill_sdk.intents import Context
 from skill_sdk.responses import (Card, GENERIC_DEFAULT, ListItem, ListSection, CardAction,
                                  ErrorResponse, Response, Reprompt,
                                  RESPONSE_TYPE_ASK, RESPONSE_TYPE_TELL, RESPONSE_TYPE_ASK_FREETEXT)
+from skill_sdk.responses import AudioPlayer
 
 
 class TestCard(unittest.TestCase):
@@ -250,3 +251,6 @@ class TestResponse(unittest.TestCase):
             'type': 'GENERIC_DEFAULT', 'version': 1, 'data': {
                 'titleText': 'Title', 'text': 'Text', 'action': 'internal://showResponseText'
             }}, 'session': {'attributes': {'key-1': 'value-1', 'key-2': 'value-2'}}}, response)
+
+    def test_response_with_kit(self):
+        response = tell('Hallo').add_command(AudioPlayer.play_stream('URL'))

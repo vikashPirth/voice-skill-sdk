@@ -11,9 +11,10 @@
 # Skill responses
 #
 
+from abc import ABC, abstractmethod
 from enum import Enum
 from dataclasses import dataclass
-from typing import List, Optional, Text, Union
+from typing import Dict, List, Optional, Text, Union
 import json
 
 from . import skill
@@ -84,6 +85,151 @@ class CardAction(str, Enum):
                         "aos={AosPackageName}&" \
                         "iosScheme={iOSURLScheme}&" \
                         "iosAppStoreId={iOSAppStoreId}"
+
+
+class KitType(str, Enum):
+    """
+    Client kits available for cloud skills
+
+    """
+    AUDIO_PLAYER = "audio_player"
+    RADIO = "radio"
+    SYSTEM = "system"
+    TELEPHONY = "telephony"
+    TIMER = "timer"
+
+
+class Command(ABC):
+    """
+    Generic client command
+    """
+
+
+@dataclass(frozen=True)
+class AudioPlayer(Command):
+
+    class Action(str, Enum):
+        PLAY_STREAM = "play_stream"
+        PLAY_STREAM_BEFORE_TEXT = "play_stream_before_text"
+        PAUSE = "pause"
+        RESUME = "resume"
+        STOP = "stop"
+
+    class ContentType(str, Enum):
+        RADIO = "radio"
+        VOICEMAIL = "voicemail"
+
+    action: Action
+
+    url: Optional[Text] = None
+    content_type: Optional[ContentType] = None
+    not_playing: Optional[Text] = None
+
+    name: KitType = KitType.AUDIO_PLAYER
+
+    @staticmethod
+    def play_stream(url: str) -> 'AudioPlayer':
+        """
+        Start playing a generic internet stream, specified by "url" parameter
+
+        @param url:
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.PLAY_STREAM, url=url)
+
+    @staticmethod
+    def play_stream_before_text(url: str) -> 'AudioPlayer':
+        """
+        Start playing an internet stream, before pronouncing the response
+
+        @param url:
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.PLAY_STREAM_BEFORE_TEXT, url=url)
+
+    @staticmethod
+    def pause():
+        """
+        Pauses playback in the content channel
+
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.PAUSE)
+
+    @staticmethod
+    def pause_radio(text: str = None):
+        """
+        Stops currently playing radio
+
+        @param text:    TTS to be uttered after radio stopped.
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.PAUSE,
+                           content_type=AudioPlayer.ContentType.RADIO,
+                           not_playing=text)
+
+    @staticmethod
+    def stop():
+        """
+        Stop any currently active media (spotify, radio, content tts)
+
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.STOP)
+
+    @staticmethod
+    def stop_radio(text: str = None):
+        """
+        Stop currently playing radio stream
+
+        @param text:    TTS to be uttered before stopping the radio.
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.STOP,
+                           content_type=AudioPlayer.ContentType.RADIO,
+                           not_playing=text)
+
+    @staticmethod
+    def resume():
+        """
+        Resume paused media
+
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.RESUME)
+
+    @staticmethod
+    def resume_radio():
+        """
+        Restart stopped radio
+
+        @return:
+        """
+        return AudioPlayer(AudioPlayer.Action.RESUME,
+                           content_type=AudioPlayer.ContentType.RADIO)
+
+
+@dataclass(frozen=True)
+class System:
+
+    class Action(str, Enum):
+        STOP = "stop"
+        NEXT = "next"
+        PAUSE = "pause"
+        RESUME = "resume"
+        PREVIOUS = "previous"
+        SAY_AGAIN = "say_again"
+        VOLUME_TO = "volume_to"
+        VOLUME_UP = "volume_up"
+        VOLUME_DOWN = "volume_down"
+        BLUETOOTH_PAIRING = "bluetooth_pairing"
+
+    action: Action
+    value: Optional[int]          # Integer range(10), only applicable to VOLUME_TO
+
+    @staticmethod
+    def volume_to(value: int):
+        return System(System.Action.VOLUME_TO, value=value)
 
 
 def _serialize(d):
@@ -362,6 +508,26 @@ class Response:
             list_sections=list_sections
         )
         self.card = card
+        return self
+
+    def add_command(self, command: Command):
+        """
+        Add a command to execute on the client
+
+        @param command:
+        @return:
+        """
+
+        def use_kit(name, action, **kwargs) -> Dict:
+            return {
+                'use_kit': {
+                    'kit_name': name,
+                    'action': action,
+                    'parameters': {k: v for k, v in kwargs.items() if v is not None}
+                }
+            }
+
+        self.result.update(use_kit(**command.__dict__))
         return self
 
     def as_response(self, context):
