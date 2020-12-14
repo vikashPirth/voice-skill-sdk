@@ -1,4 +1,5 @@
 #
+#
 # voice-skill-sdk
 #
 # (C) 2020, Deutsche Telekom AG
@@ -11,10 +12,9 @@
 # Skill responses
 #
 
-from abc import ABC, abstractmethod
 from enum import Enum
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Text, Union
+from functools import partial
+from typing import Callable, Dict, Iterable, List, NamedTuple, Optional, Text, Union
 import json
 
 from . import skill
@@ -34,8 +34,7 @@ RESPONSE_TYPE_ASK_FREETEXT = 'ASK_FREETEXT'
 GENERIC_DEFAULT = 'GENERIC_DEFAULT'
 
 
-@dataclass(frozen=True)
-class ListItem:
+class ListItem(NamedTuple):
     """
     List item in Card's list sections
     """
@@ -43,8 +42,7 @@ class ListItem:
     icon_url: Optional[Text] = None
 
 
-@dataclass(frozen=True)
-class ListSection:
+class ListSection(NamedTuple):
     """
     List section in a Card
     """
@@ -93,39 +91,51 @@ class KitType(str, Enum):
 
     """
     AUDIO_PLAYER = "audio_player"
-    RADIO = "radio"
+    CALENDAR = "calendar"
     SYSTEM = "system"
-    TELEPHONY = "telephony"
     TIMER = "timer"
 
 
-class Command(ABC):
+class Command:
     """
     Generic client command
+
     """
 
+    class Kit(NamedTuple):
+        kit_name: KitType
+        action: str
+        parameters: Optional[Dict]
 
-@dataclass(frozen=True)
+    use_kit: Kit
+
+    def __init__(self, kit_name, action, **kwargs):
+        parameters = kwargs or None
+        self.use_kit = Command.Kit(
+            kit_name,
+            action,
+            parameters=parameters)
+
+
 class AudioPlayer(Command):
+    """
+    Kit for handling audio player/radio functions
+
+    """
 
     class Action(str, Enum):
         PLAY_STREAM = "play_stream"
         PLAY_STREAM_BEFORE_TEXT = "play_stream_before_text"
+        STOP = "stop"
         PAUSE = "pause"
         RESUME = "resume"
-        STOP = "stop"
 
     class ContentType(str, Enum):
         RADIO = "radio"
         VOICEMAIL = "voicemail"
 
-    action: Action
-
-    url: Optional[Text] = None
-    content_type: Optional[ContentType] = None
-    not_playing: Optional[Text] = None
-
-    name: KitType = KitType.AUDIO_PLAYER
+    def __init__(self, action, **kwargs):
+        super().__init__(KitType.AUDIO_PLAYER, action, **kwargs)
 
     @staticmethod
     def play_stream(url: str) -> 'AudioPlayer':
@@ -140,7 +150,7 @@ class AudioPlayer(Command):
     @staticmethod
     def play_stream_before_text(url: str) -> 'AudioPlayer':
         """
-        Start playing an internet stream, before pronouncing the response
+        Start playing a stream, before pronouncing the response
 
         @param url:
         @return:
@@ -148,116 +158,239 @@ class AudioPlayer(Command):
         return AudioPlayer(AudioPlayer.Action.PLAY_STREAM_BEFORE_TEXT, url=url)
 
     @staticmethod
-    def pause():
+    def stop(content_type: ContentType = None, text: str = None) -> 'AudioPlayer':
         """
-        Pauses playback in the content channel
+        Stop currently playing media (voicemail, radio, content tts),
+            optionally say text BEFORE stopping
 
+        @param content_type:
+        @param text:
         @return:
         """
-        return AudioPlayer(AudioPlayer.Action.PAUSE)
+        content_type = content_type or AudioPlayer.ContentType.RADIO
+        text = text or ''
 
-    @staticmethod
-    def pause_radio(text: str = None):
-        """
-        Stops currently playing radio
-
-        @param text:    TTS to be uttered after radio stopped.
-        @return:
-        """
-        return AudioPlayer(AudioPlayer.Action.PAUSE,
-                           content_type=AudioPlayer.ContentType.RADIO,
-                           not_playing=text)
-
-    @staticmethod
-    def stop():
-        """
-        Stop any currently active media (spotify, radio, content tts)
-
-        @return:
-        """
-        return AudioPlayer(AudioPlayer.Action.STOP)
-
-    @staticmethod
-    def stop_radio(text: str = None):
-        """
-        Stop currently playing radio stream
-
-        @param text:    TTS to be uttered before stopping the radio.
-        @return:
-        """
         return AudioPlayer(AudioPlayer.Action.STOP,
-                           content_type=AudioPlayer.ContentType.RADIO,
-                           not_playing=text)
+                           content_type=content_type,
+                           notify=dict(not_playing=text))
 
     @staticmethod
-    def resume():
+    def pause(content_type: ContentType = None, text: str = None) -> 'AudioPlayer':
         """
-        Resume paused media
+        Pause playback, optionally say text AFTER playback paused
 
+        @param content_type:
+        @param text:
         @return:
         """
-        return AudioPlayer(AudioPlayer.Action.RESUME)
+        content_type = content_type or AudioPlayer.ContentType.RADIO
+        text = text or ''
+
+        return AudioPlayer(AudioPlayer.Action.PAUSE,
+                           content_type=content_type,
+                           notify=dict(not_playing=text))
 
     @staticmethod
-    def resume_radio():
+    def resume(content_type: ContentType = None) -> 'AudioPlayer':
         """
-        Restart stopped radio
+        Resume paused media, say response text before resuming
 
+        @param content_type:
         @return:
         """
+        content_type = content_type or AudioPlayer.ContentType.RADIO
+
         return AudioPlayer(AudioPlayer.Action.RESUME,
-                           content_type=AudioPlayer.ContentType.RADIO)
+                           content_type=content_type)
 
 
-@dataclass(frozen=True)
-class System:
+class Calendar(Command):
+    """
+    Calendar kit: snooze calendar alarm, cancel snooze
+
+    """
+
+    class Action(str, Enum):
+        SNOOZE_START = "snooze_start"
+        SNOOZE_CANCEL = "snooze_cancel"
+
+    def __init__(self, action, **kwargs):
+        super().__init__(KitType.CALENDAR, action, **kwargs)
+
+    @staticmethod
+    def snooze_start(snooze_seconds: int = None) -> 'Calendar':
+        """
+        Snooze calendar alarm by optional number of seconds
+
+        @param snooze_seconds:
+        @return:
+        """
+        return Calendar(Calendar.Action.SNOOZE_START,
+                        snooze_seconds=snooze_seconds)
+
+    @staticmethod
+    def snooze_cancel() -> 'Calendar':
+        """
+        Cancel current snooze
+
+        @return:
+        """
+        return Calendar(Calendar.Action.SNOOZE_CANCEL)
+
+
+class System(Command):
+    """
+    System functions kit
+
+    """
 
     class Action(str, Enum):
         STOP = "stop"
-        NEXT = "next"
         PAUSE = "pause"
         RESUME = "resume"
+        NEXT = "next"
         PREVIOUS = "previous"
         SAY_AGAIN = "say_again"
-        VOLUME_TO = "volume_to"
         VOLUME_UP = "volume_up"
         VOLUME_DOWN = "volume_down"
+        VOLUME_TO = "volume_to"
         BLUETOOTH_PAIRING = "bluetooth_pairing"
 
-    action: Action
-    value: Optional[int]          # Integer range(10), only applicable to VOLUME_TO
+    class SkillType(str, Enum):
+        TIMER = "Timer"
+        CONVERSATION = "Conversation"
+        MEDIA = "Media"
+
+    def __init__(self, action, **kwargs):
+        super().__init__(KitType.SYSTEM, action, **kwargs)
 
     @staticmethod
-    def volume_to(value: int):
+    def stop(skill_type: SkillType = None) -> 'System':
+        """
+        Send a `Stop` event: stops a foreground activity on the device.
+        If there was another activity in background, it will gain focus.
+
+        @param skill_type:  Stop a skill-related activity, or everything, if no skill specified
+        @return:
+        """
+        return System(System.Action.STOP,
+                      skill=skill_type)
+
+    @staticmethod
+    def pause() -> 'System':
+        """
+        Pause currently active content (if supported)
+
+        @return:
+        """
+        return System(System.Action.PAUSE)
+
+    @staticmethod
+    def resume() -> 'System':
+        """
+        Resume media (if paused)
+
+        @return:
+        """
+        return System(System.Action.RESUME)
+
+    @staticmethod
+    def next() -> 'System':
+        """
+        Switch to next item in content channel
+
+        @return:
+        """
+        return System(System.Action.NEXT)
+
+    @staticmethod
+    def previous() -> 'System':
+        """
+        Switch to previous item in content channel
+
+        @return:
+        """
+        return System(System.Action.PREVIOUS)
+
+    @staticmethod
+    def say_again() -> 'System':
+        """
+        Repeat last uttered sentence (from the dialog channel)
+
+        @return:
+        """
+        return System(System.Action.SAY_AGAIN)
+
+    @staticmethod
+    def volume_up() -> 'System':
+        """
+        Increase the volume one notch
+
+        @return:
+        """
+        return System(System.Action.VOLUME_UP)
+
+    @staticmethod
+    def volume_down() -> 'System':
+        """
+        Decrease the volume one notch
+
+        @return:
+        """
+        return System(System.Action.VOLUME_DOWN)
+
+    @staticmethod
+    def volume_to(value: int = 0) -> 'System':
+        """
+        Set the volume to an absolute value (0-10)
+
+        @return:
+        """
+        if value not in range(10):
+            raise ValueError("Value %s in not in expected range (0 - 10)", repr(value))
+
         return System(System.Action.VOLUME_TO, value=value)
 
+    @staticmethod
+    def bluetooth_pairing() -> 'System':
+        """
+        Start bluetooth paring (make device discoverable)
 
-def _serialize(d):
+        @return:
+        """
+        return System(System.Action.BLUETOOTH_PAIRING)
+
+
+class Timer(Command):
     """
-    Recursively serialize values
+    Timer kit: set/cancel a timer
 
-    @param d:
-    @return:
     """
-    __iter = getattr(d, '__slots__', None) or getattr(d, '__dataclass_fields__', None)
-    if __iter:
-        return {snake_to_camel(slot): _serialize(getattr(d, slot))
-                for slot in __iter
-                if getattr(d, slot) is not None}
 
-    if isinstance(d, (dict, )):
-        return {snake_to_camel(slot): _serialize(value)
-                for slot, value in d.items()
-                if value is not None}
+    class Action(str, Enum):
+        SET_TIMER = "set_timer"
+        CANCEL_TIMER = "cancel_timer"
 
-    if isinstance(d, (list, tuple)):
-        return tuple([_serialize(v) for v in d if v is not None])
+    def __init__(self, action, **kwargs):
+        super().__init__(KitType.TIMER, action, **kwargs)
 
-    try:
-        json.dumps(d)
-        return d
-    except (TypeError, OverflowError):
-        return str(d)
+    @staticmethod
+    def set_timer():
+        """
+        Set a timer
+
+        @return:
+        """
+        return Timer(Timer.Action.SET_TIMER)
+
+    @staticmethod
+    def cancel_timer():
+        """
+        Cancel current timer
+
+        @return:
+        """
+        return Timer(Timer.Action.CANCEL_TIMER)
 
 
 class Card:
@@ -348,7 +481,7 @@ class Card:
             'version': self.VERSION,
 
             # Optional properties
-            'data': _serialize(self)
+            'data': _serialize(self, use_camel_case=True)
         }
 
         return card
@@ -417,6 +550,7 @@ class Response:
         The card will be presented in the companion app of the user.
     :ivar result: the result in machine readable form. Can be ``None``, a dictionary with the key 'data' and 'local or
         a Result instance.
+
     """
 
     def __init__(self, text='', type_=RESPONSE_TYPE_TELL, card=None, result=None, **kwargs):
@@ -510,24 +644,14 @@ class Response:
         self.card = card
         return self
 
-    def add_command(self, command: Command):
+    def with_command(self, command: Command):
         """
         Add a command to execute on the client
 
         @param command:
         @return:
         """
-
-        def use_kit(name, action, **kwargs) -> Dict:
-            return {
-                'use_kit': {
-                    'kit_name': name,
-                    'action': action,
-                    'parameters': {k: v for k, v in kwargs.items() if v is not None}
-                }
-            }
-
-        self.result.update(use_kit(**command.__dict__))
+        self.result.update(command.__dict__)
         return self
 
     def as_response(self, context):
@@ -682,3 +806,30 @@ class ErrorResponse:
         """
         return skill.HTTPResponse(self.json(), self.code_map.get(self.code, 500),
                                   {'Content-type': 'application/json'})
+
+
+def _serialize(d, use_camel_case: bool = False):
+    """
+    Recursively serialize values
+
+    @param d:
+    @param use_camel_case:  Convert attribute names from "snake_case" to "camelCase"
+    @return:
+    """
+    # TODO: handle '__dict__'
+    attrs = ('__slots__', '_fields')
+    __keys = next((getattr(d, _) for _ in attrs if getattr(d, _, None)), None)
+
+    if __keys or isinstance(d, dict):
+        __getattr = partial(d.get) if isinstance(d, dict) else partial(getattr, d)
+        return {snake_to_camel(slot) if use_camel_case else slot: _serialize(__getattr(slot), use_camel_case)
+                for slot in __keys or d if __getattr(slot) is not None}
+
+    if isinstance(d, (list, tuple)):
+        return tuple([_serialize(v, use_camel_case) for v in d if v is not None])
+
+    try:
+        json.dumps(d)
+        return d
+    except (TypeError, OverflowError):
+        return str(d)
