@@ -21,7 +21,7 @@ from skill_sdk.intents import Context
 from skill_sdk.responses import (Card, GENERIC_DEFAULT, ListItem, ListSection, CardAction,
                                  ErrorResponse, Response, Reprompt,
                                  RESPONSE_TYPE_ASK, RESPONSE_TYPE_TELL, RESPONSE_TYPE_ASK_FREETEXT)
-from skill_sdk.responses import _serialize, AudioPlayer, Calendar, System, Timer
+from skill_sdk.responses import _serialize, AudioPlayer, Calendar, KitType, System, Timer
 
 
 class TestCard(unittest.TestCase):
@@ -267,69 +267,70 @@ class TestKits(unittest.TestCase):
         self.ctx = create_context('Test_Intent')
 
     def test_audio_player(self):
-        command = _serialize(AudioPlayer.play_stream('URL').__dict__)
+        command = _serialize(AudioPlayer.play_stream('URL'))
         self.assertEqual({'use_kit': {'kit_name': 'audio_player',
                                       'action': 'play_stream',
                                       'parameters': {'url': 'URL'}}}, command)
 
-        command = _serialize(AudioPlayer.play_stream_before_text('URL').__dict__)
+        command = _serialize(AudioPlayer.play_stream_before_text('URL'))
         self.assertEqual({'use_kit': {'kit_name': 'audio_player',
                                       'action': 'play_stream_before_text',
                                       'parameters': {'url': 'URL'}}}, command)
 
-        command = _serialize(AudioPlayer.stop(text="We're getting STOPPED!").__dict__)
+        command = _serialize(AudioPlayer.stop(text="We're getting STOPPED!"))
         self.assertEqual({'use_kit': {'kit_name': 'audio_player',
                                       'action': 'stop',
                                       'parameters': {'content_type': 'radio', 'notify': {
                                           'not_playing': "We're getting STOPPED!"}}}}, command)
 
-        command = _serialize(AudioPlayer.pause(text="We're PAUSED!").__dict__)
+        command = _serialize(AudioPlayer.pause(text="We're PAUSED!"))
         self.assertEqual({'use_kit': {'kit_name': 'audio_player',
                                       'action': 'pause',
                                       'parameters': {'content_type': 'radio', 'notify': {
                                           'not_playing': "We're PAUSED!"}}}}, command)
 
-        command = _serialize(AudioPlayer.resume("voicemail").__dict__)
+        command = _serialize(AudioPlayer.resume("voicemail"))
         self.assertEqual({'use_kit': {'kit_name': 'audio_player',
                                       'action': 'resume',
                                       'parameters': {'content_type': 'voicemail'}}}, command)
 
     def test_calendar(self):
-        command = _serialize(Calendar.snooze_start(5).__dict__)
+        command = _serialize(Calendar.snooze_start(5))
         self.assertEqual({'use_kit': {'kit_name': 'calendar',
                                       'action': 'snooze_start',
                                       'parameters': {'snooze_seconds': 5}}}, command)
 
-        command = _serialize(Calendar.snooze_cancel().__dict__)
+        command = _serialize(Calendar.snooze_cancel())
         self.assertEqual({'use_kit': {'kit_name': 'calendar',
                                       'action': 'snooze_cancel'}}, command)
 
     def test_timer(self):
-        command = _serialize(Timer.set_timer().__dict__)
+        command = _serialize(Timer.set_timer())
         self.assertEqual({'use_kit': {'kit_name': 'timer',
                                       'action': 'set_timer'}}, command)
 
-        command = _serialize(Timer.cancel_timer().__dict__)
+        command = _serialize(Timer.cancel_timer())
         self.assertEqual({'use_kit': {'kit_name': 'timer',
                                       'action': 'cancel_timer'}}, command)
 
     def test_system(self):
-        command = _serialize(System.stop("Media").__dict__)
+        command = _serialize(System.stop("Media"))
         self.assertEqual({'use_kit': {'kit_name': 'system', 'action': 'stop',
                                       'parameters': {'skill': 'Media'}}}, command)
 
         for action in System.Action:
             if action not in ('stop', 'volume_to'):
-                command = _serialize(getattr(System, action)().__dict__)
+                command = _serialize(getattr(System, action)())
                 self.assertEqual({'use_kit': {'kit_name': 'system', 'action': action}}, command)
 
-        command = _serialize(System.volume_to(5).__dict__)
+        command = _serialize(System.volume_to(5))
         self.assertEqual({'use_kit': {'kit_name': 'system', 'action': 'volume_to',
                                       'parameters': {'value': 5}}}, command)
         with self.assertRaises(ValueError):
             System.volume_to(12)
 
     def test_serialize(self):
+        self.assertEqual('timer', _serialize(KitType.TIMER))
 
         NT = namedtuple('Test', ['a', 'b'])
         self.assertEqual({'a': 1, 'b': 2}, _serialize(NT(1, 2)))
@@ -341,7 +342,7 @@ class TestKits(unittest.TestCase):
             def __init__(self, a, b):
                 self.a, self.b = a, b
 
-        self.assertEqual({'a': 1, 'b': 2}, _serialize(ClassWithDict(1, 2).__dict__))
+        self.assertEqual({'a': 1, 'b': 2}, _serialize(ClassWithDict(1, 2)))
 
         class ClassWithSlots:
             __slots__ = ('a', 'b')
@@ -352,4 +353,4 @@ class TestKits(unittest.TestCase):
         self.assertEqual({'a': 1, 'b': 2}, _serialize(ClassWithSlots(1, 2)))
 
         self.assertEqual({'a': {'a': 1, 'b': 2}, 'b': {'a': 1, 'b': 2}},
-                         _serialize(NT(ClassWithDict(1, 2).__dict__, ClassWithSlots(1, 2))))
+                         _serialize(NT(ClassWithDict(1, 2), ClassWithSlots(1, 2))))

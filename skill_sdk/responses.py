@@ -12,9 +12,9 @@
 # Skill responses
 #
 
-from enum import Enum
+from enum import Enum, EnumMeta
 from functools import partial
-from typing import Callable, Dict, Iterable, List, NamedTuple, Optional, Text, Union
+from typing import Dict, List, NamedTuple, Optional, Text, Union
 import json
 
 from . import skill
@@ -816,14 +816,17 @@ def _serialize(d, use_camel_case: bool = False):
     @param use_camel_case:  Convert attribute names from "snake_case" to "camelCase"
     @return:
     """
-    # TODO: handle '__dict__'
-    attrs = ('__slots__', '_fields')
-    __keys = next((getattr(d, _) for _ in attrs if getattr(d, _, None)), None)
 
-    if __keys or isinstance(d, dict):
-        __getattr = partial(d.get) if isinstance(d, dict) else partial(getattr, d)
-        return {snake_to_camel(slot) if use_camel_case else slot: _serialize(__getattr(slot), use_camel_case)
-                for slot in __keys or d if __getattr(slot) is not None}
+    __iter = (getattr(d, '__slots__', None)
+              or getattr(d, '_fields', None)
+              # We don't want enum._EnumDict here:
+              or (not isinstance(type(d), EnumMeta) and getattr(d, '__dict__', None))
+              or isinstance(d, dict) and d)
+
+    if __iter:
+        __getter = partial(d.get) if isinstance(d, dict) else partial(getattr, d)
+        return {snake_to_camel(slot) if use_camel_case else slot: _serialize(__getter(slot), use_camel_case)
+                for slot in __iter if __getter(slot) is not None}
 
     if isinstance(d, (list, tuple)):
         return tuple([_serialize(v, use_camel_case) for v in d if v is not None])
