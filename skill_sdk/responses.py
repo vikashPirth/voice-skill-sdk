@@ -30,6 +30,9 @@ RESPONSE_TYPE_TELL = 'TELL'
 # : response type to ask additional free text from the user
 RESPONSE_TYPE_ASK_FREETEXT = 'ASK_FREETEXT'
 
+# Supported card version
+CARD_VERSION = 1
+
 # The only card type available: "GENERIC_DEFAULT"
 GENERIC_DEFAULT = 'GENERIC_DEFAULT'
 
@@ -80,9 +83,9 @@ class CardAction(str, Enum):
 
     # Open a specified app or the App Store if the app is not installed
     INTERNAL_OPEN_APP = "internal://deeplink/openapp?" \
-                        "aos={AosPackageName}&" \
-                        "iosScheme={iOSURLScheme}&" \
-                        "iosAppStoreId={iOSAppStoreId}"
+                        "aos={aos_package_name}&" \
+                        "iosScheme={ios_url_scheme}&" \
+                        "iosAppStoreId={ios_app_store_id}"
 
 
 class KitType(str, Enum):
@@ -96,22 +99,27 @@ class KitType(str, Enum):
     TIMER = "timer"
 
 
+class Kit(NamedTuple):
+    """
+    Client kit
+
+    """
+    kit_name: KitType
+    action: str
+    parameters: Optional[Dict]
+
+
 class Command:
     """
     Generic client command
 
     """
 
-    class Kit(NamedTuple):
-        kit_name: KitType
-        action: str
-        parameters: Optional[Dict]
-
     use_kit: Kit
 
     def __init__(self, kit_name, action, **kwargs):
         parameters = kwargs or None
-        self.use_kit = Command.Kit(
+        self.use_kit = Kit(
             kit_name,
             action,
             parameters=parameters)
@@ -254,7 +262,6 @@ class System(Command):
         VOLUME_UP = "volume_up"
         VOLUME_DOWN = "volume_down"
         VOLUME_TO = "volume_to"
-        BLUETOOTH_PAIRING = "bluetooth_pairing"
 
     class SkillType(str, Enum):
         TIMER = "Timer"
@@ -351,19 +358,12 @@ class System(Command):
 
         return System(System.Action.VOLUME_TO, value=value)
 
-    @staticmethod
-    def bluetooth_pairing() -> 'System':
-        """
-        Start bluetooth paring (make device discoverable)
-
-        @return:
-        """
-        return System(System.Action.BLUETOOTH_PAIRING)
-
 
 class Timer(Command):
     """
-    Timer kit: set/cancel a timer
+    Timer kit: start/stop Timer/Reminder/Alarm animation
+
+        After animation started, it keeps running for max. 10 min if no user interaction happens
 
     """
 
@@ -377,7 +377,7 @@ class Timer(Command):
     @staticmethod
     def set_timer():
         """
-        Set a timer
+        Fire up a "timer" animation
 
         @return:
         """
@@ -386,67 +386,33 @@ class Timer(Command):
     @staticmethod
     def cancel_timer():
         """
-        Cancel current timer
+        Cancel currently running "timer"
 
         @return:
         """
         return Timer(Timer.Action.CANCEL_TIMER)
 
 
-class Card:
+class Card(NamedTuple):
     """
     Card to be sent to the companion app
 
     """
 
-    TYPE = GENERIC_DEFAULT
-    VERSION = 1
+    # Type of action cards, only supported right now is GENERIC_DEFAULT
+    #   NOTE: this parameter is left for backward compatibility and IS IGNORED
+    type_: Optional[Text] = GENERIC_DEFAULT
 
-    __slots__ = (
-        'title_text',
-        'type_description',
-        'prominent_text',
-        'text',
-        'sub_text',
-        'action',
-        'action_text',
-        'action_prominent_text',
-        'icon_url',
-        'list_sections'
-    )
-
-    def __init__(
-            self,
-            type_=GENERIC_DEFAULT,
-            title_text: Text = None,
-            type_description: Text = None,
-            prominent_text: Text = None,
-            text: Text = None,
-            sub_text: Text = None,
-            action: Text = None,
-            action_text: Text = None,
-            action_prominent_text: Text = None,
-            icon_url: Text = None,
-            list_sections: List[ListSection] = None
-    ):
-        """
-        Create card
-
-        :param type_: Type of action cards, only supported right now is GENERIC_DEFAULT
-                        NOTE: this parameter is left for backward compatibility and IS IGNORED
-
-        keyword arguments: Slot values
-        """
-        self.title_text = title_text
-        self.type_description = type_description
-        self.prominent_text = prominent_text
-        self.text = text
-        self.sub_text = sub_text
-        self.action = action
-        self.action_text = action_text
-        self.action_prominent_text = action_prominent_text
-        self.icon_url = icon_url
-        self.list_sections = list_sections
+    title_text: Optional[Text] = None
+    type_description: Optional[Text] = None
+    prominent_text: Optional[Text] = None
+    text: Optional[Text] = None
+    sub_text: Optional[Text] = None
+    action: Optional[Text] = None
+    action_text: Optional[Text] = None
+    action_prominent_text: Optional[Text] = None
+    icon_url: Optional[Text] = None
+    list_sections: Optional[List[ListSection]] = None
 
     def with_action(
             self,
@@ -464,10 +430,9 @@ class Card:
         @param kwargs:
         @return:
         """
-        self.action_text = action_text
-        self.action_prominent_text = action_prominent_text
-        self.action = action.format(**kwargs)
-        return self
+        return self._replace(action_text=action_text,
+                             action_prominent_text=action_prominent_text,
+                             action=action.format(**kwargs))
 
     def dict(self):
         """
@@ -477,11 +442,12 @@ class Card:
         """
         card = {
             # Required properties
-            'type': self.TYPE,
-            'version': self.VERSION,
+            'type': GENERIC_DEFAULT,
+            'version': CARD_VERSION,
 
             # Optional properties
-            'data': _serialize(self, use_camel_case=True)
+            'data': _serialize(self._replace(type_=None),
+                               use_camel_case=True)
         }
 
         return card
@@ -629,7 +595,7 @@ class Response:
         @param list_sections:
         @return:
         """
-        card = card or Card(
+        self.card = card or Card(
             title_text=title_text,
             type_description=type_description,
             prominent_text=prominent_text,
@@ -641,7 +607,6 @@ class Response:
             icon_url=icon_url,
             list_sections=list_sections
         )
-        self.card = card
         return self
 
     def with_command(self, command: Command):

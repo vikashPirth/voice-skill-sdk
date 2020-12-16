@@ -64,9 +64,9 @@ class TestCard(unittest.TestCase):
 
         sc = sc.with_action('Open App',
                             CardAction.INTERNAL_OPEN_APP,
-                            AosPackageName='package',
-                            iOSURLScheme='urlScheme',
-                            iOSAppStoreId='appStoreId')
+                            aos_package_name='package',
+                            ios_url_scheme='urlScheme',
+                            ios_app_store_id='appStoreId')
         self.assertEqual({'type': 'GENERIC_DEFAULT', 'version': 1, 'data': {
             'action': 'internal://deeplink/openapp?aos=package&iosScheme=urlScheme&iosAppStoreId=appStoreId',
             'actionText': 'Open App'}}, sc.dict())
