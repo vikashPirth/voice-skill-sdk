@@ -46,7 +46,8 @@ ArgumentMissingError = AttributeMissingError
 
 
 class EntityValueException(Exception):
-    """ Entity values conversion exception
+    """
+    Entity values conversion exception
     """
 
     def __init__(self, ex, value=None, func=None, *args):
@@ -120,7 +121,8 @@ class Context:
         return next(iter(self.attributes.get(attr, [])), default)
 
     def dict(self) -> Dict:
-        """ Export as dictionary
+        """
+        Export as dictionary
 
         :return:
         """
@@ -142,16 +144,23 @@ class Context:
         return str(self.dict())
 
     def gettz(self) -> datetime.tzinfo:
-        """ Get device timezone from context attributes
-            https://smarthub-wbench.wesp.telekom.net/pages/smarthub_cloud/skill-spi/public/#attribute-types
+        """
+        Get device timezone from context attributes
 
         :return:
         """
-        timezone = self._get_attribute('timezone', 'UTC')
-        return tz.gettz(timezone) or tz.tzutc()
+        _tz = self._get_attribute('timezone')
+        timezone = tz.gettz(_tz)
+
+        if timezone is None:
+            logger.error("Device timezone not present or invalid: %s. Defaulting to UTC", repr(_tz))
+            timezone = tz.tzutc()
+
+        return timezone
 
     def today(self) -> datetime.datetime:
-        """ Get `datetime.datetime` object representing the current day at midnight
+        """
+        Get `datetime.datetime` object representing the current day at midnight
 
         :return:
         """
@@ -200,7 +209,8 @@ context = LocalContext()
 
 
 class Intent:
-    """ An intent as loaded from the JSON file
+    """
+    An intent as loaded from the JSON file
 
     """
     name: str
@@ -233,7 +243,8 @@ class Intent:
         return response
 
     def _log_return_value(self, result):
-        """ Log intent handler result or raise ValueError.
+        """
+        Log intent handler result or raise ValueError.
 
         :param result:
         :return:
@@ -252,7 +263,8 @@ class Intent:
             raise ValueError('Unknown return value')
 
     def __call__(self, _context: Context):
-        """ Call the implementation of the intent with context argument.
+        """
+        Call the implementation of the intent with context argument.
 
         :param _context:
         """
@@ -282,7 +294,8 @@ class Intent:
             return self._log_return_value(result)
 
     def dict(self) -> Dict:
-        """ Export as dictionary
+        """
+        Export as dictionary
 
         :return:
         """
