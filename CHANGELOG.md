@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file.
 
 **Miscellaneous**
 
--   Requirements bump:
+- Swagger UI is updated to v3.38.0 
+  
+- Requirements bump:
+    - coverage from 5.3 to 5.3.1
     - gevent from 20.9.0 to 20.12.1
     - opentracing from 2.3.0 to 2.4.0  
     - requests from 2.25.0 to 2.25.1
