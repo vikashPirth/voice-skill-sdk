@@ -374,7 +374,7 @@ def translate_locale(locale: str, messages: Dict, locale_dir: str = None) -> Opt
     """
     po_file = get_locale_dir(locale_dir) / f'{locale}.po'
     try:
-        logger.info(f'Translating %s ...', po_file.name)
+        logger.info('Translating %s ...', po_file.name)
         with po_file.open() as f:
             lines = iter(f.readlines())
             return _translate(lines, messages)

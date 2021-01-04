@@ -105,7 +105,7 @@ def pause(text: str = None, duration: str = None, strength: str = None):
             raise SSMLException(f"Invalid strength value {repr(strength)}. Must be one of {STRENGTH}")
 
     else:
-        raise SSMLException(f'Please set one of "duration"/"strength" parameters when setting a break')
+        raise SSMLException('Please set one of "duration"/"strength" parameters when setting a break')
 
 
 def paragraph(text: str) -> str:

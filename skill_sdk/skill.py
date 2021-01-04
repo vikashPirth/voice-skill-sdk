@@ -16,8 +16,8 @@ from typing import Callable, Dict
 import logging.config
 
 import bottle
-from bottle import install, get, post, route, error, request, response, tob, touni, app
-from bottle import BaseRequest, HTTPResponse
+from bottle import install, get, post, route, error, request, response, tob, touni, app     # noqa: F401
+from bottle import BaseRequest, HTTPResponse                                                # noqa: F401
 
 from . import l10n
 from . import intents
@@ -71,8 +71,8 @@ def initialize(config_file: str = None, dev: bool = False, local: bool = False, 
         if not l10n.translations:
             l10n.translations = l10n.load_translations()
 
-        from . import routes      # Add standard routes
-        from . import swagger     # Add swagger route
+        from . import routes      # noqa: F401   Add standard routes
+        from . import swagger     # noqa: F401   Add swagger route
 
         set_dev_mode() if dev else setup_services()
 
@@ -121,7 +121,7 @@ def set_dev_mode():
 
     # Load swagger UI
     try:
-        import swagger_ui
+        import swagger_ui   # noqa: F401
     except ModuleNotFoundError:
         logger.warning("Swagger UI not found, starting without...")
 
