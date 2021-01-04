@@ -2,6 +2,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.10.1] - 2021-01-04  
+
+**Miscellaneous**
+
+-   Requirements bump:
+    - gevent from 20.9.0 to 20.12.1
+    - opentracing from 2.3.0 to 2.4.0  
+    - requests from 2.25.0 to 2.25.1
+
 ## [v0.10.0] - 2020-12-18  
 
 **Features**
