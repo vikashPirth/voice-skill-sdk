@@ -26,8 +26,8 @@ except ModuleNotFoundError:
     cookiecutter_available = False
     install = [sys.executable, "-m", 'pip', 'install', 'cookiecutter', '-q']
     if not (hasattr(sys, 'real_prefix') or hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
-        # inside virtual environment, '--user' flag won't work
         install += ['--user']
+
     subprocess.run(install)
     import cookiecutter
     import jinja2
@@ -101,7 +101,7 @@ class TestSkillGenerator(unittest.TestCase):
                     patch('sys.exit') as exit_mock:
                 prompt_overwrite(pathlib.Path('file'))
                 self.assertIn('Exiting...', stdout.getvalue())
-                exit_mock.assert_called_once_with(1)
+                exit_mock.assert_called_once_with()
 
     @patch('subprocess.check_call', return_value=0)
     @patch('skill_generator.__main__.create_implementation')

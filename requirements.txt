@@ -14,7 +14,3 @@ timezonefinder==5.0.0     # [a lightweight python library for finding the timezo
 apispec==4.0.0            # [A pluggable API specification generator](https://apispec.readthedocs.io/en/stable/)
 py-zipkin==0.20.1         # [Provides utilities to facilitate the usage of Zipkin in Python](https://github.com/Yelp/py_zipkin)
 jaeger-client==4.3.0      # [Native Jaeger client instrumentation library](https://github.com/jaegertracing/jaeger-client-python)
-
-# Optional test requirements:
-coverage==5.3.1           # [Code coverage measurement for Python](https://github.com/nedbat/coveragepy)
-requests-mock==1.8.0      # [Mocked responses for the requests library](https://requests-mock.readthedocs.io)
