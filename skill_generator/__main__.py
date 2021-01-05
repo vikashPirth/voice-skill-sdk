@@ -53,7 +53,7 @@ def prompt_overwrite(skill_dir: Path) -> bool:
         confirm = click.confirm(f'Project directory {skill_dir} exists. Overwrite?', default=True)
         if not confirm:
             click.secho('Exiting...')
-            sys.exit(1)
+            sys.exit()
     return confirm
 
 

@@ -15,7 +15,10 @@ except ImportError:
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 with open(os.path.join(HERE, 'requirements.txt')) as f:
-    requirements = f.read().splitlines()
+    install_requires = f.read().splitlines()
+    if 'develop' in sys.argv or 'egg_info' in sys.argv:
+        with open(os.path.join(HERE, 'requirements-dev.txt')) as fd:
+            install_requires += fd.read().splitlines()
 
 about = {}
 with open(os.path.join(HERE, 'skill_sdk', '__version__.py')) as f:
@@ -27,14 +30,12 @@ class NewSkillCommand(Command):
     description = 'install SDK in development mode and create new skill'
     user_options = [
         ('metadata=', 'm', "JSON file to read domain context metadata"),
-        ('verbose-output', 'v', "Display debug output"),
     ]
 
     boolean_options = ['verbose-output']
 
     def initialize_options(self):
         self.metadata = None
-        self.verbose_output = False
 
     def finalize_options(self):
         pass
@@ -44,7 +45,7 @@ class NewSkillCommand(Command):
         install = [sys.executable, '-m', 'pip', 'install', 'cookiecutter', '-q', '--disable-pip-version-check']
         generator = [sys.executable, os.path.join(HERE, 'skill_generator', '__main__.py')]
         generator += ['-m', self.metadata] if self.metadata else []
-        generator += ['-v'] if self.verbose_output else []
+        generator += ['-v'] if self.verbose else []
 
         # This is how we try to identify if we're inside of virtual environment
         # Thanks to that unknown guy on stackoverflow
@@ -114,7 +115,7 @@ options = dict(
 
     packages=find_packages(exclude=['tests', 'skill_generator', 'swagger_ui']),
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=install_requires,
     python_requires=">=3.7",
     setup_requires=['wheel'],
     extras_require={

@@ -40,7 +40,7 @@ def authenticate(req, password):
     :param password:
     :return:    True if authorized
     """
-    logger.debug(f'Processing basic authentication.')
+    logger.debug('Processing basic authentication.')
     auth = req.headers.get('Authorization')
 
     try:
@@ -87,7 +87,7 @@ def auth_basic(check, text="Access denied"):
 
         # If authentication requested but no api_key found in config, log a warning
         if auth == 'basic' and not api_key:
-            logger.warning(f'Please set api_key in skill.conf! Proceeding without authentication....')
+            logger.warning('Please set api_key in skill.conf! Proceeding without authentication....')
 
         return func
     return decorator
