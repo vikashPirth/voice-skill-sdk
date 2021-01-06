@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.10.2] - 2021-01-06  
+
+**Bugfixes**
+
+- Development/production requirements merged for backward compatibility with existing CI/CD pipelines.  
+  
 ## [v0.10.1] - 2021-01-04  
 
 **Miscellaneous**
