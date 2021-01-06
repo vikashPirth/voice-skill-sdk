@@ -16,9 +16,6 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 with open(os.path.join(HERE, 'requirements.txt')) as f:
     install_requires = f.read().splitlines()
-    if 'develop' in sys.argv or 'egg_info' in sys.argv:
-        with open(os.path.join(HERE, 'requirements-dev.txt')) as fd:
-            install_requires += fd.read().splitlines()
 
 about = {}
 with open(os.path.join(HERE, 'skill_sdk', '__version__.py')) as f:
