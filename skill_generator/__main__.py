@@ -146,8 +146,8 @@ def create_implementation(metadata: io.BufferedReader, skill_dir: Path, extra_co
 @click.option('-o', '--out', default='~/skills', prompt='Directory to create the project',
               type=click.Path(file_okay=False), help='Directory to create the project')
 @click.option('-m', '--metadata', type=click.File('rb'), help='JSON file to read domain context metadata')
-@click.option('-v', '--verbose', help='Verbose output', hidden=True, is_flag=True)
-def venv_main(name: str, language: str, out: str, metadata: Optional[io.BufferedReader] = None, verbose: bool = False):
+@click.option('-v', '--verbose', help='Verbose output', is_flag=True)
+def venv_main(name: str, language: str, out: str, metadata: Optional[io.BufferedReader] = None, verbose: bool = True):
 
     #
     # We'll create:

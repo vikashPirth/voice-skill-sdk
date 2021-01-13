@@ -784,8 +784,8 @@ def _serialize(d, use_camel_case: bool = False):
 
     __iter = (getattr(d, '__slots__', None)
               or getattr(d, '_fields', None)
-              # We don't want enum._EnumDict here:
-              or (not isinstance(type(d), EnumMeta) and getattr(d, '__dict__', None))
+              # We don't want enum._EnumDict here (neither we want l10n.Message):
+              or (not isinstance(type(d), EnumMeta) and not isinstance(d, str) and getattr(d, '__dict__', None))
               or isinstance(d, dict) and d)
 
     if __iter:
