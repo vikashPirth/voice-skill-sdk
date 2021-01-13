@@ -7,8 +7,6 @@ try:
     from setuptools import setup, Command, find_packages
     from setuptools.command.develop import develop
     from setuptools.command.sdist import sdist
-    from setuptools.command.test import test
-    from distutils.command.clean import clean
 except ImportError:
     exit("This package requires Python version >= 3.7 and Python's setuptools")
 
@@ -58,11 +56,11 @@ class DevelopCommand(develop):
     """ Add skill_generator and swagger_ui for development """
 
     def run(self):
-        self.distribution.packages = find_packages(exclude=['tests'])
         self.distribution.entry_points = {'console_scripts': [
             'new-skill = skill_generator.__main__:venv_main [generator]',
         ]} if generator_available() else None
-        develop.run(self)
+        self.distribution.packages += ['skill_generator', 'swagger_ui']
+        super().run()
 
 
 class SDistCommand(sdist):
@@ -70,7 +68,7 @@ class SDistCommand(sdist):
 
     def run(self):
         self.distribution.packages += ['skill_generator', 'swagger_ui']
-        sdist.run(self)
+        super().run()
 
 
 def generator_available():

@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.10.3] - 2021-01-13  
+
+**Bugfixes**
+
+- Disable `l10n.Message` dictionary serialization in response.  
+  
 ## [v0.10.2] - 2021-01-06  
 
 **Bugfixes**

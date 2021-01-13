@@ -45,6 +45,12 @@ class TestCard(unittest.TestCase):
             'data': {'titleText': 'Title', 'text': 'Text'},
         })
 
+    def test_l10n_message(self):
+        """[HMPOP-424] Do not serialize l10n.Message objects"""
+
+        d = Card(title_text=l10n.Message('TITLE', param1='param1', param2='param2')).dict()
+        self.assertEqual({'titleText': 'TITLE'}, d['data'])
+
     def test_list_sections(self):
         sc = Card(list_sections=[ListSection('Section Title', [
             ListItem('Item 1'),
