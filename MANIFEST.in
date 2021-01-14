@@ -1,4 +1,4 @@
-include LICENSE README.md requirements.txt requirements-dev.txt
+include LICENSE README.md requirements.txt
 include skill_sdk/swagger.yml
 recursive-include swagger_ui/node_modules *
 recursive-include skill_generator/skill_template *

@@ -22,12 +22,10 @@ with open(os.path.join(HERE, 'skill_sdk', '__version__.py')) as f:
 
 class NewSkillCommand(Command):
 
-    description = 'install SDK in development mode and create new skill'
+    description = 'create new skill and install SDK in development mode'
     user_options = [
         ('metadata=', 'm', "JSON file to read domain context metadata"),
     ]
-
-    boolean_options = ['verbose-output']
 
     def initialize_options(self):
         self.metadata = None
@@ -36,29 +34,34 @@ class NewSkillCommand(Command):
         pass
 
     def run(self):
-        import subprocess
-        install = [sys.executable, '-m', 'pip', 'install', 'cookiecutter', '-q', '--disable-pip-version-check']
-        generator = [sys.executable, os.path.join(HERE, 'skill_generator', '__main__.py')]
-        generator += ['-m', self.metadata] if self.metadata else []
-        generator += ['-v'] if self.verbose else []
-
-        # This is how we try to identify if we're inside of virtual environment
-        # Thanks to that unknown guy on stackoverflow
-        if not (hasattr(sys, 'real_prefix') or hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
-            # inside virtual environment, '--user' flag won't work
-            install += ['--user']
-
-        subprocess.check_call(install)
-        subprocess.check_call(generator)
+        new_skill(self.verbose, self.metadata)
 
 
 class DevelopCommand(develop):
-    """ Add skill_generator and swagger_ui for development """
+    """Launch 'new-skill' wizard if --new-skill option is set"""
+
+    user_options = develop.user_options + [("new-skill", None, "create new skill from template")]
+
+    boolean_options = develop.boolean_options + ['new-skill']
+
+    def initialize_options(self):
+        self.new_skill = False
+        super().initialize_options()
+
+    def finalize_options(self):
+        if not self.new_skill:
+            super().finalize_options()
 
     def run(self):
-        self.distribution.entry_points = {'console_scripts': [
-            'new-skill = skill_generator.__main__:venv_main [generator]',
-        ]} if generator_available() else None
+        if generator_available():
+            if self.new_skill:
+                self.distribution.install_requires = [],
+                return new_skill(self.verbose)
+
+            self.distribution.entry_points = {'console_scripts': [
+                'new-skill = skill_generator.__main__:venv_main [generator]',
+            ]}
+
         self.distribution.packages += ['skill_generator', 'swagger_ui']
         super().run()
 
@@ -71,8 +74,37 @@ class SDistCommand(sdist):
         super().run()
 
 
+def new_skill(verbose: int, metadata: str = None):
+    """
+    Run new-skill wizard
+
+    @param verbose:     verbose output
+    @param metadata:    optional domain context metadata definition file
+    @return:
+    """
+    import subprocess
+    install = [sys.executable, '-m', 'pip', 'install', 'cookiecutter', '-q', '--disable-pip-version-check']
+    generator = [sys.executable, os.path.join(HERE, 'skill_generator', '__main__.py')]
+    generator += ['-m', metadata] if metadata else []
+    generator += ['-' + 'v'*verbose] if verbose else []
+
+    # This is how we try to identify if we're inside of virtual environment
+    # Thanks to that unknown guy on stackoverflow
+    if not (hasattr(sys, 'real_prefix') or hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
+        # inside virtual environment, '--user' flag won't work
+        install += ['--user']
+
+    subprocess.check_call(install)
+
+    try:
+        subprocess.check_call(generator)
+    except subprocess.CalledProcessError:
+        exit('There was an error creating new skill. Check log for details')
+
+
 def generator_available():
-    """ Check if skill_generator is available
+    """
+    Check if skill_generator is available
 
     :return:
     """
