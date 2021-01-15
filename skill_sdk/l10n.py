@@ -24,8 +24,8 @@ from .config import config
 _thread_locals = local()
 
 LOCALE_DIR = 'locale'
+PROGRAM_NOT_FOUND = 'Failed to launch %s: not found. Make sure you have GNU gettext tools installed.'
 RE_TRANSLATIONS = re.compile(r'^[a-z]{2}(-[A-Z]{2})?$')
-EXTRACT_TRANSLATIONS_ERROR: str = 'Failed to extract translations: %s'
 logger = logging.getLogger(__name__)
 
 
@@ -282,6 +282,7 @@ def extract_translations(modules: List[str], locale_dir: str = None) -> Optional
     :return:
     """
     files = []
+    program = 'xgettext'
     path = get_locale_dir(locale_dir)
     if not path.exists():
         path.mkdir(parents=True)
@@ -296,14 +297,16 @@ def extract_translations(modules: List[str], locale_dir: str = None) -> Optional
 
     logger.debug('Scanning %s', repr(files))
     try:
-        subprocess.run(['xgettext', '--language=python', f'--output={str(output)}', *files],
+        subprocess.run([program, '--language=python', f'--output={str(output)}', *files],
                        check=True, stderr=subprocess.PIPE, text=True)
         logger.info('Translation template written to %s', repr(output))
         return output
+
+    except FileNotFoundError:
+        logger.error(PROGRAM_NOT_FOUND, program)
+
     except subprocess.CalledProcessError as ex:
-        logger.error(EXTRACT_TRANSLATIONS_ERROR, repr(ex.stderr))
-    except FileNotFoundError as ex:
-        logger.error(EXTRACT_TRANSLATIONS_ERROR, repr(ex))
+        logger.error('Failed to extract translations: %s', repr(ex.stderr))
     return None
 
 
@@ -317,7 +320,7 @@ def init_locales(template: pathlib.Path, locales: List[str], locale_dir: str = N
 
     :return:            `True` if all locales have been initialized, `False` if error occurred
     """
-    result = True
+    program = 'msginit'
     path = get_locale_dir(locale_dir)
     for locale in locales:
         output = path / f'{locale}.po'
@@ -325,15 +328,18 @@ def init_locales(template: pathlib.Path, locales: List[str], locale_dir: str = N
         try:
             if force and output.exists():
                 output.unlink()
-            subprocess.run(['msginit', '--no-translator', '-i', template, '-o', str(output)],
+            subprocess.run([program, '--no-translator', '-i', template, '-o', str(output)],
                            check=True, stderr=subprocess.PIPE, text=True)
+
+        except FileNotFoundError:
+            logger.error(PROGRAM_NOT_FOUND, program)
+            return False
+
         except subprocess.CalledProcessError as ex:
-            result = False
             logger.error('Failed to create %s: %s', repr(output), repr(ex.stderr))
-        except FileNotFoundError as ex:
-            result = False
-            logger.error(EXTRACT_TRANSLATIONS_ERROR, repr(ex))
-    return result
+            return False
+
+    return True
 
 
 def _translate(lines: Iterator, messages: Dict) -> List:
@@ -409,15 +415,16 @@ def compile_locales(locale_dir: str = None):
     :param locale_dir:
     :return:
     """
+    program = 'msgfmt'
     search_glob = get_locale_dir(locale_dir) / '*.po'
     for po_file in config.resolve_glob(search_glob):
         logger.info('Compiling %s ...', po_file.name)
         try:
-            subprocess.run(['msgfmt', '-o', str(po_file.with_suffix('.mo')),
+            subprocess.run([program, '-o', str(po_file.with_suffix('.mo')),
                             str(po_file)], check=True, stderr=subprocess.PIPE, text=True)
 
         except FileNotFoundError:
-            logger.error('Failed to compile %s: file not found', po_file.name)
+            logger.error(PROGRAM_NOT_FOUND, program)
 
         except subprocess.CalledProcessError as ex:
             logger.error('Failed to compile %s: %s', po_file.name, repr(ex.stderr))
