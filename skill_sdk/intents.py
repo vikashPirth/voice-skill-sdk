@@ -272,25 +272,23 @@ class Intent:
         from circuitbreaker import CircuitBreakerError
 
         with start_span(f'intent_call: {self.name}') as span:
-            logger.info('Calling intent: %s', self.name)
+            logger.info('Calling intent: %s', repr(self.name))
 
-            logger.debug('Calling %s with context: %s', self.implementation.__name__, repr(_context))
+            logger.debug('Calling %s with context: %s', repr(self.implementation.__name__), repr(_context))
             try:
                 result = self.implementation(_context)
                 span.log_kv({'intent_handler_result': repr(result)})
-            except (RequestException, HTTPError, CircuitBreakerError) as ex:
-                span.log_kv({'error': str(ex)})
-                logger.exception('Exception while calling %s', self.name)
-                return self._append_push_messages(_context, Response(_('GENERIC_HTTP_ERROR_RESPONSE')))
-            except Exception as ex:
-                span.log_kv({'error': str(ex)})
-                logger.exception('Exception while calling %s', self.name)
-                return ErrorResponse(999, f'error inside {self.implementation.__name__} while handling {self.name}. '
-                                          f'Exception-type {str(type(ex))} '
-                                          f'Args: {str(ex.args)} '
-                                          f'\nPlease, check logs for details.')
+                return self._log_return_value(result)
 
-            return self._log_return_value(result)
+            except (RequestException, HTTPError, CircuitBreakerError) as ex:
+                span.log_kv({'error': repr(ex)})
+                logger.exception('Exception while calling %s: %s', repr(self.name), repr(ex))
+                return self._append_push_messages(_context, Response(_('GENERIC_HTTP_ERROR_RESPONSE')))
+
+            except Exception as ex:
+                span.log_kv({'error': repr(ex)})
+                logger.exception('Exception in %s while handling %s', repr(self.implementation.__name__), repr(self.name))
+                raise
 
     def dict(self) -> Dict:
         """
