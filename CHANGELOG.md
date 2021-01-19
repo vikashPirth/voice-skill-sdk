@@ -2,21 +2,23 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [v0.10.4] - 2021-01-19  
 
 **Features**
 
 -   `skill->debug` [config option](docs/config.md#skill) is introduced. 
-    Skill running with _debug_ on will return exception details and traceback in a response. 
-    Starting the skill in _development_ mode activates the _debug_ flag.    
+    Skill running with _debug_ **on** returns exception details and traceback in a response. 
+    Starting the skill in development mode activates the _debug_ flag.    
 
 **Bugfixes**
 
+-   Add `skill_genedrator` package to the source distribution.
+    
 -   Remove `__add__/__radd__` magic from "l10n.Message" as confusing.
 
 **Miscellaneous**
 
--   Rewrite [installation guide](docs/install.md)
+-   Rewrite [installation guide](docs/install.md).
 
 -   Log debug messages when running `install/new_skill` commands (suppress with standard `--quiet (-q)`) parameter.
 
