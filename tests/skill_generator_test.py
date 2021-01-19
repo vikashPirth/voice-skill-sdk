@@ -124,6 +124,9 @@ class TestSkillGenerator(unittest.TestCase):
         call_mock.assert_any_call((sys.executable, '-m', 'venv', str(venv), '--clear'), stdout=ANY, stderr=ANY)
         call_mock.assert_any_call((str(python), "-m", "pip", "install", "-e", str(HERE.parent)), stdout=ANY, stderr=ANY)
 
+        with patch('subprocess.check_call', side_effect=subprocess.CalledProcessError(-1, 'cmd')):
+            runner.invoke(venv_main, ['-n', 'test', '-l', 'python', '-o', test_dir])
+
         shutil.rmtree(test_dir)
 
     def test_validate(self):
