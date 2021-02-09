@@ -32,55 +32,6 @@ def get_entity(entities: List[Any]) -> Optional[Any]:
     return next(iter(entities), None) if isinstance(entities, (list, tuple)) else entities
 
 
-def to_integer(dt_time: datetime.date):
-    """ convert the date to a human readable int
-    """
-    # for details: https://stackoverflow.com/questions/28154066/how-to-convert-datetime-to-integer-in-python
-    return 10000*dt_time.year + 100*dt_time.month + dt_time.day
-
-
-def filter_date_list(datelist: List[datetime.date], after: datetime.date = datetime.date.min, before: datetime.date = datetime.date.max):
-    """ filter a list of dates to a list of dates to be limited within a range and order it at once
-    """
-    # for details: https://stackoverflow.com/questions/4492254/is-there-a-built-in-function-to-sort-and-filter-a-python-list-in-one-step
-    return sorted( (d for d in datelist if after < d < before), key=to_integer)
-
-
-def closest_next_date(datelist: List[datetime.date], date: datetime.date) -> datetime.date:
-    """ get the closest future date from an entity to a given date
-        if no future date is found, the current date is returned.
-    """
-    _future_dates = filter_date_list(datelist,after=date)
-    if len(_future_dates) > 0:
-        return _future_dates[0]
-    else:
-        return date
-
-
-def closest_previous_date(datelist: List[datetime.date], date: datetime.date) -> datetime.date:
-    """ get the closest past date from an entity to a given date
-        if no past date is found, the current date is returned.
-    """
-    _past_dates = filter_date_list(datelist,before=date)
-    if len(_past_dates) > 0:
-        return _past_dates[-1]
-    else:
-        return date
-
-
-def is_text_including_words(words:[str], text: str) -> bool:
-    """ is any word of the list included in the text of attribute attr
-        if no entity name is provided, the entity 'stt_text' is used
-        a word needs to be exact and lonely  "i lived in duisburg" neither include the word 'live' nor the word 'burg' but once 'i' at the beginning
-    """
-    if text:
-        _text = nl_strip(text).lower()
-        stripped = _text.split(' ')
-        return any(_ in stripped for _ in words)
-    else:
-        return False
-
-
 def snake_to_camel(name):
     """ Convert snake_case to CamelCase
 
@@ -537,3 +488,59 @@ def _parse_timex_tuple(timex: str) -> Optional[Dict]:
             raise NotImplementedError(f"Cannot parse value {timex} (yet)")
     except ValueError:
         return None
+    
+# Helper Methods for handling multiple Dates - Start:
+
+
+def to_integer(dt_time: datetime.date):
+    """ convert the date to a human readable int
+    """
+    return 10000*dt_time.year + 100*dt_time.month + dt_time.day
+
+
+def filter_date_list(datelist: List[datetime.date],
+                     after: datetime.date = datetime.date.min,
+                     before: datetime.date = datetime.date.max):
+    """ filter a list of dates to a list of dates to be limited within a range and order it at once
+    """
+    return sorted((d for d in datelist if after < d < before), key=to_integer)
+
+
+def closest_next_date(datelist: List[datetime.date], date: datetime.date) -> datetime.date:
+    """ get the closest future date from a list to a given date
+        if no future date is found, the given date is returned.
+    """
+    _future_dates = filter_date_list(datelist, after=date)
+    if len(_future_dates) > 0:
+        return _future_dates[0]
+    else:
+        return date
+
+
+def closest_previous_date(datelist: List[datetime.date], date: datetime.date) -> datetime.date:
+    """ get the closest past date from a list to a given date
+        if no past date is found, the given date is returned.
+    """
+    _past_dates = filter_date_list(datelist, before=date)
+    if len(_past_dates) > 0:
+        return _past_dates[-1]
+    else:
+        return date
+
+
+def is_text_including_words(text: str, words: [str]) -> bool:
+    """ is any word of the list included in the text
+        a word needs to be exact and lonely
+        "i lived in duisburg"
+        neither include the words 'live' nor the word 'burg'
+        but once 'i' at the beginning
+    """
+    if text:
+        _text = nl_strip(text).lower()
+        stripped = _text.split(' ')
+        return any(_ in stripped for _ in words)
+    else:
+        return False
+
+
+# Helper Methods for handling multiple Dates - End!
