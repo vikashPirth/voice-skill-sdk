@@ -488,14 +488,14 @@ def _parse_timex_tuple(timex: str) -> Optional[Dict]:
             raise NotImplementedError(f"Cannot parse value {timex} (yet)")
     except ValueError:
         return None
-    
+
 # Helper Methods for handling multiple Dates - Start:
 
 
 def to_integer(dt_time: datetime.date):
     """ convert the date to a human readable int
     """
-    return 10000*dt_time.year + 100*dt_time.month + dt_time.day
+    return 10000 * dt_time.year + 100 * dt_time.month + dt_time.day
 
 
 def filter_date_list(datelist: List[datetime.date],
@@ -528,7 +528,7 @@ def closest_previous_date(datelist: List[datetime.date], date: datetime.date) ->
         return date
 
 
-def is_text_including_words(text: str, words: [str]) -> bool:
+def is_text_including_words(text: str, words: List[str]) -> bool:
     """ is any word of the list included in the text
         a word needs to be exact and lonely
         "i lived in duisburg"
