@@ -20,7 +20,11 @@ from skill_sdk import entities; importlib.reload(entities)
 
 from skill_sdk.entities import Location, Device, TimeRange, TimeSet, AttributeV2
 from skill_sdk.entities import snake_to_camel, camel_to_snake, on_off_to_boolean, rank, convert
+from skill_sdk.entities import closest_previous_date, closest_next_date, is_text_including_words, get_entity
 from skill_sdk.test_helpers import create_context, mock_datetime_now
+
+import logging
+logger = logging.getLogger(__name__)
 
 l10n.translations = {'de': l10n.Translations()}
 
@@ -50,6 +54,80 @@ class TestUtils(unittest.TestCase):
         """
         self.assertEqual('camelCase', snake_to_camel('camelCase'))
 
+
+class TestEntityDateList(unittest.TestCase):
+
+    def test_filter_date_list(self):
+        date_list = [datetime.date(year=1980, month=2, day=27),
+                     datetime.date(year=1980, month=1, day=27),
+                     datetime.date(year=1980, month=2, day=28),
+                     datetime.date(year=1980, month=3, day=27),
+                     datetime.date(year=1981, month=2, day=27),
+                     datetime.date(year=1979, month=2, day=27)]
+
+        all_list = entities.filter_date_list(date_list)
+        self.assertEqual(len(all_list), 6)
+        self.assertEqual(datetime.date(year=1979, month=2, day=27), all_list[0])
+        self.assertEqual(datetime.date(year=1980, month=1, day=27), all_list[1])
+        self.assertEqual(datetime.date(year=1980, month=2, day=27), all_list[2])
+        self.assertEqual(datetime.date(year=1980, month=2, day=28), all_list[3])
+        self.assertEqual(datetime.date(year=1980, month=3, day=27), all_list[4])
+        self.assertEqual(datetime.date(year=1981, month=2, day=27), all_list[5])
+
+        before_list = entities.filter_date_list(date_list, before=datetime.date(year=1980, month=2, day=27))
+        self.assertEqual(len(before_list), 2)
+        self.assertEqual(datetime.date(year=1979, month=2, day=27), before_list[0])
+        self.assertEqual(datetime.date(year=1980, month=1, day=27), before_list[1])
+
+        after_list = entities.filter_date_list(date_list, after=datetime.date(year=1980, month=2, day=27))
+        self.assertEqual(len(after_list), 3)
+        self.assertEqual(datetime.date(year=1980, month=2, day=28), after_list[0])
+        self.assertEqual(datetime.date(year=1980, month=3, day=27), after_list[1])
+        self.assertEqual(datetime.date(year=1981, month=2, day=27), after_list[2])
+
+        between_list = entities.filter_date_list(date_list, after=datetime.date(year=1980, month=1, day=27), before=datetime.date(year=1980, month=3, day=27))
+        self.assertEqual(len(between_list), 2)
+        self.assertEqual(datetime.date(year=1980, month=2, day=27), between_list[0])
+        self.assertEqual(datetime.date(year=1980, month=2, day=28), between_list[1])
+
+
+    def test_previous_date_functions(self):
+        datelist = [datetime.date(year=1980, month=2, day=27),
+                    datetime.date(year=1980, month=1, day=27),
+                    datetime.date(year=1980, month=2, day=28),
+                    datetime.date(year=1980, month=3, day=27),
+                    datetime.date(year=1981, month=2, day=27),
+                    datetime.date(year=1979, month=2, day=27)]
+
+        now = datetime.date(year=1980, month=2, day=27)
+        self.assertEqual(closest_previous_date(datelist=datelist, date=now), datetime.date(year=1980, month=1, day=27))
+        #check fall back to today
+        datelist = []
+        self.assertEqual(closest_previous_date(datelist=datelist, date=now), now)
+
+    def test_next_date_functions(self):
+        datelist = [datetime.date(year=1980, month=2, day=27),
+                    datetime.date(year=1980, month=1, day=27),
+                    datetime.date(year=1980, month=2, day=28),
+                    datetime.date(year=1980, month=3, day=27),
+                    datetime.date(year=1981, month=2, day=27),
+                    datetime.date(year=1979, month=2, day=27)]
+
+        now = datetime.date(year=1980, month=2, day=28)
+        self.assertEqual(closest_next_date(datelist=datelist,date=now),datetime.date(year=1980, month=3, day=27))
+        #check fall back to today
+        datelist = []
+        self.assertEqual(closest_next_date(datelist=datelist,date=now), now)
+
+class TestEntityWordsInText(unittest.TestCase):
+
+    def test_is_text_including_words(self):
+        self.assertEqual(is_text_including_words(words=["war", "gewesen"], text=get_entity(["Welches Datum war am Montag?"])), True)
+        self.assertEqual(is_text_including_words(words=["war", "gewesen"], text=get_entity(["Welches Datum ist am Montag gewesen?"])), True)
+        self.assertEqual(is_text_including_words(words=["war", "gewesen"], text=get_entity(["Gestern gabe es eine Warnung"])), False)
+        self.assertEqual(is_text_including_words(words=["war", "gewesen"], text=get_entity(["Wir waren gestern im Kino"])), False)
+        self.assertEqual(is_text_including_words(words=["war", "gewesen"], text=get_entity([])), False)
+        self.assertEqual(is_text_including_words(words=["war", "gewesen"], text=None), False)
 
 class TestEntityOnOff(unittest.TestCase):
 
