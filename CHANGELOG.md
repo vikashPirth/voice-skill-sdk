@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [v0.10.5] - 2021-02-10  
 
+**Features**
+
+-   Multi Date Handling in Entities: helper methods to filter list of dates e.g. using the tense used by the user question to get a past or future date. "What date was Monday" vs. "What date is Monday" 
+
+
 **Miscellaneous**
 
 - Due to the security issue with its underlying dependency [Tornado](https://pypi.org/project/tornado/), 
