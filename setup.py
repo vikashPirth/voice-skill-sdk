@@ -146,7 +146,8 @@ options = dict(
     python_requires=">=3.7",
     setup_requires=['wheel'],
     extras_require={
-        'generator': ['cookiecutter']
+        'generator': ['cookiecutter'],
+        'jaeger': ['jaeger-client==4.4.0'],
     },
     cmdclass=dict(
         [('new_skill', NewSkillCommand)] if generator_available() else [],

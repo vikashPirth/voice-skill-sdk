@@ -4,7 +4,7 @@
 
 set -e
 
-pip install -U mypy coverage requests-mock
+pip install -U mypy -r requirements-dev.txt
 
 coverage erase
 
