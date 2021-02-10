@@ -2,6 +2,20 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.10.5] - 2021-02-10  
+
+**Miscellaneous**
+
+- Due to the security issue with its underlying dependency [Tornado](https://pypi.org/project/tornado/), 
+  [jaeger-client](https://pypi.org/project/jaeger-client/) became an optional dependency.   
+  
+- Requirements bump:
+    - apispec from 4.0.0 to 4.2.0 
+    - gevent from 20.12.1 to 21.1.2 
+    - pyyaml from 5.3.1 to 5.4.1  
+    - timezonefinder from 5.0.0 to 5.2.0
+    - coverage from 5.3.1 to 5.4
+
 ## [v0.10.4] - 2021-01-19  
 
 **Features**
