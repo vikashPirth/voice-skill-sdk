@@ -143,7 +143,10 @@ def create_context(intent: str,
             "locale": locale or "de",
             "attributes": attributes or {},
             "attributesV2": attributes_v2 or {},
-            "configuration": configuration or {}
+            "configuration": configuration or {},
+            "spiVersion": __spi_version__,
+            "clientTypeName": kwargs.get("client_type_name", "DEFAULT"),
+            "userProfileConfig": kwargs.get("user_profile_config", "DEFAULT"),
         },
         "session": _session,
     }

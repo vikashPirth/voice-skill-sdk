@@ -12,13 +12,13 @@ import time
 import logging
 import datetime
 import unittest
-import importlib
 from unittest.mock import patch
 from types import SimpleNamespace
 from gettext import NullTranslations
 from dateutil import tz
 
 from skill_sdk import l10n
+from skill_sdk.__version__ import __spi_version__
 from skill_sdk.intents import Context
 from skill_sdk.test_helpers import create_context, mock_datetime_now
 
@@ -43,8 +43,10 @@ class TestIntentsContext(unittest.TestCase):
         self.assertEqual(self.ctx.locale, {'language': 'de'})
         self.assertEqual(self.ctx.session.new_session, True)
         self.assertEqual(self.ctx.session.session_id, '12345')
-        self.assertEqual(self.ctx.configuration, {'a': ['123'],
-                                              'b': [1, 2, 3]})
+        self.assertEqual(self.ctx.configuration, {'a': ['123'], 'b': [1, 2, 3]})
+        self.assertEqual(self.ctx.spi_version, __spi_version__)
+        self.assertEqual(self.ctx.client_type_name, "DEFAULT")
+        self.assertEqual(self.ctx.user_profile_config, "DEFAULT")
 
     def test_no_translations(self):
         from unittest import mock

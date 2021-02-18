@@ -79,7 +79,9 @@ class Context:
         request_data = request.json
         request_context = request_data.get('context')
         self.intent_name = request_context.get('intent')
-        self.spi_version = request_data.get('spiVersion')
+        self.spi_version = request_context.get('spiVersion')
+        self.client_type_name = request_context.get('clientTypeName')
+        self.user_profile_config = request_context.get('userProfileConfig')
         self.locale = {'language': request_context.get('locale')}
         logger.debug('Language: %s', self.locale)
         self.translation = get_translation(self.locale['language'])
@@ -132,6 +134,8 @@ class Context:
             session=self.session,
             configuration=self.configuration,
             attributesV2=self.attributesV2,
+            clientTypeName=self.client_type_name,
+            userProfileConfig=self.user_profile_config,
             spi_version=self.spi_version,
         )
 
