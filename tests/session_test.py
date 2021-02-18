@@ -9,7 +9,7 @@
 #
 import unittest
 
-from skill_sdk.sessions import Session, SessionOversizeError, SessionInvalidKeyError
+from skill_sdk.sessions import Session, SessionInvalidKeyError
 
 
 class TestSession(unittest.TestCase):
@@ -51,22 +51,6 @@ class TestSession(unittest.TestCase):
         with self.assertRaises(SessionInvalidKeyError):
             self.s[''] = '1'
 
-    def test_setitem_oversize_empty_long_key(self):
-        with self.assertRaises(SessionOversizeError):
-            self.s[5000 * 'a'] = '1'
-
-    def test_setitem_oversize_empty_long_value(self):
-        with self.assertRaises(SessionOversizeError):
-            self.s['abc'] = 5000 * 'a'
-
-    def test_restore_old_value_on_oversize_error(self):
-        self.s['abc'] = '123'
-        try:
-            self.s['abc'] = 5000 * 'a'
-        except SessionOversizeError:
-            pass
-        self.assertEqual(self.s['abc'], '123')
-
     def test_update(self):
         self.s.update({'a': 'b'})
         self.assertEqual(self.s['a'], 'b')
@@ -89,11 +73,3 @@ class TestSession(unittest.TestCase):
         self.s['a'] = '1'
         self.s.update({'a': 'a'}, a='b')
         self.assertEqual(self.s['a'], 'b')
-
-    def test_oversize_on_update(self):
-        with self.assertRaises(SessionOversizeError):
-            self.s.update({5000 * 'a': '1'})
-
-    def test_oversize_on_update_kwargs(self):
-        with self.assertRaises(SessionOversizeError):
-            self.s.update(abc=5000 * '1')
