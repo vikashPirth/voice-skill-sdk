@@ -2,6 +2,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.11.0] - 2021-02-18  
+
+**Bugfixes**
+
+-   Session size limit check has been removed.
+
+**Miscellaneous**
+
+-   Skill SPI has been bumped to version 1.3. 
+-   Requirements bump:
+    - apispec from 4.2.0 to 4.3.0 
+
 ## [v0.10.5] - 2021-02-10  
 
 **Features**
