@@ -16,7 +16,8 @@ import pathlib
 import logging
 import subprocess
 from threading import local
-from typing import Dict, Iterator, List, Mapping, Optional, Tuple, Union
+from functools import partial, reduce
+from typing import Dict, Iterator, Iterable, List, Mapping, Optional, Tuple, Union
 from gettext import NullTranslations, GNUTranslations
 
 from .config import config
@@ -153,8 +154,33 @@ class Message(str):
 
         :return:
         """
-        message = Message(self.value, self.key, *args, **kwargs)
-        return message
+        return Message(self.value, self.key, *args, **kwargs)
+
+    def __add__(self, other: Union['Message', str]) -> 'Message':
+        """
+        Concatenate messages (or Message and str)
+
+        @param other:
+        @return:
+        """
+        if isinstance(other, Message):
+            value = self.value + other.value
+            args = self.args + other.args
+            kwargs = {**self.kwargs, **other.kwargs}
+        else:
+            value = self.value + other
+            args, kwargs = self.args, self.kwargs
+
+        return Message(value, self.key, *args, **kwargs)
+
+    def join(self, iterable: Iterable[Union['Message', str]]):
+        """
+        Join messages in iterable and return a concatenated Message.
+
+        @param iterable:
+        @return:
+        """
+        return reduce(lambda x, y: x + self + y, iterable)
 
     def strip(self, __chars: Optional[str] = None) -> 'Message':
         """

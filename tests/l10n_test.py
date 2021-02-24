@@ -167,10 +167,18 @@ class TestMessage(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             Message('').join(None)
-        self.assertEqual('', Message(' ').join(()))
         self.assertEqual('1==1', Message(' ').join((message1, )))
         self.assertEqual('1==1 2==2', Message(' ').join((message1, message2)))
         self.assertEqual('1==1 2==2 3==3', Message(' ').join((message1, message2, message3)))
+
+    def test_add(self):
+        m = Message('1') + ' ' + Message('2')
+        self.assertEqual('1 2', m)
+        self.assertEqual('1', m.key)
+        self.assertEqual('1 2', Message('1') + ' ' + '2')
+        self.assertEqual('1 2', '1' + ' ' + Message('2'))
+        with self.assertRaises(TypeError):
+            Message('1') + 1
 
 
 class TestTranslations(unittest.TestCase):
