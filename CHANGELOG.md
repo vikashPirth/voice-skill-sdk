@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.11.1] - 2021-02-25  
+
+**Features**
+
+-   Add `l10n.Message.join` to simplify joining list elements. 
+
 ## [v0.11.0] - 2021-02-18  
 
 **Bugfixes**
