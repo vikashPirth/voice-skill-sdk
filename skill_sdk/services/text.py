@@ -14,10 +14,8 @@
 
 import json
 import time
-import random
 import logging
 import threading
-from warnings import warn
 from collections import defaultdict
 from typing import DefaultDict, Dict, Union
 import requests
@@ -129,7 +127,7 @@ class TextService(BaseService):
         :param locale:
         :return:
         """
-        catalog = defaultdict(list)
+        catalog: DefaultDict = defaultdict(list)
 
         with self.session as session:
             try:
@@ -145,7 +143,7 @@ class TextService(BaseService):
             except (KeyError, TypeError, json.decoder.JSONDecodeError, requests.exceptions.RequestException) as ex:
                 logger.error(f"{self.url}/{locale}/{self.scope} responded with {ex}. Catalog not available.")
 
-        return catalog
+        return dict(catalog)
 
     @prometheus_latency('service-text.get_full_catalog')
     def admin_get_full_catalog(self) -> dict:
@@ -161,7 +159,7 @@ class TextService(BaseService):
                 data = session.get(f'{self.url}/info/locale').json()
                 locales = [locale['code'] for locale in data['supportedLanguages']
                            if l10n.RE_TRANSLATIONS.match(locale['code'])]
-                logger.debug(f'Loading {locales} translation...')
+                logger.debug('Loading %s translation...', repr(locales))
 
                 with partner_call(session.get, TextService.NAME) as get:
                     data = get(f'{self.url}/scope/{self.scope}').json()
@@ -171,82 +169,45 @@ class TextService(BaseService):
             except (KeyError, TypeError, json.decoder.JSONDecodeError, requests.exceptions.RequestException) as ex:
                 logger.error(f"{self.url} responded with {ex}. Catalog not available.")
 
-        return catalog
+        return dict(catalog)
 
 
-class MultiStringTranslation(l10n.Translations):
-    """ A translation that allows single key to have multiple values """
+class ReloadableTranslation(l10n.MultiStringTranslation):
+    """Translations with a scheduled reload"""
 
-    def __init__(self, locale, translation: l10n.Translations = None) -> None:
-        """ Initialize an empty instance (optionally - with the catalog from an existing translation)
+    def __init__(self, lang, translation: l10n.Translations = None) -> None:
+        """
+        Initialize an empty instance (optionally - with the catalog from an existing translation)
 
         @param locale:
         @param translation:
         """
-        super().__init__()
-        self.locale = locale
+        super().__init__(lang=lang)
 
         # Set catalog from local translation
         if translation is not None:
-            self._catalog = {k: [v] for k, v in translation._catalog.items()}
-
-    @staticmethod
-    def markgettext(message):
-        """ **DEPRECATED** """
-        warn('"markgettext" is deprecated.', DeprecationWarning, stacklevel=2)
-        return message
-
-    def lgettext(self, message):
-        """ **DEPRECATED** """
-        warn('"lgettext" is deprecated. Please use "gettext".', DeprecationWarning, stacklevel=2)
-        return self.gettext(message).encode()
-
-    def lngettext(self, msgid1, msgid2, n):
-        """ **DEPRECATED** """
-        warn('"lngettext" is deprecated. Please use "ngettext".', DeprecationWarning, stacklevel=2)
-        return self.ngettext(msgid1, msgid2, n).encode()
-
-    def gettext(self, message, *args, **kwargs):
-        logger.debug(f'Translating message {message} to {self.locale}')
-        candidates = self._catalog.get(message)
-        if not candidates:
-            logger.warning(f'No translation for key: {message}')
-            return message
-        logger.debug(f'{len(candidates)} candidates: {candidates}')
-
-        return l10n.Message(random.choice(candidates), message, *args, **kwargs)
-
-    def ngettext(self, singular, plural, n, *args, **kwargs):
-        logger.debug(f'Plural translation for {self.locale} with keys {singular} and {plural} and number {n}.')
-        return self.gettext(singular if n == 1 else plural, *args, **kwargs)
-
-    def getalltexts(self, key, *args, **kwargs):
-        logger.debug(f'Retrieving all translation messages for {key} in {self.locale}')
-        candidates = self._catalog.get(key)
-        if not candidates:
-            logger.warning(f'No translation for key: {key}')
-            return [key]
-        logger.debug(f'{len(candidates)} candidates: {candidates}')
-        messages = [l10n.Message(value, key, *args, **kwargs) for value in candidates]
-        return messages
+            self._catalog = {
+                k: v if isinstance(v, list) else [v]
+                for k, v in translation._catalog.items()
+            }
 
     def reload(self):
-        logger.debug(f'Reloading translations for {self.locale}.')
+        logger.debug('Reloading translations for %s.', self.lang)
         service = TextService()
-        new_catalog = service.get_translation_catalog(self.locale)
+        new_catalog = service.get_translation_catalog(self.lang)
 
         if new_catalog:
-            logger.debug(f'Replacing old catalog for {self.locale}.')
-            K8sChecks.register_ready_check(f'load_i18n_{self.locale}')
+            logger.debug('Replacing old catalog for %s.', self.lang)
+            K8sChecks.register_ready_check(f'load_i18n_{self.lang}')
             self._catalog = new_catalog
-            K8sChecks.report_ready(f'load_i18n_{self.locale}')
+            K8sChecks.report_ready(f'load_i18n_{self.lang}')
         else:
-            logger.warning(f'No translations found for {self.locale}.')
-            raise l10n.TranslationError(f'No translations found for {self.locale}.')
+            logger.warning('No translations found for %s.', self.lang)
+            raise l10n.TranslationError(f'No translations found for {self.lang}.')
 
 
-class DelayedTranslation(MultiStringTranslation):
-    """ A translation that is loaded on a user request """
+class DelayedTranslation(ReloadableTranslation):
+    """A translation that is loaded on a user request"""
 
     def __init__(self, locale: str, translation: l10n.Translations = None) -> None:
         super().__init__(locale, translation)
@@ -257,18 +218,18 @@ class DelayedTranslation(MultiStringTranslation):
 
         # Last reload timestamp
         self.last_reload: float = .0
-        logger.debug(f'Delayed translation [{self.locale}] with update_interval=[{self.update_interval}].')
+        logger.debug('Delayed translation [%s] with update_interval=[%s].', self.lang, self.update_interval)
 
     def _check_catalog(self):
-        logger.debug(f'Check delayed translation catalog [{self.locale}], last reload=[{self.last_reload}], '
-                     f'update interval=[{self.update_interval}].')
+        logger.debug('Check delayed translation catalog [%s], last reload=[%s], '
+                     'update interval=[%s].', self.lang, self.last_reload, self.update_interval)
         if not self._catalog:
-            logger.debug(f'Catalog for {self.locale} is empty. Loading translations...')
+            logger.debug('Catalog for %s is empty. Loading translations...', self.lang)
             try:
                 translations = load_translations_from_server(l10n.translations)
-                self._catalog = translations.get(self.locale)._catalog
+                self._catalog = translations.get(self.lang)._catalog
             except AttributeError:
-                logger.warning(f'No translations found for {self.locale}.')
+                logger.warning('No translations found for %s.', self.lang)
         elif time.time() - self.last_reload >= self.update_interval:
             # TODO: Start a thread, if this becomes a performance bottleneck
             self.reload()
@@ -302,14 +263,14 @@ def translation_reload_worker(translations: Dict[Union[bytes, str], l10n.Transla
     :return:
     """
     update_interval = config.getfloat("service-text", "update-interval", fallback=SERVICE_TEXT_UPDATE_INTERVAL)
-    logger.info(f'Translations reload worker started with {update_interval} sleep interval.')
+    logger.info('Translations reload worker started with %s sleep interval.', repr(update_interval))
     while True:
         time.sleep(update_interval)
         try:
             load_translations_from_server(translations, reload=True)
             logger.debug('Finished reloading translations.')
         except l10n.TranslationError:
-            logger.error(f'Could not reload translations. Will try again in {update_interval} sec.')
+            logger.error('Could not reload translations. Will try again in %s sec.', repr(update_interval))
 
 
 def load_translations_from_server(translations: Dict[Union[bytes, str], l10n.Translations], reload: bool = False):
@@ -320,7 +281,7 @@ def load_translations_from_server(translations: Dict[Union[bytes, str], l10n.Tra
     :return:
     """
     load = config.get("service-text", "load", fallback="startup")
-    locale_class = MultiStringTranslation if load != 'delayed' else DelayedTranslation
+    locale_class = DelayedTranslation if load == 'delayed' else ReloadableTranslation
     logger.debug("%s %s translations from text service.", 'Reloading' if reload else 'Loading', locale_class)
 
     service = TextService()

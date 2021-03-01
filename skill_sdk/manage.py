@@ -17,7 +17,10 @@ import pathlib
 import argparse
 import unittest
 import importlib
-from typing import Dict, List
+from collections import defaultdict
+from typing import Dict, List, Text
+import yaml
+from yaml.representer import Representer
 
 from .config import config
 
@@ -177,13 +180,13 @@ def translate_modules(modules: List[str],
     """
     from . import l10n
 
-    try:
-        template = l10n.extract_translations(modules)
-        if not template:
-            return 'Failed to extract translations'
-        if not download_url:
-            return 'No "download_url" specified'
+    template = l10n.extract_translations(modules)
+    if not template:
+        sys.exit('Failed to extract translations')
+    if not download_url:
+        sys.exit('No "download_url" specified')
 
+    else:
         logger.info(f'Translation template written to {template}')
         catalog = _download_full_catalog(download_url, token, tenant)
 
@@ -197,10 +200,41 @@ def translate_modules(modules: List[str],
 
             l10n.compile_locales()
 
-    except (ModuleNotFoundError, BaseException) as ex:
-        return f'Failed to update translations: {ex}'
-
     return 0
+
+
+def download_translations(
+    download_url: Text,
+    token: Text = None,
+    tenant: Text = None,
+    force: bool = False,
+):
+    """
+    Load translations from text service and save to locale/{language}.yaml
+
+    :param download_url:    Text services URL to download translations
+    :param token:           Bearer authentication token (X-Application-Authentication)
+    :param tenant:          Tenant for authentication   (X-Tenant)
+    :param force:           Overwrite existing translations if exist
+    :return:
+    """
+    from . import l10n
+
+    catalog = _download_full_catalog(download_url, token, tenant)
+
+    if catalog:
+        yaml.add_representer(defaultdict, Representer.represent_dict)
+        for locale in catalog:
+            yaml_file = (l10n.get_locale_dir() / locale).with_suffix(".yaml")
+            if yaml_file.exists() and not force:
+                logger.error(
+                    '"%s exists and no "--force" specified. Skipping...', yaml_file
+                )
+                sys.exit(-1)
+            else:
+                logger.info("Saving %s to %s", repr(locale), yaml_file)
+                with yaml_file.open("w+") as f:
+                    yaml.dump(catalog[locale], f, allow_unicode=True)
 
 
 def manage():
@@ -249,6 +283,8 @@ def manage():
                            help='Bearer authentication token (for the text services)')
     translate.add_argument('-n', '--tenant', action='store', type=str, nargs='?',
                            help='Tenant (for admin route authentication)')
+    translate.add_argument('-o', '--format', action='store', type=str, choices=['po', 'yaml'],
+                           help='Translation format', default='po')
 
     args = parser.parse_args()
 
@@ -278,8 +314,14 @@ def manage():
         print(f"{config.get('skill', ARG_VERSION)}")
 
     if args.subcmd == ARG_TRANSLATE:
+        # Download translations and save in YAML format
+        if args.format == 'yaml':
+            if not args.download_url:
+                parser.error('"--format yaml" requires download (text service) URL specified.')
+            download_translations(args.download_url, args.token, args.tenant, args.force)
         # Extract translation template from Python sources
-        sys.exit(translate_modules(args.modules, args.force, args.download_url, args.token, args.tenant))
+        else:
+            translate_modules(args.modules, args.force, args.download_url, args.token, args.tenant)
 
 
 def patch():

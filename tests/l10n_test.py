@@ -11,10 +11,11 @@ import logging
 import unittest
 import pathlib
 import subprocess
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
+from configparser import ConfigParser
 
 from skill_sdk import l10n
-from skill_sdk.l10n import load_translations, Message, Translations
+from skill_sdk.l10n import load_translations, Message, Translations, MultiStringTranslation
 
 # This is a content of an empty .mo file
 EMPTY_MO_DATA = b'\xde\x12\x04\x95\x00\x00\x00\x00\x01\x00\x00\x00\x1c\x00\x00\x00$\x00\x00\x00\x03\x00\x00\x00,' \
@@ -26,19 +27,24 @@ test_old_data = '{"DEMO_MSG": ["impl/1.py"]}'
 
 class TestL10n(unittest.TestCase):
 
-    @patch('skill_sdk.l10n.pathlib.Path.open', mock_open(read_data=b""), create=True)
+    @patch("pathlib.io.open", mock_open(read_data=EMPTY_MO_DATA), create=True)
     @patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('zh.mo')])
     @patch('skill_sdk.l10n.Translations', return_value=None)
     def test_load_translations(self, *args):
-        self.assertEqual(load_translations('.')['zh'], None)
-        with patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('bad_lang_code.mo')]):
-            self.assertEqual(load_translations('.'), {})
+        mock = MagicMock()
+        mock.glob.return_value = [pathlib.Path('zh.mo')]
+        with patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
+            self.assertIsNone(l10n._load_gettext()['zh'])
+
+        mock.glob.return_value = [pathlib.Path('bad_lang_code.mo')]
+        with patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
+            self.assertEqual(l10n._load_gettext(), {})
 
     @patch('builtins.open', mock_open(read_data=b'\xde\x12\x04\x95\x00\x00\x00\x00\x01\x00\x00\x00\x1c\x00\x00\x00$\x00\x00\x00\x03\x00\x00\x00,\x00\x00\x00\x00\x00\x00\x008\x00\x00\x00(\x00\x00\x009\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00Content-Type: text/plain; charset=UTF-8\n\x00'), create=True)
     def test_make_lazy_translation(self):
         from skill_sdk.l10n import _, _n, _a
         with open('de.mo') as f:
-            tr = Translations(f)
+            tr = Translations('de', f)
             tr._catalog['KEY'] = 'VALUE'
             tr._catalog[('KEY', 1)] = 'VALUES'
             tr._catalog['KEY_PLURAL'] = 'VALUES'
@@ -53,13 +59,13 @@ class TestL10n(unittest.TestCase):
             self.assertEqual(_a('KEY'), ['KEY'])
 
     @patch.object(pathlib.Path, 'exists', return_value=True)
-    @patch('subprocess.run', return_value=0)
+    @patch('subprocess.check_output', return_value=0)
     def test_extract_translations(self, process, *a):
         with patch.object(pathlib.Path, 'is_file', return_value=True), \
                 patch.object(pathlib.Path, 'is_dir', return_value=False):
             l10n.extract_translations(['a.py', 'b.my'])
             process.assert_called_once_with(['xgettext', '--language=python', '--output=locale/messages.pot',
-                                             pathlib.Path('a.py')], check=True, stderr=-1, text=True)
+                                             pathlib.Path('a.py')], stderr=-2, text=True)
 
         with patch.object(pathlib.Path, 'exists', return_value=False), patch.object(pathlib.Path, 'mkdir') as mkdir:
             l10n.extract_translations(['a.py', 'b.my'])
@@ -72,7 +78,7 @@ class TestL10n(unittest.TestCase):
             l10n.extract_translations(['impl'])
             process.assert_called_once_with(['xgettext', '--language=python', '--output=locale/messages.pot',
                                              pathlib.Path('impl/a.py'), pathlib.Path('impl/b.py')],
-                                            check=True, stderr=-1, text=True)
+                                            stderr=-2, text=True)
 
         with patch.object(pathlib.Path, 'is_file', return_value=True), \
                 patch.object(pathlib.Path, 'is_dir', return_value=False):
@@ -82,16 +88,16 @@ class TestL10n(unittest.TestCase):
             process.side_effect = subprocess.CalledProcessError(1, cmd='')
             self.assertIsNone(l10n.extract_translations(['a.py']))
 
-    @patch('subprocess.run', return_value=0)
+    @patch('subprocess.check_output', return_value=0)
     def test_init_locales(self, process):
         with patch.object(pathlib.Path, 'is_file', return_value=True), \
                 patch.object(pathlib.Path, 'is_dir', return_value=False), \
                 patch.object(pathlib.Path, 'exists', return_value=True):
             l10n.init_locales(pathlib.Path('template'), ['en', 'de'])
             process.assert_any_call(['msginit', '--no-translator', '-i',
-                                     pathlib.Path('template'), '-o', 'locale/en.po'], check=True, stderr=-1, text=True)
+                                     pathlib.Path('template'), '-o', 'locale/en.po'], stderr=-2, text=True)
             process.assert_called_with(['msginit', '--no-translator', '-i',
-                                        pathlib.Path('template'), '-o', 'locale/de.po'], check=True, stderr=-1, text=True)
+                                        pathlib.Path('template'), '-o', 'locale/de.po'], stderr=-2, text=True)
             self.assertFalse(l10n.init_locales(pathlib.Path('template'), ['en', 'de'], force=True))
             process.side_effect = subprocess.CalledProcessError(1, cmd='')
             self.assertFalse(l10n.init_locales(pathlib.Path('template'), ['en', 'de']))
@@ -183,23 +189,82 @@ class TestMessage(unittest.TestCase):
 
 class TestTranslations(unittest.TestCase):
 
-    @patch('skill_sdk.l10n.pathlib.Path.open', mock_open(read_data=EMPTY_MO_DATA), create=True)
+    @patch('skill_sdk.l10n.Path.open', mock_open(read_data=EMPTY_MO_DATA), create=True)
     @patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('zh.mo')])
     def test_message_gettext(self, *args):
-        tr = load_translations()['zh']
+        mock = MagicMock()
+        mock.glob.return_value = [pathlib.Path("zh.mo")]
+
+        with patch('pathlib.io.read', mock_open(read_data=EMPTY_MO_DATA), create=True), \
+                patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
+            tr = l10n._load_gettext()['zh']
+
         message = tr.gettext('KEY', a='1', b='1')
         self.assertEqual(message, 'KEY')
         self.assertEqual(message.key, 'KEY')
         self.assertEqual(message.kwargs, {'a': '1', 'b': '1'})
 
-    @patch('skill_sdk.l10n.pathlib.Path.open', mock_open(read_data=EMPTY_MO_DATA), create=True)
-    @patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('zh.mo')])
-    def test_message_ngettext(self, *args):
-        tr = load_translations()['zh']
         message = tr.ngettext('KEY1', 'KEY2', 1, a='1', b='1')
         self.assertEqual(message, 'KEY1')
         self.assertEqual(message.key, 'KEY1')
         self.assertEqual(message.kwargs, {'a': '1', 'b': '1'})
+
+
+class TestMultiStringTranslation(unittest.TestCase):
+
+    def test_init_no_conf(self):
+        t = MultiStringTranslation('zh')
+        self.assertEqual(t.lang, 'zh')
+        self.assertEqual(t._catalog, {})
+
+    @patch('skill_sdk.services.text.config', new_callable=ConfigParser)
+    def test_init_only_skill_name(self, config_mock):
+        config_mock['skill'] = {'name': 'testingskill'}
+        t = MultiStringTranslation('zh')
+        self.assertEqual(t.lang, 'zh')
+        self.assertEqual(t._catalog, {})
+
+    @patch('skill_sdk.services.text.config', new_callable=ConfigParser)
+    def test_init_i18n_scope_name(self, config_mock):
+        config_mock['i18n'] = {'scope': 'testingskill'}
+        t = MultiStringTranslation('zh')
+        self.assertEqual(t.lang, 'zh')
+        self.assertEqual(t._catalog, {})
+
+    def test_gettext_empty_catalog(self):
+        t = MultiStringTranslation('de')
+        self.assertEqual(t.gettext('ABC'), 'ABC')
+
+    def test_gettext(self):
+        t = MultiStringTranslation('de')
+        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
+        self.assertIn(t.gettext('KEY'), ['VALUE1', 'VALUE2', 'VALUE3'])
+
+    def test_ngettext_0(self):
+        t = MultiStringTranslation('de')
+        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
+        t._catalog['KEY_PLURAL'] = ['VALUEA', 'VALUEB', 'VALUEC']
+
+        self.assertIn(t.ngettext('KEY', 'KEY_PLURAL', 0), ['VALUEA', 'VALUEB', 'VALUEC'])
+
+    def test_ngettext_1(self):
+        t = MultiStringTranslation('de')
+        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
+        t._catalog['KEY_PLURAL'] = ['VALUEA', 'VALUEB', 'VALUEC']
+
+        self.assertIn(t.ngettext('KEY', 'KEY_PLURAL', 1), ['VALUE1', 'VALUE2', 'VALUE3'])
+
+    def test_getalltexts_empty_catalog(self):
+        t = MultiStringTranslation('de')
+        self.assertEqual(t.getalltexts('ABC'), ['ABC'])
+
+    def test_getalltexts(self):
+        t = MultiStringTranslation('de')
+        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
+        self.assertEqual(t.getalltexts('KEY'), ['VALUE1', 'VALUE2', 'VALUE3'])
+        from skill_sdk.l10n import _a
+        l10n.set_current_locale(t)
+        self.assertEqual(_a('KEY'), ['VALUE1', 'VALUE2', 'VALUE3'])
 
 
 class TestNLFunctions(unittest.TestCase):

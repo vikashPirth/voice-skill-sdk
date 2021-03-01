@@ -132,10 +132,9 @@ class TestManage(unittest.TestCase):
 
     @patch('sys.argv', new=['manage.py', ARG_TRANSLATE])
     @patch('skill_sdk.manage.translate_modules', return_value='ok')
-    def test_manage_translate(self, *args):
-        with patch('sys.exit') as exit_mock:
-            manage()
-            exit_mock.assert_called_once_with('ok')
+    def test_manage_translate(self, tr_mock):
+        manage()
+        tr_mock.assert_called_once()
 
     @requests_mock.mock()
     @patch('skill_sdk.manage.config', new=config)
@@ -154,8 +153,8 @@ class TestManage(unittest.TestCase):
             with patch('skill_sdk.l10n.LOCALE_DIR', tmp), \
                     patch('skill_sdk.l10n.init_locales', return_value=True) as init_mock, \
                     patch('skill_sdk.l10n.translate_locale', return_value=['msgid "KEY1" \n',
-                                                                              'msgstr "Test Translation"', '\n',
-                                                                              ' msgid "KEY2" \n', '  msgstr "" \n']):
+                                                                           'msgstr "Test Translation"', '\n',
+                                                                           ' msgid "KEY2" \n', '  msgstr "" \n']):
 
                 with patch('skill_sdk.l10n.extract_translations', return_value=f'{tmp}/messages.pot'):
                     self.assertEqual(translate_modules(['impl'], download_url='http://'), 0)
@@ -166,13 +165,12 @@ class TestManage(unittest.TestCase):
                     self.assertTrue((pathlib.Path(tmp) / 'de.po').exists())
                     self.assertTrue((pathlib.Path(tmp) / 'de.mo').exists())
 
-                    with patch.dict('sys.modules', {'skill_sdk.services.text': ModuleNotFoundError()}):
-                        self.assertNotEqual(translate_modules(['impl'], download_url='http://'), 0)
-                    with patch.dict(config._sections, {'service-text': {'active': 'false'}}):
-                        self.assertEqual(translate_modules(['impl']), 'No "download_url" specified')
+                    with self.assertRaises(SystemExit):
+                        translate_modules(['impl'])
 
                 with patch('skill_sdk.l10n.extract_translations', return_value=None):
-                    self.assertEqual(translate_modules(['impl']), 'Failed to extract translations')
+                    with self.assertRaises(SystemExit):
+                        translate_modules(['impl'])
 
     @patch('skill_sdk.manage.config', new=config)
     def test_patch(self):
