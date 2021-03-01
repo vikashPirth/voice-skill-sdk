@@ -22,6 +22,15 @@ EMPTY_MO_DATA = b'\xde\x12\x04\x95\x00\x00\x00\x00\x01\x00\x00\x00\x1c\x00\x00\x
                 b'\x00\x00\x00\x00\x00\x00\x008\x00\x00\x00(\x00\x00\x009\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\
                 x00\x00\x00\x00\x00Content-Type: text/plain; charset=UTF-8\n\x00'
 
+TEST_YAML_DATA = """
+KEY1:
+    - VALUE11
+    - VALUE12
+KEY2:
+    - VALUE21
+    - VALUE22
+"""
+
 test_old_data = '{"DEMO_MSG": ["impl/1.py"]}'
 
 
@@ -128,7 +137,7 @@ class TestL10n(unittest.TestCase):
             result = l10n.translate_locale('en', {"TEST": ['\nMulti-line string\nWith loads of things here and there ']})
             self.assertEqual(result, ['msgid "TEST" \n', 'msgstr "Multi-line string"\n"With loads of things here and there"', '\n'])
 
-    @patch('subprocess.run', side_effect=FileNotFoundError)
+    @patch('subprocess.check_output', side_effect=FileNotFoundError)
     @patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('zh.mo')])
     def test_compile_locales(self, *args):
         self.assertIsNone(l10n.compile_locales())
@@ -224,13 +233,6 @@ class TestMultiStringTranslation(unittest.TestCase):
         self.assertEqual(t.lang, 'zh')
         self.assertEqual(t._catalog, {})
 
-    @patch('skill_sdk.services.text.config', new_callable=ConfigParser)
-    def test_init_i18n_scope_name(self, config_mock):
-        config_mock['i18n'] = {'scope': 'testingskill'}
-        t = MultiStringTranslation('zh')
-        self.assertEqual(t.lang, 'zh')
-        self.assertEqual(t._catalog, {})
-
     def test_gettext_empty_catalog(self):
         t = MultiStringTranslation('de')
         self.assertEqual(t.gettext('ABC'), 'ABC')
@@ -265,6 +267,35 @@ class TestMultiStringTranslation(unittest.TestCase):
         from skill_sdk.l10n import _a
         l10n.set_current_locale(t)
         self.assertEqual(_a('KEY'), ['VALUE1', 'VALUE2', 'VALUE3'])
+
+    def test_load_invalid_yaml(self):
+        with patch(
+            "pathlib.io.open", mock_open(read_data="blah-blah\nblah:"), create=True
+        ):
+            mock = MagicMock()
+            mock.glob.return_value = [pathlib.Path("zh.yaml")]
+            with patch("skill_sdk.l10n.get_locale_dir", return_value=mock):
+                with self.assertRaises(RuntimeError):
+                    self.tr = l10n._load_yaml()
+
+    @patch("pathlib.io.open", mock_open(read_data=TEST_YAML_DATA), create=True)
+    def test_message_load(self):
+        mock = MagicMock()
+        mock.glob.return_value = [pathlib.Path("zh.yaml")]
+        with patch("skill_sdk.l10n.get_locale_dir", return_value=mock):
+            tr = l10n._load_yaml()["zh"]
+
+        with patch("skill_sdk.l10n.random.choice", return_value="WHATEVA"):
+            message = tr.gettext("KEY1", a="1", b="1")
+        self.assertEqual(message.key, "KEY1")
+        self.assertEqual(message.value, "WHATEVA")
+        self.assertEqual(message.kwargs, {"a": "1", "b": "1"})
+
+        with patch("skill_sdk.l10n.random.choice", return_value="WHATEVA"):
+            message = tr.ngettext("KEY1", "KEY2", 1, a="1", b="1")
+        self.assertEqual(message.key, "KEY1")
+        self.assertEqual(message.value, "WHATEVA")
+        self.assertEqual(message.kwargs, {"a": "1", "b": "1"})
 
 
 class TestNLFunctions(unittest.TestCase):

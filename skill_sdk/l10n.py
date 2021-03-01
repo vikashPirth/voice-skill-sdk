@@ -269,7 +269,7 @@ class MultiStringTranslation(Translations):
 
     def __init__(self, lang: Text = None, fp=None):
         """
-        Initialize an instance (optionally - with the catalog from an existing translation)
+        Initialize an instance (optionally - from a local YAML file)
 
         @param lang:
         @param fp:

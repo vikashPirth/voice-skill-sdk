@@ -222,19 +222,20 @@ def download_translations(
 
     catalog = _download_full_catalog(download_url, token, tenant)
 
-    if catalog:
-        yaml.add_representer(defaultdict, Representer.represent_dict)
-        for locale in catalog:
-            yaml_file = (l10n.get_locale_dir() / locale).with_suffix(".yaml")
-            if yaml_file.exists() and not force:
-                logger.error(
-                    '"%s exists and no "--force" specified. Skipping...', yaml_file
-                )
-                sys.exit(-1)
-            else:
-                logger.info("Saving %s to %s", repr(locale), yaml_file)
-                with yaml_file.open("w+") as f:
-                    yaml.dump(catalog[locale], f, allow_unicode=True)
+    if not catalog:
+        logger.error("Empty catalogue: nothing to do.")
+        sys.exit(-1)
+
+    yaml.add_representer(defaultdict, Representer.represent_dict)
+    for locale in catalog:
+        yaml_file = (l10n.get_locale_dir() / locale).with_suffix(".yaml")
+        if yaml_file.exists() and not force:
+            logger.error('"%s exists and no "--force" specified. Skipping...', yaml_file)
+            sys.exit(-1)
+        else:
+            logger.info("Saving %s to %s", repr(locale), yaml_file)
+            with yaml_file.open("w+") as f:
+                yaml.dump(catalog[locale], f, allow_unicode=True)
 
 
 def manage():
