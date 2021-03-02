@@ -14,7 +14,7 @@ from configparser import ConfigParser
 
 from skill_sdk import l10n
 from skill_sdk.services import base
-from skill_sdk.services.text import TextService, MultiStringTranslation, DelayedTranslation, setup_service
+from skill_sdk.services.text import TextService, ReloadableTranslation, DelayedTranslation, setup_service
 from skill_sdk.services.text import load_translations_from_server, translation_reload_worker
 from skill_sdk import requests
 from requests import exceptions
@@ -189,7 +189,7 @@ class TestTextService(unittest.TestCase):
         load_translations_from_server(translations)
         self.assertEqual(translations['de']._catalog['KEY'], ['SCHLÜSSEL1', 'SCHLÜSSEL2'])
 
-    @patch('skill_sdk.services.text.MultiStringTranslation.reload')
+    @patch('skill_sdk.services.text.ReloadableTranslation.reload')
     @patch.object(TextService, 'supported_locales', return_value=['de', 'fr'])
     @requests_mock.mock()
     def test_load_translations_from_server_ready_locks(self, mst_mock, ts_mock, req_mock):
@@ -224,77 +224,7 @@ class TestTextService(unittest.TestCase):
         self.assertNotEqual(translations['de'], tr)
 
 
-class TestMultiStringTranslation(unittest.TestCase):
-
-    def test_init_no_conf(self):
-        t = MultiStringTranslation('zh')
-        self.assertEqual(t.locale, 'zh')
-        self.assertEqual(t._catalog, {})
-
-    @patch('skill_sdk.services.text.config', new_callable=ConfigParser)
-    def test_init_only_skill_name(self, config_mock):
-        config_mock['skill'] = {'name': 'testingskill'}
-        t = MultiStringTranslation('zh')
-        self.assertEqual(t.locale, 'zh')
-        self.assertEqual(t._catalog, {})
-
-    @patch('skill_sdk.services.text.config', new_callable=ConfigParser)
-    def test_init_i18n_scope_name(self, config_mock):
-        config_mock['i18n'] = {'scope': 'testingskill'}
-        t = MultiStringTranslation('zh')
-        self.assertEqual(t.locale, 'zh')
-        self.assertEqual(t._catalog, {})
-
-    def test_markgettext(self):
-        t = MultiStringTranslation('de')
-        t._catalog['KEY'] = ['äöü']
-        self.assertEqual(t.markgettext('KEY'), 'KEY')
-
-    def test_lgettext(self):
-        t = MultiStringTranslation('de')
-        t._catalog['KEY'] = ['äöü']
-        self.assertEqual(t.lgettext('KEY'), b'\xc3\xa4\xc3\xb6\xc3\xbc')
-
-    def test_lngettext(self):
-        t = MultiStringTranslation('de')
-        t._catalog['KEY'] = ['üöä']
-        t._catalog['KEY_PLURAL'] = ['äöü']
-        self.assertEqual(t.lngettext('KEY', 'KEY_PLURAL', 2), b'\xc3\xa4\xc3\xb6\xc3\xbc')
-
-    def test_gettext_empty_catalog(self):
-        t = MultiStringTranslation('de')
-        self.assertEqual(t.gettext('ABC'), 'ABC')
-
-    def test_gettext(self):
-        t = MultiStringTranslation('de')
-        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
-        self.assertIn(t.gettext('KEY'), ['VALUE1', 'VALUE2', 'VALUE3'])
-
-    def test_ngettext_0(self):
-        t = MultiStringTranslation('de')
-        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
-        t._catalog['KEY_PLURAL'] = ['VALUEA', 'VALUEB', 'VALUEC']
-
-        self.assertIn(t.ngettext('KEY', 'KEY_PLURAL', 0), ['VALUEA', 'VALUEB', 'VALUEC'])
-
-    def test_ngettext_1(self):
-        t = MultiStringTranslation('de')
-        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
-        t._catalog['KEY_PLURAL'] = ['VALUEA', 'VALUEB', 'VALUEC']
-
-        self.assertIn(t.ngettext('KEY', 'KEY_PLURAL', 1), ['VALUE1', 'VALUE2', 'VALUE3'])
-
-    def test_getalltexts_empty_catalog(self):
-        t = MultiStringTranslation('de')
-        self.assertEqual(t.getalltexts('ABC'), ['ABC'])
-
-    def test_getalltexts(self):
-        t = MultiStringTranslation('de')
-        t._catalog['KEY'] = ['VALUE1', 'VALUE2', 'VALUE3']
-        self.assertEqual(t.getalltexts('KEY'), ['VALUE1', 'VALUE2', 'VALUE3'])
-        from skill_sdk.l10n import _a
-        l10n.set_current_locale(t)
-        self.assertEqual(_a('KEY'), ['VALUE1', 'VALUE2', 'VALUE3'])
+class TestReloadableTranslation(unittest.TestCase):
 
     @requests_mock.mock()
     def test_reload(self, req_mock):
@@ -302,7 +232,7 @@ class TestMultiStringTranslation(unittest.TestCase):
                      text='[{"locale": "de","scope": "unnamed-skill",'
                           '"sentences": ["SCHLÜSSEL1", "SCHLÜSSEL2"],'
                           '"tag": "KEY"}]')
-        t = MultiStringTranslation('de')
+        t = ReloadableTranslation('de')
         t.reload()
         self.assertEqual(t._catalog['KEY'], ['SCHLÜSSEL1', 'SCHLÜSSEL2'])
 
@@ -310,7 +240,7 @@ class TestMultiStringTranslation(unittest.TestCase):
     def test_reload_no_data(self, req_mock):
         req_mock.get('http://service-text-service:1555/v1/text/de/unnamed-skill',
                      text='[]')
-        t = MultiStringTranslation('de')
+        t = ReloadableTranslation('de')
         with self.assertRaises(l10n.TranslationError):
             t.reload()
 
@@ -339,8 +269,8 @@ class TestDelayedTranslation(unittest.TestCase):
                           '"sentences": ["Die Arzte"],"tag": "KEY_PLURAL"}]')
         t = DelayedTranslation('de')
         self.assertIn(t.gettext('KEY'), ["SCHLÜSSEL1", "SCHLÜSSEL2"])
-        log_mock.assert_any_call('Catalog for de is empty. Loading translations...')
-        log_mock.assert_called_with("2 candidates: ['SCHLÜSSEL1', 'SCHLÜSSEL2']")
+        log_mock.assert_any_call('Catalog for %s is empty. Loading translations...', 'de')
+        log_mock.assert_called_with('%s candidates: %s', 2, "['SCHLÜSSEL1', 'SCHLÜSSEL2']")
         self.assertEqual(t.getalltexts('KEY'), ["SCHLÜSSEL1", "SCHLÜSSEL2"])
         self.assertEqual(t.getalltexts('KEY'), ["SCHLÜSSEL1", "SCHLÜSSEL2"])
         self.assertEqual(t.ngettext('KEY', 'KEY_PLURAL', 2), 'Die Arzte')
@@ -354,8 +284,8 @@ class TestDelayedTranslation(unittest.TestCase):
                      exc=requests.BadHttpResponseCodeException(500))
         t = DelayedTranslation('de')
         self.assertEqual(t.gettext('KEY'), 'KEY')
-        log_mock.assert_any_call('No translations found for de.')
-        log_mock.assert_called_with('No translation for key: KEY')
+        log_mock.assert_any_call('No translations found for %s.', 'de')
+        log_mock.assert_called_with('No translation for key: %s', "'KEY'")
 
         req_mock.get('http://service-text-service:1555/v1/text/info/scope/unnamed-skill',
                      text='{"supportedLanguages": [{"code": "en"}]}')
@@ -365,8 +295,8 @@ class TestDelayedTranslation(unittest.TestCase):
                           '"tag": "KEY"}]')
         t = DelayedTranslation('de')
         self.assertEqual(t.gettext('KEY'), 'KEY')
-        log_mock.assert_any_call('No translations found for de.')
-        log_mock.assert_called_with('No translation for key: KEY')
+        log_mock.assert_any_call('No translations found for %s.', 'de')
+        log_mock.assert_called_with('No translation for key: %s', "'KEY'")
 
     @requests_mock.mock()
     @patch.object(logging.Logger, 'debug')
@@ -393,8 +323,8 @@ class TestDelayedTranslation(unittest.TestCase):
                           '"tag": "KEY"}]')
         time.sleep(0.1)
         self.assertIn(t.gettext('KEY'), ["CHUCK", "NORRIS"])
-        log_mock.assert_any_call("Reloading translations for en.")
-        log_mock.assert_any_call("Reloading translations for de.")
+        log_mock.assert_any_call("Reloading translations for %s.", 'en')
+        log_mock.assert_any_call("Reloading translations for %s.", 'de')
 
         req_mock.get('http://service-text-service:1555/v1/text/de/unnamed-skill', text='')
         time.sleep(0.1)
@@ -425,7 +355,8 @@ class TestReloadWorker(unittest.TestCase):
         config_mock['service-text'] = {'update-interval': 0.00001}
 
         def _break():
-            """ Stop infinite `while` loop on the second call to `gevent.sleep`
+            """
+            Stop infinite `while` loop on the second call to `sleep`
             """
             counter = 0
 
@@ -441,7 +372,7 @@ class TestReloadWorker(unittest.TestCase):
                 translation_reload_worker(translations)
 
         self.assertIn(translations['de'].gettext('KEY'), ['SCHLÜSSEL1', 'SCHLÜSSEL2'])
-        self.assertEqual(translations['de'].gettext('KEY_PLURAL'), 'KEY_PLURAL')
+        self.assertEqual('KEY_PLURAL', translations['de'].gettext('KEY_PLURAL'))
 
         req_mock.get('http://service-text-service:1555/v1/text/de/unnamed-skill',
                      text='[{"locale": "de","scope": "unnamed-skill",'

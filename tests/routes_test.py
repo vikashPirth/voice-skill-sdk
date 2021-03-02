@@ -16,7 +16,7 @@ import configparser
 from io import StringIO
 from json import loads, JSONDecodeError
 from types import SimpleNamespace
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
 from bottle import HTTPResponse
 from opentracing.scope import Scope
 import requests_mock
@@ -123,9 +123,11 @@ class TestInfo(unittest.TestCase):
 
         from tests.l10n_test import EMPTY_MO_DATA
 
-        with patch('skill_sdk.l10n.pathlib.Path.open', mock_open(read_data=EMPTY_MO_DATA), create=True), \
-                patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('zh.mo')]):
-            l10n.translations = l10n.load_translations()
+        mock = MagicMock()
+        mock.glob.return_value = [pathlib.Path("zh.mo")]
+        with patch("pathlib.io.open", mock_open(read_data=EMPTY_MO_DATA), create=True), \
+                patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
+            l10n.translations = l10n._load_gettext()
 
         self.assertEqual({"skillId": "testingskill", "skillVersion": f"1 {__version__}",
                           "skillSpiVersion": __spi_version__, 'supportedLocales': ['zh']}, loads(info()))

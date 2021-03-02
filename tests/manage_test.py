@@ -23,6 +23,27 @@ from skill_sdk.config import Config
 config = Config()
 config['skill'] = {'version': '1', 'intents': 'intents/*.json'}
 
+LOCALE_INFO = {
+    "supportedLanguages": [{"code": "de"}, {"code": "en"}, {"code": "whateva"}]
+}
+
+TRANSLATIONS = [
+    {
+        "locale": "de",
+        "scope": "unnamed-skill",
+        "sentences": ["SCHLÜSSEL1", "SCHLÜSSEL2"],
+        "tenant": "GLOBAL",
+        "tag": "KEY",
+    },
+    {
+        "locale": "en",
+        "scope": "unnamed-skill",
+        "sentences": ["KEY1", "KEY2"],
+        "tenant": "GLOBAL",
+        "tag": "KEY",
+    },
+]
+
 
 class TestManage(unittest.TestCase):
 
@@ -130,12 +151,21 @@ class TestManage(unittest.TestCase):
             import_module('main.py')
             log.assert_called_once()
 
-    @patch('sys.argv', new=['manage.py', ARG_TRANSLATE])
+    @patch('skill_sdk.manage.download_translations', return_value='ok')
     @patch('skill_sdk.manage.translate_modules', return_value='ok')
-    def test_manage_translate(self, *args):
-        with patch('sys.exit') as exit_mock:
+    def test_manage_translate(self, tr_mock, download_mock):
+
+        with patch('sys.argv', new=['manage.py', ARG_TRANSLATE]):
             manage()
-            exit_mock.assert_called_once_with('ok')
+        tr_mock.assert_called_once()
+
+        with patch('sys.argv', new=['manage.py', ARG_TRANSLATE, '--format', 'yaml', '--download-url', 'on']):
+            manage()
+        download_mock.assert_called_once()
+
+        with patch('sys.argv', new=['manage.py', ARG_TRANSLATE, '--format', 'yaml']):
+            with self.assertRaises(SystemExit):
+                manage()
 
     @requests_mock.mock()
     @patch('skill_sdk.manage.config', new=config)
@@ -154,8 +184,8 @@ class TestManage(unittest.TestCase):
             with patch('skill_sdk.l10n.LOCALE_DIR', tmp), \
                     patch('skill_sdk.l10n.init_locales', return_value=True) as init_mock, \
                     patch('skill_sdk.l10n.translate_locale', return_value=['msgid "KEY1" \n',
-                                                                              'msgstr "Test Translation"', '\n',
-                                                                              ' msgid "KEY2" \n', '  msgstr "" \n']):
+                                                                           'msgstr "Test Translation"', '\n',
+                                                                           ' msgid "KEY2" \n', '  msgstr "" \n']):
 
                 with patch('skill_sdk.l10n.extract_translations', return_value=f'{tmp}/messages.pot'):
                     self.assertEqual(translate_modules(['impl'], download_url='http://'), 0)
@@ -166,13 +196,12 @@ class TestManage(unittest.TestCase):
                     self.assertTrue((pathlib.Path(tmp) / 'de.po').exists())
                     self.assertTrue((pathlib.Path(tmp) / 'de.mo').exists())
 
-                    with patch.dict('sys.modules', {'skill_sdk.services.text': ModuleNotFoundError()}):
-                        self.assertNotEqual(translate_modules(['impl'], download_url='http://'), 0)
-                    with patch.dict(config._sections, {'service-text': {'active': 'false'}}):
-                        self.assertEqual(translate_modules(['impl']), 'No "download_url" specified')
+                    with self.assertRaises(SystemExit):
+                        translate_modules(['impl'])
 
                 with patch('skill_sdk.l10n.extract_translations', return_value=None):
-                    self.assertEqual(translate_modules(['impl']), 'Failed to extract translations')
+                    with self.assertRaises(SystemExit):
+                        translate_modules(['impl'])
 
     @patch('skill_sdk.manage.config', new=config)
     def test_patch(self):
@@ -193,3 +222,22 @@ class TestManage(unittest.TestCase):
         # For coverage sake
         config['http']['worker_class'] = "meinheld#gunicorn_worker"
         monkey_patch()
+
+    @requests_mock.mock()
+    def test_download_translations(self, req_mock):
+        from skill_sdk.manage import download_translations
+
+        req_mock.get("http://service-text-service:1555/v1/text/info/locale", json=LOCALE_INFO)
+        req_mock.get("http://service-text-service:1555/v1/text/scope/unnamed-skill", json=TRANSLATIONS)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("skill_sdk.l10n.LOCALE_DIR", tmp):
+                download_translations("http://service-text-service:1555/v1/text", "unnamed-skill")
+                assert (pathlib.Path(tmp) / "en.yaml").read_text() == "KEY:\n- KEY1\n- KEY2\n"
+                assert (pathlib.Path(tmp) / "de.yaml").read_text() == "KEY:\n- SCHLÜSSEL1\n- SCHLÜSSEL2\n"
+                assert (pathlib.Path(tmp) / "whateva.yaml").exists() is False
+                with self.assertRaises(SystemExit):
+                    download_translations("http://service-text-service:1555/v1/text", "unnamed-skill", force=False)
+            with patch("skill_sdk.manage._download_full_catalog", return_value=None):
+                with self.assertRaises(SystemExit):
+                    download_translations("http://service-text-service:1555/v1/text", "unnamed-skill")

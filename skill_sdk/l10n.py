@@ -12,12 +12,18 @@
 #
 
 import re
-import pathlib
 import logging
+import random
 import subprocess
+from pathlib import Path
 from threading import local
-from functools import partial, reduce
-from typing import Dict, Iterator, Iterable, List, Mapping, Optional, Tuple, Union
+from functools import reduce
+from types import MappingProxyType
+from typing import Dict, Iterator, Iterable, List, Mapping, Optional, Text, Tuple, Union
+
+import yaml
+from yaml.scanner import ScannerError
+from yaml.reader import ReaderError
 from gettext import NullTranslations, GNUTranslations
 
 from .config import config
@@ -195,12 +201,14 @@ class Message(str):
 class Translations(GNUTranslations):
     """
     Lazy translations with an empty catalog
-        dissembles gettext.NullTranslations if no translation available
+    dissembles gettext.NullTranslations if no translation available
     """
 
-    def __init__(self, fp=None):
-        self._catalog = {}
+    def __init__(self, lang: Text = None, fp=None):
+        self.lang = lang
         self.plural = lambda n: int(n != 1)
+        self._catalog: Dict[Text, Union[Text, List[Text]]] = {}
+
         super().__init__(fp)
 
     def gettext(self, message, *args, **kwargs):
@@ -256,18 +264,72 @@ class Translations(GNUTranslations):
         return result
 
 
-#
+class MultiStringTranslation(Translations):
+    """Translations that allows single key to have multiple values"""
+
+    def __init__(self, lang: Text = None, fp=None):
+        """
+        Initialize an instance (optionally - from a local YAML file)
+
+        @param lang:
+        @param fp:
+        """
+        super().__init__(lang=lang)
+
+        # Set catalog from local translation
+        if fp is not None:
+            try:
+                catalog = yaml.safe_load(fp)
+                self._catalog = {
+                    k: v if isinstance(v, list) else [v]
+                    for k, v in catalog.items()
+                }
+                self.files: List[Text] = list(filter(None, [getattr(fp, "name", None)]))
+            except (ReaderError, ScannerError) as ex:
+                logger.exception(
+                    "Could not load translations from %s: %s", repr(fp), repr(ex)
+                )
+                raise RuntimeError from ex
+
+    def __repr__(self):
+        return f"<{type(self).__name__}: {repr(self.files)}>"
+
+    def gettext(self, message, *args, **kwargs):
+        logger.debug("Translating message %s to %s", repr(message), repr(self.lang))
+        try:
+            candidates = self._catalog[message]
+            logger.debug("%s candidates: %s", len(candidates), repr(candidates))
+            return Message(random.choice(candidates), message, *args, **kwargs)
+        except LookupError:
+            logger.warning("No translation for key: %s", repr(message))
+            return super().gettext(message, *args, **kwargs)
+
+    def ngettext(self, singular, plural, n, *args, **kwargs):
+        logger.debug("Translating %s/%s/%s to %s", singular, plural, n, self.lang)
+        return self.gettext(singular if n == 1 else plural, *args, **kwargs)
+
+    def getalltexts(self, key, *args, **kwargs):
+        logger.debug(f"Retrieving all translation messages for {key} in {self.lang}")
+        try:
+            candidates = self._catalog[key]
+            logger.debug("%s candidates: %s", len(candidates), repr(candidates))
+            return [Message(value, key, *args, **kwargs) for value in candidates]
+        except LookupError:
+            logger.warning("No translation for key: %s", key)
+            return [super().gettext(key, *args, **kwargs)]
+
+
 #   Helper functions to work with local translations:
 #       delegate the calls to GNU gettext utilities: `xgettext`, `msginit`, `msgfmt`
 #
 
-def get_locale_dir(locale_dir: str = None) -> pathlib.Path:
+def get_locale_dir(locale_dir: str = None) -> Path:
     """Returns locales folder location"""
-    path = pathlib.Path(locale_dir or LOCALE_DIR)
+    path = Path(locale_dir or LOCALE_DIR)
     return path
 
 
-def extract_translations(modules: List[str], locale_dir: str = None) -> Optional[pathlib.Path]:
+def extract_translations(modules: List[str], locale_dir: str = None) -> Optional[Path]:
     """
     Extract translatable strings from Python modules and write translations to `messages.pot`
 
@@ -283,7 +345,7 @@ def extract_translations(modules: List[str], locale_dir: str = None) -> Optional
 
     output = path / 'messages.pot'
     for module in modules:
-        path = pathlib.Path(module)
+        path = Path(module)
         if path.is_file() and path.suffix == '.py':
             files.append(path)
         elif path.is_dir():
@@ -291,9 +353,11 @@ def extract_translations(modules: List[str], locale_dir: str = None) -> Optional
 
     logger.debug('Scanning %s', repr(files))
     try:
-        subprocess.run([program, '--language=python', f'--output={str(output)}', *files],
-                       check=True, stderr=subprocess.PIPE, text=True)
-        logger.info('Translation template written to %s', repr(output))
+        res = subprocess.check_output([program, '--language=python', f'--output={str(output)}', *files],
+                                      text=True,
+                                      stderr=subprocess.STDOUT)
+        logger.debug(res)
+        print('Translation template written to "%s"' % str(output))
         return output
 
     except FileNotFoundError:
@@ -304,7 +368,7 @@ def extract_translations(modules: List[str], locale_dir: str = None) -> Optional
     return None
 
 
-def init_locales(template: pathlib.Path, locales: List[str], locale_dir: str = None, force: bool = False) -> bool:
+def init_locales(template: Path, locales: List[str], locale_dir: str = None, force: bool = False) -> bool:
     """
     Create empty .po file in locale_dir
 
@@ -323,15 +387,17 @@ def init_locales(template: pathlib.Path, locales: List[str], locale_dir: str = N
         try:
             if force and output.exists():
                 output.unlink()
-            subprocess.run([program, '--no-translator', '-i', template, '-o', str(output)],
-                           check=True, stderr=subprocess.PIPE, text=True)
+
+            subprocess.check_output([program, '--no-translator', '-i', template, '-o', str(output)],
+                                    text=True,
+                                    stderr=subprocess.STDOUT,)
 
         except FileNotFoundError:
             logger.error(PROGRAM_NOT_FOUND, program)
             return False
 
         except subprocess.CalledProcessError as ex:
-            logger.error('Failed to create %s: %s', repr(output), repr(ex.stderr))
+            logger.error('Failed to create %s: %s', repr(output), repr(ex))
             return False
 
     return True
@@ -419,34 +485,61 @@ def compile_locales(locale_dir: str = None):
     for po_file in config.resolve_glob(search_glob):
         logger.info('Compiling %s ...', po_file.name)
         try:
-            subprocess.run([program, '-o', str(po_file.with_suffix('.mo')),
-                            str(po_file)], check=True, stderr=subprocess.PIPE, text=True)
+            subprocess.check_output([program, '-o', str(po_file.with_suffix('.mo')), str(po_file)],
+                                    text=True,
+                                    stderr=subprocess.PIPE,)
 
         except FileNotFoundError:
             logger.error(PROGRAM_NOT_FOUND, program)
 
         except subprocess.CalledProcessError as ex:
-            logger.error('Failed to compile %s: %s', po_file.name, repr(ex.stderr))
+            logger.error('Failed to compile %s: %s', po_file.name, repr(ex))
 
 
-def load_translations(locale_dir: str = None) -> Mapping[str, Translations]:
+def _load_yaml(locale_dir: Text = None) -> Dict[Text, MultiStringTranslation]:
+    """
+    Load multi-string translations from YAML files
+
+    @param locale_dir:
+    @return:
+    """
+
+    logger.info("Loading YAML translations...")
+
+    return {
+        yaml_file.stem: MultiStringTranslation(yaml_file.stem, yaml_file.open(mode="r"))
+        for yaml_file in get_locale_dir(locale_dir).glob("*.yaml")
+        if RE_TRANSLATIONS.match(yaml_file.stem)
+    }
+
+
+def _load_gettext(locale_dir: Text = None) -> Dict[Text, Translations]:
+    """
+    Load `gettext` translations from *.po/*.mo files
+
+    @param locale_dir:
+    @return:
+    """
+
+    logger.info("Loading gettext translations...")
+
+    compile_locales(locale_dir)
+
+    return {
+        mo_file.stem: Translations(mo_file.stem, mo_file.open(mode="rb"))
+        for mo_file in get_locale_dir(locale_dir).glob("*.mo")
+        if RE_TRANSLATIONS.match(mo_file.stem)
+    }
+
+
+def load_translations(locale_dir: Text = None) -> Mapping[Text, Translations]:
     """
     Load local languages available in locale_dir
 
     :param locale_dir:
     :return:
     """
-    logger.info('Loading gettext translations...')
 
-    compile_locales(locale_dir)
+    _translations = _load_yaml(locale_dir) or _load_gettext(locale_dir)
 
-    _translations: Dict[str, Translations] = {}
-
-    search_glob = get_locale_dir(locale_dir) / '*.mo'
-    for mo_file in config.resolve_glob(search_glob):
-        lang = mo_file.stem
-        if RE_TRANSLATIONS.match(lang):
-            with mo_file.open(mode="rb") as f:
-                _translations[lang] = Translations(f)
-
-    return _translations
+    return MappingProxyType(_translations)
