@@ -1,4 +1,3 @@
-arrow==0.17.0             # [Better dates & times for Python](https://arrow.readthedocs.org)
 bottle==0.12.19           # [Fast and simple micro-framework for small web applications](http://bottlepy.org)
 CacheControl==0.12.6      # [The httplib2 caching algorithms packaged up for use with requests.](https://github.com/ionrock/cachecontrol)
 circuitbreaker==1.3.1     # [Python "Circuit Breaker" implementation](https://github.com/fabfuel/circuitbreaker)

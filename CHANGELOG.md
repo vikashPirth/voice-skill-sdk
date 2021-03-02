@@ -2,6 +2,28 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.12.0] - 2021-03-02  
+
+**Features**
+
+-   Multi-string translations support in YAML format. <br />
+    You can download the translations from text service and save as YAML in your skill project:
+    `python manage.py translate [modules...] --format yaml --download-url TEXT_SERVICE_URL --token AUTH_TOKEN --tenant GLOBAL`<br />
+    YAML translations will take precedence over [gettext](https://www.gnu.org/software/gettext/). 
+    `{lang}.po/{lang}.mo` translations are ignored if `{lang}.yaml` found.    
+
+
+**Miscellaneous**
+
+- [arrow](https://pypi.org/project/arrow/) dependency became optional and moved to "requirements-dev.txt".<br/>
+    **IMPORTANT**: if your skill uses [arrow](https://pypi.org/project/arrow/), add this requirement explicitly.
+
+
+-   Requirements bump:
+    - arrow from 0.17.0 to 1.0.2 
+    - coverage from 5.4 to 5.5
+
+
 ## [v0.11.1] - 2021-02-25  
 
 **Features**
@@ -32,6 +54,13 @@ All notable changes to this project will be documented in this file.
 - Due to the security issue with its underlying dependency [Tornado](https://pypi.org/project/tornado/), 
   [jaeger-client](https://pypi.org/project/jaeger-client/) became an optional dependency.   
   
+
+- Test/development requirements moved to "requirements-dev.txt".<br />
+    **IMPORTANT**: if your skill uses [coverage](https://pypi.org/project/coverage/) 
+  or [requests-mock](https://pypi.org/project/requests-mock/) to run unit tests, you would have to 
+  explicitly install those before: `pip install coverage requests-mock` 
+  
+
 - Requirements bump:
     - apispec from 4.0.0 to 4.2.0 
     - gevent from 20.12.1 to 21.1.2 
