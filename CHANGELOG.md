@@ -2,6 +2,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.12.1] - 2021-03-12  
+
+**Features**
+
+-   `X-Testing`/`Testing` headers forwarding: these headers are used to distinguish test traffic.
+    To propagate the headers, you can set `interna` flag when creating requests session:
+    
+    ```python
+    from skill_sdk.requests import CircuitBreakerSession
+    
+    with CircuitBreakerSession(internal=True) as session:
+        result = session.get("https://internal-service.local")
+    ```
+
+
 ## [v0.12.0] - 2021-03-02  
 
 **Features**
