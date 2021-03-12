@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 **Features**
 
 -   `X-Testing`/`Testing` headers forwarding: these headers are used to distinguish test traffic.
-    To propagate the headers, you can set `interna` flag when creating requests session:
+    To propagate the headers, set `internal` flag when creating a circuit breaker for HTTP requests session:
     
     ```python
     from skill_sdk.requests import CircuitBreakerSession
