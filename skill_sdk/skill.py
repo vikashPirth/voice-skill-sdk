@@ -63,7 +63,9 @@ def initialize(config_file: str = None, dev: bool = False, local: bool = False, 
     with K8sChecks('init'):
         bottle.debug(dev)
         configure_logging()
-        set_dev_mode() if dev else setup_services()
+
+        if not l10n.translations:
+            l10n.translations = l10n.load_translations()
 
         skill = app()
         if not skill.get_intents():
@@ -71,11 +73,10 @@ def initialize(config_file: str = None, dev: bool = False, local: bool = False, 
 
         logger.info("Loaded handlers: %s", list(skill.get_intents()))
 
-        if not l10n.translations:
-            l10n.translations = l10n.load_translations()
-
         from . import routes      # noqa: F401   Add standard routes
         from . import swagger     # noqa: F401   Add swagger route
+
+        set_dev_mode() if dev else setup_services()
 
         # Copy configuration to Skill instance
         skill.config.load_dict({section: dict(config.items(section)) for section in config.sections()})

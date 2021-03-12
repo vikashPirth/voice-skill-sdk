@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.12.2] - 2021-03-12  
+
+**Bugfixes**
+
+-   Translation reload worker has been fixed. 
+
 ## [v0.12.1] - 2021-03-12  
 
 **Features**

@@ -542,4 +542,4 @@ def load_translations(locale_dir: Text = None) -> Mapping[Text, Translations]:
 
     _translations = _load_yaml(locale_dir) or _load_gettext(locale_dir)
 
-    return MappingProxyType(_translations)
+    return _translations
