@@ -16,7 +16,7 @@ from unittest.mock import patch
 from skill_sdk import tracing
 from skill_sdk import log
 
-test_context = tracing.SpanContext('abcd', '1234')
+test_context = tracing.SpanContext('abcd', '1234', '1')
 
 
 class TestSmartHubGELFFormatter(unittest.TestCase):
@@ -55,6 +55,20 @@ class TestSmartHubGELFFormatter(unittest.TestCase):
         except:
             data = loads(log.SmartHubGELFFormatter().format(self.record))
             self.assertIn('ZeroDivisionError', data['_traceback'])
+
+    def test_tracing_headers(self):
+        from bottle import BaseRequest
+        import wsgiref.util
+        e = {}
+        wsgiref.util.setup_testing_defaults(e)
+        r = BaseRequest(e)
+        r['HTTP_X_B3_TRACEID'] = 'abcd'
+        r['HTTP_X_B3_SPANID'] = '1234'
+        r['HTTP_X_TESTING'] = '1'
+        with tracing.start_active_span("operation", r):
+            data = loads(log.SmartHubGELFFormatter().format(self.record))
+            self.assertEqual('abcd', data['traceId'])
+            self.assertTrue(data['testing'])
 
 
 class TestLogLevels(unittest.TestCase):

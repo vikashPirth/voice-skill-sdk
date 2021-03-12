@@ -7,15 +7,22 @@
 # For details see the file LICENSE in the top directory.
 #
 #
+import json
 import logging
+import logging.config
 import threading
 import unittest
+from logging import makeLogRecord
 from configparser import ConfigParser
 from unittest.mock import patch, Mock
 
-from skill_sdk import tracing
+import bottle
+import wsgiref.util
+
+from skill_sdk import tracing, log, routes
 from skill_sdk.services import zipkin
 from skill_sdk.services.zipkin import QUEUE
+from skill_sdk.requests import CircuitBreakerSession
 from skill_sdk.services.zipkin import setup_service, queued_transport, zipkin_report_worker, B3Codec, SpanContext
 from py_zipkin.zipkin import ZipkinAttrs, zipkin_span
 from requests.sessions import Session
@@ -78,23 +85,28 @@ class TestZipkin(unittest.TestCase):
             'X-B3-ParentSpanId': '01e97311cfec540a',
             'X-B3-SpanId': 'd4aeec01e3c43faa',
             'X-B3-Sampled': '1',
-            'X-B3-Debug': '0'}
+            'X-B3-Debug': '0',
+            'X-Testing': '1'
+        }
 
     @patch('py_zipkin.zipkin.generate_random_64bit_string', return_value='0123456789abcdef')
     def test_init(self, *args):
-        span = tracing.start_active_span('span', self.request).span
-        self.assertEqual(span.parent_id, 'd4aeec01e3c43faa')
-        self.assertEqual(span.trace_id, '430ee1c3e2deccfa')
-        self.assertEqual(span.span_id, '0123456789abcdef')
-        self.assertEqual(span.is_sampled(), True)
-        self.assertEqual(span.flags, 1)
+        scope = tracing.start_active_span('span', self.request)
+        ctx = scope.span.context
+        self.assertEqual(ctx.trace_id, '430ee1c3e2deccfa')
+        self.assertEqual(ctx.span_id, '0123456789abcdef')
+        self.assertEqual(ctx.parent_id, 'd4aeec01e3c43faa')
+        self.assertEqual(ctx.flags, 5)
 
-    def test_init_no_headers(self):
+    @patch('py_zipkin.zipkin.generate_random_64bit_string', return_value='0123456789abcdef')
+    def test_init_no_headers(self, *args):
         request = Mock()
         request.headers = {}
-        span = tracing.start_active_span('span', request).span
-        self.assertEqual(span.is_sampled(), False)
-        self.assertEqual(span.flags, 0)
+        scope = tracing.start_active_span('span', request)
+        ctx = scope.span.context
+        self.assertEqual('0123456789abcdef', ctx.span_id)
+        self.assertEqual('0123456789abcdef', ctx.trace_id)
+        self.assertEqual(0, ctx.flags)
 
     def test_span(self):
         scope = tracing.start_active_span('span', self.request)
@@ -103,23 +115,14 @@ class TestZipkin(unittest.TestCase):
         self.assertEqual(span._span.sample_rate, 100.0)
         self.assertEqual(span._span.transport_handler, queued_transport)
 
-    @patch.object(zipkin_span, 'start')
-    @patch.object(zipkin_span, 'stop')
-    def test_new_span(self, stop_span, start_span):
+    def test_new_span(self):
         with tracing.start_active_span('active span', self.request) as scope:
             with scope.span.tracer.start_span('inner span') as span:
-                self.assertEqual(span.tracer.service_name, 'unnamed-skill')
                 self.assertEqual(span.operation_name, 'inner span')
                 span.set_operation_name('new_span')
                 self.assertEqual(span.operation_name, 'new_span')
                 span.log_kv({'key': 'value'}, 123456789)
                 self.assertEqual(span._span.annotations, {'{"key": "value"}': 123456789})
-
-        # Ensure both spans are started
-        self.assertEqual(start_span.call_count, 2)
-
-        # Ensure both spans are finished when out of scope
-        self.assertEqual(stop_span.call_count, 2)
 
     @patch('py_zipkin.zipkin.create_attrs_for_span', return_value=ZipkinAttrs(
         trace_id='430ee1c3e2deccfc',
@@ -130,20 +133,49 @@ class TestZipkin(unittest.TestCase):
     ))
     @patch.object(Session, 'request', return_value=Mock(status_code=200))
     def test_request_headers_propagation(self, request_mock, *mocks):
-        from skill_sdk.requests import CircuitBreakerSession
-        with CircuitBreakerSession(internal=True) as s:
-            s.get('http://localhost/')
-            request_mock.assert_any_call(s, 'GET', 'http://localhost/', timeout=5, allow_redirects=True,
-                                         headers={'X-B3-TraceId': '430ee1c3e2deccfc',
-                                                  'X-B3-SpanId': 'd4aeec01e3c43fac'})
+        with tracing.start_span("operation"):
+            with CircuitBreakerSession(internal=True) as s:
+                s.get('http://localhost/')
+                request_mock.assert_any_call(s, 'GET', 'http://localhost/', timeout=5, allow_redirects=True,
+                                             headers={'X-B3-TraceId': '430ee1c3e2deccfc',
+                                                      'X-B3-SpanId': 'd4aeec01e3c43fac'})
+
+    @patch('py_zipkin.zipkin.generate_random_64bit_string', return_value='0123456789abcdef')
+    @patch.object(Session, 'request', return_value=Mock(status_code=200))
+    def test_testing_header_propagation(self, request_mock, *mocks):
+        with tracing.start_active_span("operation", self.request):
+            with CircuitBreakerSession(internal=True) as s:
+                s.get('http://localhost/')
+                request_mock.assert_any_call(s, 'GET', 'http://localhost/', timeout=5, allow_redirects=True,
+                                             headers={'X-B3-TraceId': '430ee1c3e2deccfa',
+                                                      'X-B3-SpanId': '0123456789abcdef',
+                                                      'X-B3-ParentSpanId': '0123456789abcdef',
+                                                      'X-B3-Sampled': '1',
+                                                      'X-Testing': '1',
+                                                      'Testing': 'true',
+                                                      })
 
     def test_extract_inject_exceptions(self):
         tracer = tracing.global_tracer()
         with self.assertRaises(tracing.UnsupportedFormatException):
             tracer.extract(tracing.Format.BINARY, {})
-        ctx = tracing.SpanContext(None, None)
+        ctx = tracing.SpanContext(None, None, None)
         with self.assertRaises(tracing.UnsupportedFormatException):
             tracer.inject(ctx, tracing.Format.BINARY, {})
+
+    def test_tracer_with_gelf_log(self):
+        record = makeLogRecord({
+            'levelno': logging.INFO,
+            'levelname': 'INFO',
+            'thread': '123456',
+            'name': 'demo.logger',
+            'msg': 'testmessage',
+            'audience': 'development',
+        })
+        with tracing.start_active_span("span", self.request):
+            r = json.loads(log.SmartHubGELFFormatter().format(record))
+            self.assertEqual('430ee1c3e2deccfa', r['traceId'])
+            self.assertTrue(bool(r['testing']))
 
 
 class TestB3Codec(unittest.TestCase):
@@ -177,14 +209,29 @@ class TestB3Codec(unittest.TestCase):
         span_context = codec.extract(carrier)
         assert span_context.flags == 0x01
 
+        carrier.update({'X-Testing': '1'})
+        span_context = codec.extract(carrier)
+        assert span_context.baggage == {'testing': True}
+        assert span_context.flags == 0x05
+
     def test_b3_inject(self):
         codec = B3Codec()
 
         with self.assertRaises(tracing.InvalidCarrierException):
             codec.inject(None, [])
 
-        ctx = SpanContext(trace_id='463ac35c9f6413ad48485a3953bb6124', span_id='a2fb4a1d1a96d312', parent_id='0020000000000001', flags=2)
+        ctx = SpanContext(
+            trace_id='463ac35c9f6413ad48485a3953bb6124',
+            span_id='a2fb4a1d1a96d312',
+            parent_id='0020000000000001',
+            flags=6
+        )
         carrier = {}
         codec.inject(ctx, carrier)
-        self.assertEqual(carrier, {'X-B3-SpanId': 'a2fb4a1d1a96d312', 'X-B3-ParentSpanId': '0020000000000001',
-                                   'X-B3-TraceId': '463ac35c9f6413ad48485a3953bb6124', 'X-B3-Flags': '1'})
+        self.assertEqual(carrier, {'X-B3-SpanId': 'a2fb4a1d1a96d312',
+                                   'X-B3-ParentSpanId': '0020000000000001',
+                                   'X-B3-TraceId': '463ac35c9f6413ad48485a3953bb6124',
+                                   'X-B3-Flags': '1',
+                                   'X-Testing': '1',
+                                   'Testing': 'true',
+                                   })

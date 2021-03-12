@@ -12,102 +12,75 @@
 #
 
 import logging
-import opentracing
+from opentracing.mocktracer import MockTracer
+from opentracing.mocktracer.context import SpanContext
+from opentracing.mocktracer.span import MockSpan as Span    # noqa: F401
 from opentracing import global_tracer, set_global_tracer
-from opentracing import InvalidCarrierException, UnsupportedFormatException, SpanContextCorruptedException  # noqa: F401
+from opentracing import (
+    InvalidCarrierException,
+    UnsupportedFormatException,     # noqa: F401
+    SpanContextCorruptedException,  # noqa: F401
+)
 from opentracing.propagation import Format
 from functools import wraps
 
-EVENT = 'event'
+EVENT = "event"
 logger = logging.getLogger(__name__)
 
 
-class SpanContext(opentracing.SpanContext):
-    """ define "trace_id"/"span_id" attributes for logging
+class Codec:
     """
-    __slots__ = ['trace_id', 'span_id']
-
-    def __init__(self, trace_id, span_id):
-        self.trace_id = trace_id
-        self.span_id = span_id
-
-
-class Span(opentracing.Span):
-    """ define "operation_name" attribute for logging
+    Codec to pass-through internal headers without creating spans
     """
 
-    __slots__ = ['_context', '_tracer', 'operation_name']
+    trace_header = "X-B3-TraceId"
+    span_header = "X-B3-SpanId"
+    testing_header = "X-Testing"
+    simple_testing = 'Testing'
 
-    def __init__(self, tracer, context, operation_name):
-        """ Add "operation_name"
+    def inject(self, span_context, carrier):
         """
-        super().__init__(tracer=tracer, context=context)
-        self.operation_name = operation_name
+        Inject headers
 
-    def set_operation_name(self, operation_name):
-        """ Set the operation name.
-
-        :param operation_name: the new operation name
-        :return: Returns the Span for chaining
+        :param span_context:
+        :param carrier:
+        :return:
         """
-        self.operation_name = operation_name
-        return self
+        if not isinstance(carrier, dict):
+            raise InvalidCarrierException("carrier not a dictionary")
+        carrier[self.trace_header] = str(span_context.trace_id)
+        carrier[self.span_header] = str(span_context.span_id)
 
-    @property
-    def context(self):
-        return self._context
+        if span_context.baggage.get("testing"):
+            carrier[self.testing_header] = "1"
+            carrier[self.simple_testing] = 'true'
 
-    @property
-    def span_name(self):    # backward compat
-        return self.operation_name
+    def extract(self, carrier):
+        """
+        Extract headers
 
-    @property
-    def trace_id(self):
-        return self.context.trace_id
-
-    @property
-    def span_id(self):
-        return self.context.span_id
-
-    @property
-    def parent_id(self):
-        return self.context.parent_id
-
-
-class ScopeManager(opentracing.ScopeManager):
-    """ Scope manager """
-    def __init__(self):
-        self._noop_span = Span(tracer=None, context=SpanContext(None, None), operation_name=None)
-        self._noop_scope = opentracing.Scope(self, self._noop_span)
+        :param carrier:
+        :return:
+        """
+        if not isinstance(carrier, dict):
+            raise InvalidCarrierException("carrier not a dictionary")
+        lowercase_keys = dict([(k.lower(), k) for k in carrier])
+        trace_id = carrier.get(lowercase_keys.get(self.trace_header.lower()))
+        span_id = carrier.get(lowercase_keys.get(self.span_header.lower()))
+        testing = carrier.get(lowercase_keys.get(self.testing_header.lower()))
+        return SpanContext(trace_id=trace_id, span_id=span_id, baggage=dict(testing=bool(testing)))
 
 
-class Tracer(opentracing.Tracer):
-    """ define "service_name" attribute for logging
+class Tracer(MockTracer):
+
+    def __init__(self, scope_manager=None):
+        super(Tracer, self).__init__(scope_manager=scope_manager)
+        self.register_propagator(Format.HTTP_HEADERS, Codec())
+
+
+class start_span:
     """
-    def __init__(self, service_name, scope_manager=None):
-        """ Add "service_name" to tracer
-        """
-        self._scope_manager = scope_manager if scope_manager else ScopeManager()
-        self._noop_span_context = SpanContext(None, None)
-        self._noop_span = Span(tracer=self, context=self._noop_span_context, operation_name=None)
-        self._noop_scope = opentracing.Scope(self._scope_manager, self._noop_span)
-        self.service_name = service_name
-
-    def start_span(self,
-                   operation_name=None,
-                   child_of=None,
-                   references=None,
-                   tags=None,
-                   start_time=None,
-                   ignore_active_span=False):
-        """ Add "operation_name" to no-op span implementation
-        """
-        self._noop_span = Span(tracer=self, context=self._noop_span_context, operation_name=operation_name)
-        return self._noop_span
-
-
-class start_span:   # NOSONAR: backward compatibility
-    """ Tracing helper/span wrapper. Can be used as both context manager and decorator:
+    Tracing helper/span wrapper. Can be used as both context manager and decorator:
 
         # As context manager:
         with start_span('span'):
@@ -121,8 +94,8 @@ class start_span:   # NOSONAR: backward compatibility
     """
 
     def __init__(self, operation_name, tracer: Tracer = None, *args, **kwargs):
-        if 'child_of' in kwargs:
-            tracer = kwargs['child_of'].tracer
+        if "child_of" in kwargs:
+            tracer = getattr(kwargs["child_of"], 'tracer', global_tracer())
 
         self.span = None
         self.tracer = tracer
@@ -134,64 +107,64 @@ class start_span:   # NOSONAR: backward compatibility
         return self.start().__enter__()
 
     def __exit__(self, _exc_type, _exc_value, _exc_traceback):
-        self.finish().__exit__(_exc_type, _exc_value, _exc_traceback)
+        self.span.__exit__(_exc_type, _exc_value, _exc_traceback)
 
     def __call__(self, func):
         @wraps(func)
-        def decorated(*args, **kwargs):     # NOSONAR
+        def decorated(*args, **kwargs):  # NOSONAR
             with self.start():
                 result = func(*args, **kwargs)
                 self.finish()
                 return result
-        return decorated
 
-    def _get_service_name(self):
-        return self.tracer.service_name if hasattr(self.tracer, 'service_name') else 'unknown'
+        return decorated
 
     def start(self):
         self.tracer = self.tracer or global_tracer()
-        self.span = self.tracer.start_span(self.operation_name, *self.args, **self.kwargs)
-        logger.debug(f"Starting span [{self.operation_name}] for service [{self._get_service_name()}]")
+        self.span = self.tracer.start_span(
+            self.operation_name, *self.args, **self.kwargs
+        )
         return self.span
 
     def finish(self):
-        logger.debug(f"Finishing span [{self.operation_name}] for service [{self._get_service_name()}]")
-        return self.span
+        return self.span.finish()
 
 
 def get_service_name():
-    """ Returns the service name, try to get from config or fallback to skill name.
+    """
+    Returns the service name, try to get from config or fallback to skill name.
 
     :return:
     """
     from .config import config
-    return config.get('skill', 'name', fallback='unnamed_service')
+
+    return config.get("skill", "name", fallback="unnamed_service")
 
 
 def start_active_span(operation_name, request, **kwargs):
-    """ Start a new span and return activated scope
-    """
+    """Start a new span and return activated scope"""
+
     tracer: Tracer = global_tracer()
 
-    tags = kwargs.get('tags', {})
-    if hasattr(request, 'url'):
-        tags.update({'http.url': request.url})
-    if hasattr(request, 'remote_addr'):
-        tags.update({'peer.ipv4': request.remote_addr})
-    if hasattr(request, 'caller_name'):
-        tags.update({'peer.service': request.caller_name})
+    tags = kwargs.get("tags", {})
+    if hasattr(request, "url"):
+        tags.update({"http.url": request.url})
+    if hasattr(request, "remote_addr"):
+        tags.update({"peer.ipv4": request.remote_addr})
+    if hasattr(request, "caller_name"):
+        tags.update({"peer.service": request.caller_name})
 
-    logger.debug(f'Starting active span {operation_name} for service {getattr(tracer, "service_name", "unknown")}')
     headers = {key: value for key, value in request.headers.items()}
-    logger.debug(f'HTTP-Header: {headers}')
-    context = tracer.extract(format=Format.HTTP_HEADERS, carrier=headers)
-    return tracer.start_active_span(operation_name, child_of=context, tags=tags, **kwargs)
+    logger.debug("HTTP-Header: %s", repr(headers))
+    ctx = tracer.extract(format=Format.HTTP_HEADERS, carrier=headers)
+    return tracer.start_active_span(operation_name, child_of=ctx, tags=tags, **kwargs)
 
 
 def initialize_tracer(tracer=None):
-    """ Initialize dummy tracer: to be replaced by actual implementation
+    """
+    Initialize a tracer: to be replaced by actual implementation
 
     :return:
     """
-    tracer = tracer or Tracer(get_service_name())
+    tracer = tracer or Tracer()
     set_global_tracer(tracer)
