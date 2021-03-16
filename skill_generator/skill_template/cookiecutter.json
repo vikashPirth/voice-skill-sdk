@@ -1,5 +1,0 @@
-{
-	"skill_name": "my-skill",
-	"skill_name_slug": "{{ cookiecutter.skill_name|lower|replace(' ', '-') }}",
-	"programming_language": "python"
-}

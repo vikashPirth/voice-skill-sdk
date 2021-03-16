@@ -1,7 +1,7 @@
 #
 # voice-skill-sdk
 #
-# (C) 2020, Deutsche Telekom AG
+# (C) 2021, Deutsche Telekom AG
 #
 # This file is distributed under the terms of the MIT license.
 # For details see the file LICENSE in the top directory.
@@ -14,34 +14,61 @@
 import os
 import time
 import json
-import inspect
-import logging
+import logging.config
 from traceback import format_exc
-from . import tracing
+from typing import Dict, Optional
 
-# Default log level: DEBUG
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG")
-
-# Default log format: GELF
-LOG_FORMAT = os.environ.get('LOG_FORMAT', 'gelf')
-
-# Maximal length of a string to log
-LOG_ENTRY_MAX_STRING = 253
+from skill_sdk import config
 
 
-logging.basicConfig(level=LOG_LEVEL)
+def setup_logging(
+    log_level: Optional[int] = None, log_format: Optional[config.FormatType] = None
+):
+    """
+    Set log level either to the level provided as argument
+    or get it from LOB_LEVEL environment var
 
-
-class SmartHubGELFFormatter(logging.Formatter):
-    """ Graylog Extended Format (GELF) formatter
+    :param log_level:
+    :param log_format:
+    :return:
     """
 
-    def format(self, record):
-        """ Formats a record """
+    log_level = log_level or config.settings.LOG_LEVEL
+    log_format = log_format or config.settings.LOG_FORMAT
 
-        tracer: tracing.Tracer = tracing.global_tracer()
-        context = tracer.active_span and tracer.active_span.context
+    logging.getLogger().setLevel(log_level)
+    logging.basicConfig(level=log_level)
 
+    try:
+        logging.config.dictConfig(get_config_dict(log_level, log_format))
+    except KeyError:
+        raise RuntimeError("Invalid log format: %s", repr(log_format))
+
+
+def tracing_headers() -> Dict:
+    """Extract tracing headers from Starlette's context"""
+    from skill_sdk.middleware import HeaderKeys, context
+
+    try:
+        return {
+            key: context.data[key]
+            for key in HeaderKeys
+            if context.data[key] is not None
+        }
+    # If we're not inside a request
+    except RuntimeError:
+        return {}
+
+
+class CloudGELFFormatter(logging.Formatter):
+    """Graylog Extended Format (GELF) formatter"""
+
+    def format(self, record: logging.LogRecord):
+        from skill_sdk.middleware import HeaderKeys
+
+        headers = tracing_headers()
+
+        # Cloud log record format
         line = {
             # Timestamp in milliseconds
             "@timestamp": int(round(time.time() * 1000)),
@@ -56,115 +83,83 @@ class SmartHubGELFFormatter(logging.Formatter):
             # Log message
             "message": record.getMessage(),
             # Trace id
-            "traceId": getattr(context, 'trace_id', None),
+            "traceId": headers.get(HeaderKeys.trace_id, None),
             # Span id
-            "spanId": getattr(context, 'span_id', None),
+            "spanId": headers.get(HeaderKeys.span_id, None),
             # Testing flag
-            "testing": getattr(context, 'baggage', {}).get('testing'),
-            # Tenant: a skill is not aware of tenant, so we report a service name instead
-            "tenant": getattr(tracer, 'service_name', tracing.get_service_name())
+            "testing": str(headers.get(HeaderKeys.testing_flag, False)).lower()
+            in ("true", "1"),
+            # Tenant: a skill is not aware of tenant
+            "tenant": headers.get(HeaderKeys.tenant_id, None),
         }
+
         if record.exc_info:
-            line['_traceback'] = format_exc()
+            line["_traceback"] = format_exc()
 
         return json.dumps(line)
 
 
-conf = {
-    'gelf': {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'standard': {'class': 'skill_sdk.log.SmartHubGELFFormatter'},
-        },
-        'handlers': {
-            'default': {
-                'level': LOG_LEVEL,
-                'formatter': 'standard',
-                'class': 'logging.StreamHandler',
-            },
-        },
-        'loggers': {
-            '': {
-                'handlers': ['default'],
-                'level': LOG_LEVEL,
-                'propagate': True
-            },
-        }
-    },
-    'human': {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'default': {
-                'level': LOG_LEVEL,
-                'class': 'logging.StreamHandler',
-            },
-        },
-        'loggers': {
-            '': {
-                'handlers': ['default'],
-                'level': LOG_LEVEL,
-                'propagate': True
-            },
-            'pip': {
-                'handlers': ['default'],
-                'level': 'WARN',
-                'propagate': True
-            },
+def get_config_dict(log_level: int, log_format: config.FormatType) -> Dict:
 
-        }
+    conf = {
+        "gelf": {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "standard": {"class": "skill_sdk.log.CloudGELFFormatter"},
+            },
+            "handlers": {
+                "default": {
+                    "level": log_level,
+                    "formatter": "standard",
+                    "class": "logging.StreamHandler",
+                },
+            },
+            "loggers": {
+                "": {"handlers": ["default"], "level": log_level, "propagate": True},
+            },
+        },
+        "human": {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "standard": {
+                    "format": "%(asctime)s %(levelname)-8s %(name)s - %(message)s",
+                }
+            },
+            "handlers": {
+                "default": {
+                    "level": log_level,
+                    "formatter": "standard",
+                    "class": "logging.StreamHandler",
+                },
+            },
+            "loggers": {
+                "": {"handlers": ["default"], "level": log_level, "propagate": True},
+            },
+        },
     }
-}
 
-#
-#   Under Windows we're going to run without Gunicorn anyway
-#
-try:
-    from gunicorn.glogging import Logger
-
-    class GunicornLogger(Logger):
-        """ A logger to force gunicorn to log in the format defined by us.
-        """
-
-        def setup(self, cfg):
-            self.loglevel = getattr(logging, LOG_LEVEL)
-            self.error_log.setLevel(self.loglevel)
-            self.access_log.setLevel(logging.INFO)
-
-            self.error_log.name = 'gunicorn'
-            self._set_handler(self.error_log, cfg.errorlog, SmartHubGELFFormatter())
-            self._set_handler(self.access_log, cfg.errorlog, SmartHubGELFFormatter())
-
-# Handle `no module named 'fcntl'`
-except ModuleNotFoundError:         # pragma: no cover
-    pass
+    return conf[log_format]
 
 
 ###############################################################################
 #                                                                             #
-#  Helper functions: hide tokens, limit log message size                      #
+#  Limit log message size                                                     #
 #                                                                             #
 ###############################################################################
-def get_logger(name: str = None):
-    """ Logging wrapper: return logger by name if supplied or construct one with caller's name
-
-    :param name:
-    """
-    if name:
-        return logging.getLogger(name)
-    frame = inspect.stack()[1]
-    caller = inspect.getmodule(frame[0])
-    return logging.getLogger(caller.__name__ if caller else 'Unknown')
-
-
 def _trim(s):
-    """ Trim long string to LOG_ENTRY_MAX_STRING(+3) length """
-    return s if not isinstance(s, str) or len(s) < LOG_ENTRY_MAX_STRING else s[:LOG_ENTRY_MAX_STRING] + '...'
+    """Trim long string to LOG_ENTRY_MAX_STRING(+3) length"""
+    return (
+        s
+        if not isinstance(s, str) or len(s) < config.settings.LOG_ENTRY_MAX_STRING
+        else s[: config.settings.LOG_ENTRY_MAX_STRING] + "..."
+    )
 
 
 def _copy(d):
-    """ Recursively copy the dictionary values, trimming long strings """
+    """Recursively copy dictionary values, trimming long strings"""
+
     if isinstance(d, dict):
         return {k: _copy(v) for k, v in d.items()}
     elif isinstance(d, (list, tuple)):
@@ -173,21 +168,11 @@ def _copy(d):
         return _trim(d)
 
 
-def hide_tokens(request):
-    """ Hide tokens in a request """
-    if 'context' in request:
-        [request['context']['tokens'].update({key: '*****'})
-         for key in (request['context']['tokens'] if 'tokens' in request['context'] else [])]
-    return request
+def prepare_for_logging(record):
+    """
+    Trim long strings before logging a record
 
-
-def prepare_for_logging(request):
-    """ Replace tokens and trim long strings before logging a request
-
-    :param request:
+    :param record:  value to log
     :return:
     """
-    if not isinstance(request, dict):
-        return request
-
-    return hide_tokens(_copy(request))
+    return _copy(record)

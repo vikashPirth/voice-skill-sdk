@@ -25,23 +25,20 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt install -y gettext
         python -m pip install --upgrade pip
         python -m pip install flake8 cookiecutter mypy
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+        pip install -e .[dev]
     - name: Lint with flake8/black/mypy
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 ./skill_sdk --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 ./skill_sdk --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-        # double-check formatting with black skill_sdk tests --check
+        # double-check formatting with
+        black skill_sdk tests --check
         # check typing with mypy
         mypy ./skill_sdk
     - name: Test with unittest
       run: |
         # Run unit tests suite
-        python -m unittest discover -v -s tests -p "*_test.py"
-        # Run functional test in isolation
-        python -m unittest "tests/test_runner.py"
+        python -m pytest --cov=./skill_sdk --cov-report=term-missing tests

@@ -1,22 +1,6 @@
 #!/bin/bash
 
-# Use this script for local testing only
+# TODO:
+# exec ./scripts/lint
 
-set -e
-
-pip install -U mypy -r requirements-dev.txt
-
-coverage erase
-
-# Suppress debug messages
-export LOG_FORMAT=human LOG_LEVEL=ERROR
-
-# Run unit tests suite
-coverage run --branch --source=skill_sdk,skill_generator -m unittest discover -v -s tests -p "*_test.py"
-
-# Run functional test in isolation
-coverage run -a --branch --source=skill_sdk -m unittest "tests/test_runner.py"
-
-coverage report --fail-under=99
-
-mypy skill_sdk/ skill_generator/
+python -m pytest --cov=./skill_sdk --cov-report=term-missing tests ${@}

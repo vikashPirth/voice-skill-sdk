@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -ex
+
+black skill_sdk tests --check
+mypy skill_sdk

@@ -1,200 +1,185 @@
 #
+#
 # voice-skill-sdk
 #
-# (C) 2020, Deutsche Telekom AG
+# (C) 2021, Deutsche Telekom AG
 #
 # This file is distributed under the terms of the MIT license.
 # For details see the file LICENSE in the top directory.
 #
 
 #
-# Bottle route definitions
+# Route definitions
 #
 
-import json
-import base64
 import logging
-import traceback
-from json import dumps, JSONDecodeError
+import secrets
+from typing import Text, Union
 
-from .__version__ import __version__, __spi_version__
-from .config import config
-from .intents import Context, InvalidTokenError
-from .l10n import TranslationError, get_locales
-from .responses import ErrorResponse
-from .skill import app, error, get, post, request, response, tob, touni, HTTPResponse
+from fastapi import Depends, FastAPI, Request, Response, Security
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import HTTPException
+from fastapi.security.http import (
+    HTTPBasic,
+    HTTPBasicCredentials,
+    HTTP_401_UNAUTHORIZED,
+)
 
-from . import log, tracing
+import skill_sdk.i18n
+from skill_sdk.config import settings
+from skill_sdk.__version__ import __version__
+from skill_sdk.intents import Context, invoke
+
+from skill_sdk.responses import SkillInfoResponse, SkillInvokeResponse
 
 logger = logging.getLogger(__name__)
+security = HTTPBasic()
 
 
-def api_base():
-    """Get API base"""
-    return config.get('skill', 'api_base', fallback=f"/v1/{config.get('skill', 'name')}")
+def check_credentials(username: Text, password: Text):
+    def wrapper(credentials: HTTPBasicCredentials = Security(security)):
+        if not (
+            secrets.compare_digest(credentials.username, username)
+            and secrets.compare_digest(credentials.password, password)
+        ):
+            logger.warning("401 raised, returning: access denied.")
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="Incorrect user name or password",
+            )
+
+    return wrapper
 
 
-def debug():
-    return config.getboolean('skill', 'debug', fallback=False)
-
-
-def authenticate(req, password):
-    """
-    Authenticate the request
-
-    :param req:
-    :param password:
-    :return:    True if authorized
-    """
-    logger.debug('Processing basic authentication.')
-    auth = req.headers.get('Authorization')
-
-    try:
-        method, data = auth.split(None, 1)
-        if method.lower() == 'basic':
-            # Get user:password from "Authorization" header
-            user, pwd = touni(base64.b64decode(tob(data))).split(':', 1)
-
-            authorized = (user.lower() == 'cvi' and pwd == password)
-            logger.debug(f"Basic auth decoded: {user}/{pwd}. {'Authorized' if authorized else 'NOT authorized'}.")
-            return authorized
-
-        logger.warning(f"Authorization [{method}] is not accepted.")
-    except (AttributeError, KeyError, TypeError, ValueError) as ex:
-        logger.debug(f'Error authenticating request: {ex}')
-        return None
-
-
-def auth_basic(check, text="Access denied"):
-    """
-    Decorator to [optionally] require basic auth
-
-    :param check:
-    :param text:
-    :return:        function to authenticate the request (if configured)
-    """
-    def decorator(func):
-        """ Check skill config and return either inner wrapper requesting basic auth,
-            or the original (undecorated) function otherwise
-        """
-
-        auth = config.get('skill', 'auth', fallback='None')
-        api_key = config.get('skill', 'api_key', fallback=None)
-        if auth == 'basic' and api_key:
-            logger.debug(f'Basic authentication requested for {func.__name__}, api-key: {api_key}.')
-
-            def wrapper(*args, **kwargs):
-                """ Inner wrapper """
-                if not check(request, api_key):
-                    logger.warning('401 raised, returning: access denied.')
-                    return HTTPResponse(json.dumps({'text': text}), 401, {'Content-type': 'application/json'})
-
-                return func(*args, **kwargs)
-            return wrapper
-
-        # If authentication requested but no api_key found in config, log a warning
-        if auth == 'basic' and not api_key:
-            logger.warning('Please set api_key in skill.conf! Proceeding without authentication....')
-
-        return func
-    return decorator
-
-
-@get(f'{api_base()}/info')
-@auth_basic(authenticate)
-def info():
+async def handle_info_request(request: Request):
     """
     Get skill info endpoint
 
-    returns basic skill info to CVI:
-        - skill id
-        - supported SPI version
-        - skill and SDK versions
-        - supported locales
+        Returns the skill info to CVI:
+
+            - skill id
+            - supported SPI version
+            - skill and SDK versions
+            - supported locales
+
+    :param request: Request
+    :return:        JSONResponse
     """
 
-    with tracing.start_active_span('info', request):
-        logger.debug('Handling info request.')
+    logger.debug("Handling info request.")
 
-        try:
-            response.content_type = 'application/json'
-            data = {
-                'skillId': config.get('skill', 'id', fallback=config.get('skill', 'name')),
-                'skillSpiVersion': __spi_version__,
-                'skillVersion': f"{config.get('skill', 'version')} {__version__}",
-                'supportedLocales': [
-                    lang.split('-', 1).pop().lower() for lang in get_locales()
-                ],
-            }
-            logger.debug('Info request result: %s', data)
-            return dumps(data)
-
-        except BaseException as ex:
-            logger.exception('Internal error: %s', repr(ex))
-            return ErrorResponse(999, 'internal error').as_response()
+    return SkillInfoResponse(
+        skill_id=settings.SKILL_NAME,
+        skill_version=f"{settings.SKILL_VERSION} {__version__}",
+        supported_locales=tuple(request.app.translations.keys()),
+    )
 
 
-@post(api_base())
-@auth_basic(authenticate)
-def invoke():
+async def invoke_intent(
+    rq: Request,
+    request: skill_sdk.intents.Request,
+):
     """
-    Invoke intent endpoint:
+    Invoke intent endpoint
 
-    returns intent call result or ErrorResponse
+        Sets the translation to requested locale and invokes an intent handler.
+
+    :param rq:          original starlette's request
+    :param request:     skill invoke request
+
+    :return:
     """
 
-    with tracing.start_active_span('invoke', request) as scope:
-        logger.debug('Handling intent call request.')
+    def _get_translation(
+        app: skill_sdk.Skill, locale: Text
+    ) -> skill_sdk.i18n.Translations:
+        """Get translation for locale, or empty translation if does not exist"""
 
-        try:
-            logger.debug('Request data: %s', log.prepare_for_logging(request.json))
-            context = Context(request)
-            context.tracer = scope.span.tracer
-            intent = app().get_intent(context.intent_name)
-            if intent:
-                result = intent(context).as_response(context)
-                logger.debug('Intent call result: %s', result.body)
-            else:
-                result = ErrorResponse(1, 'intent not found').as_response()
-                logger.error('Intent not found: %s', context.intent_name)
+        if locale not in app.translations:
+            logger.error("Translation for locale %s is not available.", repr(locale))
+            return skill_sdk.i18n.Translations()
+        return app.translations[locale]
 
-        except InvalidTokenError:
-            logger.exception('Invalid token.')
-            result = ErrorResponse(2, 'invalid token').as_response()
-        except (TranslationError, JSONDecodeError, AttributeError, KeyError, TypeError) as ex:
-            logger.exception('Bad request: %s', repr(ex))
-            exc_msg = f'Exception in "invoke": {repr(ex)}. {traceback.format_exc()}' if debug() else 'Bad request'
-            result = ErrorResponse(3, exc_msg).as_response()
-        except BaseException as ex:
-            logger.exception('Exception in "invoke": %s', repr(ex))
-            exc_msg = f'Exception in "invoke": {repr(ex)}. {traceback.format_exc()}' if debug() else 'internal error'
-            result = ErrorResponse(999, exc_msg).as_response()
+    if request.context.intent not in rq.app.intents:
+        logger.error("Intent not found: %s", repr(request.context.intent))
+        return JSONResponse({"code": 1, "text": "Intent not found!"}, status_code=404)
 
-    return result
+    handler = rq.app.intents[request.context.intent]
+
+    return await invoke(
+        handler,
+        request.with_translation(_get_translation(rq.app, request.context.locale)),
+    )
 
 
-@error(400)
-def json_400(err):
-    """Bad request"""
+def api_base():
+    """
+    API base is either set directly in `skill.conf` (required for deployment as Azure function), like
 
-    logger.warning('400 raised, returning: bad request.')
-    logger.debug('Error: %s', err)
-    return ErrorResponse(3, 'Bad request!').as_response()
+        skill:
+            api_base: /api
+
+        OR constructed from skill version and name: `/v{version:1}/{name:my-skill}` => `/v1/my-skill`
+
+        skill:
+            version: 1
+            name: my-skill
+
+    """
+
+    return getattr(
+        settings, "API_BASE", f"/v{settings.SKILL_VERSION}/{settings.SKILL_NAME}"
+    )
 
 
-@error(404)
-def json_404(err):
-    """Not found"""
+async def health(r: Request) -> JSONResponse:
+    """
+    Health check endpoint
 
-    logger.warning('404 raised, returning: not found.')
-    logger.debug('Error: %s', err)
-    return ErrorResponse(1, 'Not Found!').as_response()
+    :param r:   starlette's request
+
+    :return:
+    """
+    if len(r.app.intents) < 1:
+        return JSONResponse(dict(text="No intent handlers loaded!"), status_code=418)
+
+    return JSONResponse(dict(text="Ok"), status_code=200)
 
 
-@error(500)
-def json_500(err):
-    """Internal server error"""
+def setup_routes(app: FastAPI):
 
-    logger.warning('500 error raised, returning: internal error.')
-    logger.debug('Error: %s', err)
-    return ErrorResponse(999, 'internal error').as_response()
+    authentication = (
+        [Depends(check_credentials(settings.SKILL_API_USER, settings.SKILL_API_KEY))]
+        if not app.debug
+        else []
+    )
+
+    app.add_api_route(
+        f"{api_base()}",
+        invoke_intent,
+        dependencies=authentication,
+        methods=["POST"],
+        response_model=SkillInvokeResponse,
+        response_model_exclude_none=True,
+        name="Invoke Intent",
+        tags=["Skill endpoints"],
+    )
+
+    app.add_api_route(
+        f"{api_base()}/info",
+        handle_info_request,
+        dependencies=authentication,
+        response_model=SkillInfoResponse,
+        name="Get Skill Info",
+        tags=["Skill endpoints"],
+    )
+
+    app.add_api_route(
+        settings.K8S_READINESS,
+        health,
+        name="Readiness Probe",
+        tags=["Health endpoints"],
+    )
+    app.add_api_route(
+        settings.K8S_LIVENESS, health, name="Liveness Probe", tags=["Health endpoints"]
+    )

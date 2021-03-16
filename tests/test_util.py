@@ -1,0 +1,36 @@
+#
+# voice-skill-sdk
+#
+# (C) 2021, Deutsche Telekom AG
+#
+# This file is distributed under the terms of the MIT license.
+# For details see the file LICENSE in the top directory.
+#
+#
+import unittest
+from skill_sdk.util import snake_to_camel, camel_to_snake
+
+
+class TestUtils(unittest.TestCase):
+    def test_snake_to_camel(self):
+        self.assertEqual(snake_to_camel("abc"), "abc")
+        self.assertEqual(snake_to_camel("a_b_c"), "aBC")
+        self.assertEqual(snake_to_camel("ab_2"), "ab2")
+        self.assertEqual(snake_to_camel("a_bc"), "aBc")
+        self.assertEqual(snake_to_camel("snake_case"), "snakeCase")
+        with self.assertRaises(TypeError):
+            snake_to_camel(123)
+
+    def test_camel_to_snake(self):
+        self.assertEqual(camel_to_snake("Simple"), "simple")
+        self.assertEqual(camel_to_snake("SnakeCase"), "snake_case")
+        with self.assertRaises(TypeError):
+            snake_to_camel(123)
+
+    def test_camel_to_camel(self):
+        """
+        Make sure camelCased attribute names remain camelCased
+
+        @return:
+        """
+        self.assertEqual("camelCase", snake_to_camel("camelCase"))

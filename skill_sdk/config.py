@@ -1,74 +1,42 @@
 #
 # voice-skill-sdk
 #
-# (C) 2020, Deutsche Telekom AG
+# (C) 2021, Deutsche Telekom AG
 #
 # This file is distributed under the terms of the MIT license.
 # For details see the file LICENSE in the top directory.
 #
 
 #
-# Read skill configuration file
+# Create application instance from config files
 #
 
 import os
 import re
-import json
+import uuid
 import logging
-import configparser
 from pathlib import Path
-from typing import Dict, List
+from enum import Enum
+from typing import Any, Dict, Iterator, List, Optional, Text, Tuple, Union
+from configparser import BasicInterpolation, ConfigParser, SectionProxy
 
-#
-#   This is a default configuration
-#   Loaded when config instantiated
-#
+from pydantic import BaseSettings, fields
+from pydantic.env_settings import SettingsSourceCallable
 
-DEFAULT_VALUES = {
-    'skill': {
-        'name': 'unnamed-skill',
-        'version': 0.1,
-    },
-    'http': {
-        'host': '0.0.0.0',
-        'port': 4242,
-        'server': 'gunicorn',
-        'workers': 1,
-        'threads': 1,
-        'worker_class': 'gevent',
-        'keepalive': 30,
-    }
-}
-
-# Name of default config file
-DEFAULT_CONFIG_FILE = 'skill.conf'
-
-# Name of default tokens file
-DEFAULT_TOKENS_FILE = 'tokens.json'
-
-# Filesystem paths to look for config and tokens
-SEARCH_PATH = [Path('./'), Path('../'), Path('/'), Path('~')]
-
-ENV_VAR_TEMPLATE = re.compile(r'\${([^}^{]+)\}')
 
 logger = logging.getLogger(__name__)
 
+ENV_VAR_TEMPLATE = re.compile(r"\${([^}^{]+)}")
 
-def get_config_file():
-    """ Read config file name from environment """
-    return os.environ.get('SKILL_CONF', DEFAULT_CONFIG_FILE)
-
-
-def get_token_file():
-    """ Read token file name from environment """
-    return os.environ.get('TOKENS_JSON', DEFAULT_TOKENS_FILE)
+# Skill default config file name
+SKILL_CONFIG_FILE = "skill.conf"
 
 
-class EnvVarInterpolation(configparser.BasicInterpolation):
-    """ Interpolation to expand environment variables in the format:
+class EnvVarInterpolation(BasicInterpolation):
+    """Interpolation to expand environment variables in the format:
 
-            [section]
-            key = ${ENV_VAR:default}
+    [section]
+    key = ${ENV_VAR:default}
 
     """
 
@@ -78,7 +46,7 @@ class EnvVarInterpolation(configparser.BasicInterpolation):
             return os.path.expandvars(value)
 
         match = match.group(1)
-        env_var, default = match.split(':', 1) if ':' in match else (match, None)
+        env_var, default = match.split(":", 1) if ":" in match else (match, None)
         value = os.getenv(env_var)
         if value:
             logger.debug("Read %s from environment: %s", env_var, value)
@@ -87,96 +55,249 @@ class EnvVarInterpolation(configparser.BasicInterpolation):
         return value or default
 
 
-class Config(configparser.ConfigParser):
-    """ Here is our configuration that holds:
-           - WSGI server config
-           - service config
-           - tokens
+def get_skill_config_file(config: Text = None) -> Text:
+    config_file = (
+        config if config is not None else os.getenv("CONFIG_FILE", SKILL_CONFIG_FILE)
+    )
 
+    try:
+        with open(config_file):
+            logger.info("Using config: %s", config_file)
+
+    except FileNotFoundError as ex:
+        if config:
+            raise RuntimeError from ex
+        logger.error("File not found: %s", repr(config_file))
+
+    return config_file
+
+
+def load_additional() -> List[Text]:
+    """Load additional configuration files
+
+    :return:
+    """
+    config: List[Text] = []
+    additional_locations = os.getenv("CONFIG_ADDITIONAL_LOCATION")
+
+    if not additional_locations:
+        logger.debug("CONFIG_ADDITIONAL_LOCATION is not set.")
+        return config
+
+    paths = [Path(location).absolute() for location in additional_locations.split(",")]
+    logger.debug("Will search configuration in %s", repr(paths))
+
+    for path in paths:
+        if path.exists():
+            logger.debug("Loading additional configuration files from %s", repr(path))
+            for _ in path.iterdir():
+                if _.is_file() and _.suffix in (".conf", ".cnf"):
+                    config += [str(_)]
+
+    return config
+
+
+def read_config(path: List[Text]) -> ConfigParser:
+    """Read configuration from files
+
+    :param path:    path to the configuration file
+    :return:        configuration dictionary
     """
 
-    tokens: Dict = {}
-    # The config files that were successfully loaded, we'll use it to determine relative paths for intents loading
-    config_files: List = []
+    logger.debug("Loading configuration from %s", repr(path))
 
-    def __init__(self):
-        super().__init__(interpolation=EnvVarInterpolation())
-        self.read_dict(DEFAULT_VALUES)  # Read default config
-        self.read_conf()                # Read config from `skill.conf`
-        self.read_tokens()              # Read tokens
+    config = ConfigParser(interpolation=EnvVarInterpolation())
+    paths = config.read(path)
 
-    def read_conf(self, config_file: str = None) -> 'Config':
-        """ Read the configuration file
+    logger.debug("Loaded from %s", repr(paths))
 
-        :param config_file: Path to config file
-        :return:    self
-        """
-        config_file = config_file or get_config_file()
-        logger.info(f"Reading configuration from {config_file}")
+    return config
 
-        self.config_files = self.read([path.joinpath(config_file) for path in SEARCH_PATH])
-        if not self.config_files:
-            logger.info(f"Can't read configuration from {config_file}...")
 
-        return self
+def init_config(config: Union[Dict, Text]) -> ConfigParser:
+    """
+    Initialize skill configuration:
 
-    def read_tokens(self, token_file: str = None) -> Dict:
-        """ Read the tokens
+        1. Defaults from SDK
+        2. Additional locations
+        3. "skill.conf"
 
-        :param token_file:  Path to tokens file
-        :return:    dict
-        """
-        token_file = token_file or get_token_file()
-        logger.info(f"Reading tokens from {token_file}")
+    :param config:
+    :return:
+    """
 
+    # Merge additional configs
+    config_paths = load_additional()
+
+    if not isinstance(config, dict):
+        config_paths += [get_skill_config_file(config)]
+
+    parser = read_config(config_paths)
+
+    if isinstance(config, dict):
+        logger.debug("Creating app from dictionary: %s", repr(config))
+        parser.read_dict(config)
+
+    return parser
+
+
+def clean_section(d: SectionProxy, **kwargs) -> Dict[Text, Any]:
+    """
+    Helper to clean a ConfigParser's section and return as dictionary
+        convert boolean values to bools, integer values to ints, float values to floats
+
+    @param d:
+    @param kwargs:
+    @return:
+    """
+
+    def get(option, chain: Iterator):
         try:
-            with open(token_file) as file:
-                self.tokens.update(json.load(file))
-        except FileNotFoundError:
-            logger.info(f"{token_file} does not exist. Skipping...")
-        except Exception as ex:
-            logger.exception(f"Can't read tokens from {token_file}: %s", ex)
+            return next(chain)(option)
+        except (AttributeError, TypeError, ValueError):
+            return get(option, chain)
 
-        return self.tokens
+    return {
+        o: kwargs[o]
+        if o in kwargs
+        else get(o, iter((d.getint, d.getfloat, d.getboolean, d.get)))
+        for o, v in {**dict(d.items()), **kwargs}.items()
+    }
 
-    def read_environment(self, env: str, section: str, option: str) -> 'Config':
-        """ Read the environment variables and overwrite config values
 
-        :param env:         environment variable
-        :param section:     config section
-        :param option:      config option to get from environment
-        :return:
+#
+# Skill configuration settings
+#
+
+
+class FormatType(str, Enum):
+    """Types of log format: human-readable or machine-readable"""
+
+    GELF = "gelf"
+    HUMAN = "human"
+
+
+class Settings(BaseSettings):
+
+    # Default values for skill name/title/description and version
+    SKILL_NAME: Text = "skill-noname"
+    SKILL_TITLE: Text = "Magenta Skill SDK Python"
+    SKILL_DESCRIPTION: Text = "Magenta Voice Skill SDK for Python"
+
+    SKILL_VERSION: Text = "1"
+
+    SKILL_DEBUG: bool = False
+
+    # Basic auth: cvi/API key
+    SKILL_API_USER: Text = "cvi"
+    SKILL_API_KEY: Text = uuid.uuid1().__str__()
+
+    # Default HTTP port
+    HTTP_PORT: int = 4242
+
+    # Health endpoints for k8s
+    K8S_READINESS: Text = "/k8s/readiness"
+    K8S_LIVENESS: Text = "/k8s/liveness"
+
+    REQUESTS_TIMEOUT: float = 5
+
+    #
+    # Logging
+    #
+
+    # Default log format: GELF
+    LOG_FORMAT: FormatType = FormatType.GELF
+
+    # Default log level: DEBUG
+    LOG_LEVEL: int = logging.DEBUG
+
+    # Maximal length of a string in the log
+    LOG_ENTRY_MAX_STRING: int = 150
+
+    # JSON-formatted list of CORS origins: requests from dev and prod UI
+    BACKEND_CORS_ORIGINS: List[Text] = [
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "http://localhost:4242",
+        "http://127.0.0.1:4242",
+    ]
+
+    def debug(self) -> bool:
+        return self.SKILL_DEBUG
+
+    def app_config(self) -> Dict[Text, Any]:
+        return dict(
+            title=self.SKILL_NAME,
+            version=self.SKILL_VERSION,
+            description=self.SKILL_DESCRIPTION,
+            debug=self.SKILL_DEBUG,
+        )
+
+    def http_config(self) -> Dict[Text, Any]:
+        return dict(port=self.HTTP_PORT)
+
+    @classmethod
+    def add_fields(cls, **field_definitions: Any):
         """
-        value = os.environ.get(env)
-        if value:
-            self.read_dict({section: {option: value}})
-        return self
+        Add new fields to the model
 
-    def active(self, service: str) -> bool:
-        """ Returns True is service is activated in skill configuration
-
-        :return:
+        @param field_definitions:
+        @return:
         """
-        return self.has_section(service) and self.getboolean(service, "active", fallback=True)
+        new_fields: Dict[str, fields.ModelField] = {}
+        new_annotations: Dict[str, Optional[type]] = {}
 
-    def get_tokens(self):
-        """ Get tokens defined in `token.json`
+        for f_name, f_def in field_definitions.items():
+            f_annotation, f_value = type(f_def), f_def
 
-        :return:
-        """
-        return self.tokens.get('tokens')
+            if f_annotation:
+                new_annotations[f_name] = f_annotation
 
-    def resolve_glob(self, glob_to_resolve: Path):
-        """ Resolve glob pattern relative to the path where config files were found
+            new_fields[f_name] = fields.ModelField.infer(
+                name=f_name,
+                value=f_value,
+                annotation=f_annotation,
+                class_validators=None,
+                config=cls.Config,
+            )
 
-        :param glob_to_resolve:
-        :return:
-        """
-        if glob_to_resolve.is_absolute():
-            return glob_to_resolve.parent.glob(glob_to_resolve.name)
+        cls.__fields__.update(new_fields)
+        cls.__annotations__.update(new_annotations)
 
-        conf_file_found_in = [Path(file_name).resolve().parent for file_name in self.config_files] or [Path('.')]
-        return (file for path in conf_file_found_in for file in path.glob(str(glob_to_resolve)))
+    class Config(BaseSettings.Config):
+
+        conf_file = SKILL_CONFIG_FILE
+        case_sensitive = True
+
+        @classmethod
+        def conf_settings(cls, *args) -> Dict[Text, Any]:
+
+            try:
+                c: ConfigParser = init_config(cls.conf_file)
+
+                def _make_key(string: Text) -> Text:
+                    return string.upper().replace("-", "_")
+
+                d: Dict[Text, Any] = {
+                    "_".join((_make_key(section), _make_key(field))): value
+                    for section in c.sections()
+                    for field, value in clean_section(c[section]).items()
+                }
+
+                Settings.add_fields(**d)
+                return d
+
+            except RuntimeError:
+                return {}
+
+        @classmethod
+        def customise_sources(
+            cls,
+            init_settings: SettingsSourceCallable,
+            env_settings: SettingsSourceCallable,
+            file_secret_settings: SettingsSourceCallable,
+        ) -> Tuple[SettingsSourceCallable, ...]:
+            return init_settings, cls.conf_settings, env_settings, file_secret_settings
 
 
-config = Config()
+settings = Settings()

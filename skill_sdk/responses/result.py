@@ -1,0 +1,59 @@
+#
+#
+# voice-skill-sdk
+#
+# (C) 2021, Deutsche Telekom AG
+#
+# This file is distributed under the terms of the MIT license.
+# For details see the file LICENSE in the top directory.
+#
+
+#
+# Skill invoke response
+#
+
+from typing import Dict, Optional, Text
+from skill_sdk.util import CamelModel
+
+
+class Result(CamelModel):
+    """Skill result in machine-readable format"""
+
+    class Config:
+        # This model instances are mutable for backward compatibility
+        allow_mutation = True
+
+    # Result data
+    data: Dict
+
+    # True if passed over to the local client
+    local: bool = True
+
+    # Id of the controlled device
+    target_device_id: Optional[Text]
+
+    def __init__(
+        self, data: Dict, local: bool = True, target_device_id: Text = None
+    ) -> None:
+        """
+        Rewrite positional arguments to keyword ones for backward compatibility
+
+        :param data:
+        :param local:
+        :param target_device_id:
+        """
+        super().__init__(data=data, local=local, target_device_id=target_device_id)
+
+    def __getitem__(self, *args):
+        return self.data.__getitem__(*args)
+
+    def __bool__(self):
+        return any((self.data, self.target_device_id))
+
+    def update(self, *args, **kwargs):
+        """
+        Update `data`
+
+        :return:
+        """
+        return self.data.update(*args, **kwargs)
