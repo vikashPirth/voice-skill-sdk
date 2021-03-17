@@ -13,9 +13,13 @@
 
 import argparse
 import logging
+from contextlib import closing
+
 import uvicorn
 
 from skill_sdk.cli import import_module_app
+
+logger = logging.getLogger(__name__)
 
 
 def execute(arguments):
@@ -32,18 +36,21 @@ def execute(arguments):
     if app is None:
         app = skill.init_app()
 
+    logger.info("Loaded app: %s", repr(app))
+
     if not app.intents:
         raise RuntimeError(
             "No intent handlers loaded. Check the log messages for import errors..."
         )
 
-    logging.info("Loaded handlers: %s", list(app.intents))
+    logger.info("Loaded handlers: %s", list(app.intents))
 
     run_config = config.settings.http_config()
 
-    logging.info("Starting %s", repr(app))
+    logger.info("Starting app with config: %s", repr(run_config))
 
-    uvicorn.run(app, **run_config)
+    with closing(app):
+        uvicorn.run(app, **run_config)
 
 
 def add_subparser(subparsers):

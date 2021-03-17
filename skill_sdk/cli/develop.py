@@ -18,9 +18,13 @@
 
 import argparse
 import logging
+from contextlib import closing
+
 import uvicorn
 
 from skill_sdk.cli import import_module_app
+
+logger = logging.getLogger(__name__)
 
 
 def execute(arguments):
@@ -50,9 +54,15 @@ def execute(arguments):
         # Cannot activate "reload" mode if application object not in format "file:app"
         reload = False
 
+    logger.info("Loaded app: %s", repr(app))
+    logger.info("Loaded handlers: %s", list(app.intents))
+
     run_config = config.settings.http_config()
 
-    uvicorn.run(arguments.module if reload else app, reload=reload, **run_config)
+    logger.info("Starting app with config: %s", repr(run_config))
+
+    with closing(app):
+        uvicorn.run(arguments.module if reload else app, reload=reload, **run_config)
 
 
 def add_subparser(subparsers):

@@ -47,11 +47,15 @@ def add_logging_options(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def import_module_app(import_from: Text) -> Tuple[ModuleType, Skill]:
+def import_module_app(import_from: Text, reload: bool = False) -> Tuple[ModuleType, Skill]:
     """
     Import application from either python file or directory
 
-    :param import_from:
+    :param import_from: module name, can be in following formats:
+                        "app.py", "app:app" or "app_dir"
+
+    :param reload:      If True the module (and a single level of submodules is reloaded)
+
     :return:
     """
     module_str, _, app_str = import_from.partition(":")
@@ -75,4 +79,19 @@ def import_module_app(import_from: Text) -> Tuple[ModuleType, Skill]:
     else:
         module = importlib.import_module(module_str)
 
+    if reload:
+        reload_submodules(module)
+
     return module, getattr(module, app_str, None)
+
+
+def reload_submodules(module):
+    """
+    Reload a module with one level of submodules
+    """
+    importlib.reload(module)
+    [
+        importlib.reload(getattr(module, _))
+        for _ in dir(module)
+        if type(getattr(module, _)) is ModuleType
+    ]

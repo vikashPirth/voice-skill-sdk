@@ -22,6 +22,8 @@ from skill_sdk import i18n, util
 from skill_sdk.intents import handlers, invoke
 from skill_sdk.responses import Response
 
+logger = logging.getLogger(__name__)
+
 #
 # Fallback intent: called when no implementation found
 #
@@ -102,13 +104,17 @@ class Skill(FastAPI):
                 for intent, implementation in self.intents.items()
                 if handler is implementation
             ][0]
-            logging.debug("Intent %s handler: %s", repr(registered), repr(handler))
+            logger.debug(
+                "Intent %s handler %s already registered",
+                repr(registered),
+                repr(handler),
+            )
         except IndexError:
             pass
 
         if intent and not registered:
             self.__intents[intent] = self.__register(intent, handler, error_handler)
-            logging.debug("Intent %s handler: %s", repr(intent), repr(handler))
+            logger.debug("Intent %s handler: %s", repr(intent), repr(handler))
 
         return self
 
@@ -134,6 +140,7 @@ class Skill(FastAPI):
 
         decorated = handlers.intent_handler(handler, error_handler=error_handler)
         Skill.__intents[intent] = decorated
+        logger.debug("Intent %s static handler: %s", repr(intent), repr(decorated))
         return decorated
 
     @staticmethod
@@ -162,9 +169,8 @@ class Skill(FastAPI):
 
         return partial(Skill.__register, intent, error_handler=error_handler)
 
-    @staticmethod
     async def test_intent(
-        intent: Text, translation: i18n.Translations = None, **kwargs
+        self, intent: Text, translation: i18n.Translations = None, **kwargs
     ) -> Response:
         """
         Test an intent implementation
@@ -175,7 +181,7 @@ class Skill(FastAPI):
         :return:
         """
         try:
-            handler = Skill.__intents[intent]
+            handler = self.intents[intent]
         except KeyError:
             raise KeyError(f"Intent {intent} not found")
 
@@ -185,7 +191,7 @@ class Skill(FastAPI):
 
         return await invoke(handler, r)
 
-    def __del__(self):
+    def close(self):
         """
         Cleanup: Skill.__intents is static to enable backward-compatible "@intent_handler" decorators,
         that are not bound to a skill instance (yet).
@@ -193,16 +199,15 @@ class Skill(FastAPI):
         While it's not a big issue for a single-purpose skill, it is for SDK unit testing,
         when skill instances dynamically created and destroyed.
 
-        Do not rely on garbage collector and force cleanup:
+        To force cleanup:
 
-            >>> skill = init_app()
-            >>> ... # do your things
-            >>> skill.__del__()
+            >>> from contextlib import closing
+            >>> with init_app():
+            >>>     ... # do your things
 
         """
-        self.__intents.clear()
 
-    close = __del__
+        self.__intents.clear()
 
 
 def init_app(config_path: Text = None, develop: bool = None) -> Skill:
@@ -227,7 +232,7 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
         develop = config.settings.debug()
 
     app_config = {**config.settings.app_config(), **dict(debug=develop)}
-    logging.debug("App config: %s", app_config)
+    logger.debug("App config: %s", app_config)
 
     app = Skill(**app_config)
 
@@ -243,4 +248,3 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
 
 
 intent_handler = Skill.intent_handler
-test_intent = Skill.test_intent

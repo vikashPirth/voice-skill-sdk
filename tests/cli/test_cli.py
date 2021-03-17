@@ -8,27 +8,26 @@
 #
 
 import sys
-import shutil
 import pathlib
 import pkg_resources
 from argparse import Namespace
-from contextlib import closing
-from typing import Callable
 
 import pytest
 from pytest import CaptureFixture
-from _pytest.pytester import Testdir, RunResult
 
+from skill_sdk.config import settings
 from skill_sdk.cli import import_module_app, develop, init, run, version
+
+APP = "app:app"
 
 
 @pytest.fixture
-def run_with_stdin(testdir: Testdir) -> Callable[..., RunResult]:
-    def do_run(*args, stdin):
-        args = [shutil.which("vs")] + list(args)
-        return testdir.run(*args, stdin=stdin)
-
-    return do_run
+def debug_logging(monkeypatch):
+    from skill_sdk import log
+    monkeypatch.setattr(settings, 'LOG_LEVEL', 'DEBUG')
+    monkeypatch.setattr(settings, 'LOG_FORMAT', 'human')
+    log.setup_logging()
+    return True
 
 
 def test_import_module_app():
@@ -44,7 +43,7 @@ def test_import_module_app():
     assert cli is test_cli
 
 
-def test_run(mocker, monkeypatch):
+def test_run(debug_logging, mocker, monkeypatch):
 
     scaffold_path = pkg_resources.resource_filename(run.__name__, "scaffold")
     cwd = pathlib.Path(scaffold_path).absolute().__str__()
@@ -52,15 +51,14 @@ def test_run(mocker, monkeypatch):
         monkeypatch.syspath_prepend(cwd)
 
     uv = mocker.patch.object(run, "uvicorn")
-    _, app = import_module_app("app:app")
+    _, app = import_module_app(APP)
+    assert list(app.intents.keys()) == ["SMALLTALK__GREETINGS"]
 
-    with closing(app):
-        run.execute(Namespace(module="app:app"))
-
+    run.execute(Namespace(module=APP))
     uv.run.assert_called_once_with(app, port=4242)
 
 
-def test_develop(mocker, monkeypatch):
+def test_develop(debug_logging, mocker, monkeypatch):
 
     scaffold_path = pkg_resources.resource_filename(develop.__name__, "scaffold")
     cwd = pathlib.Path(scaffold_path).absolute().__str__()
@@ -68,11 +66,18 @@ def test_develop(mocker, monkeypatch):
         monkeypatch.syspath_prepend(cwd)
 
     uv = mocker.patch.object(develop, "uvicorn")
-    _, app = import_module_app("app:app")
-    with closing(app):
-        develop.execute(Namespace(module="app:app"))
 
-    uv.run.assert_called_once_with("app:app", reload=True, port=4242)
+    #
+    # In the previous test `app` object was _closed_
+    # so we have to force reload the submodules to return
+    # previously deleted static intent handlers
+    #
+    _, app = import_module_app(APP, reload=True)
+
+    assert list(app.intents.keys()) == ["SMALLTALK__GREETINGS"]
+
+    develop.execute(Namespace(module=APP))
+    uv.run.assert_called_once_with(APP, reload=True, port=4242)
 
 
 def test_init(tmpdir):
