@@ -2,28 +2,25 @@
 
 Magenta Voice Skill SDK for Python is a package that assists in creating Voice Applications for Magenta Voice Platform.
 
+## About
+
+This is a reworked stack supporting explicit `async/await` concurrency
+and based on [**FastAPI**](https://fastapi.tiangolo.com/) ASGI framework.
+
+Old stable (Bottle/Gevent) 0.xx [branch](https://github.com/telekom/voice-skill-sdk/tree/stable)
+
 ## Installation
 
 ### Runtime
-Runtime install: `python -m pip install skill-sdk`.
+Runtime installation: `python -m pip install skill-sdk`.
 
-### Runtime (with Prometheus metrics exporter and distributed tracing adapter)
-Runtime install: `python -m pip install skill-sdk[all]`.
+### Runtime (full)
+Runtime installation with Prometheus metrics exporter and distributed tracing adapter: `python -m pip install skill-sdk[all]`.
 
 ### Development
-Development install: `python -m pip install skill-sdk[dev]`.
+Development installation: `python -m pip install skill-sdk[dev]`.
 
-### Extras requirements
-
-- [all]:
-  - `starlette-opentracing` opentracing adapter
-  - `starlette-exporter` Prometheus exporter
-
-- [dev]:
-  - `starlette-opentracing` opentracing adapter
-  - `starlette-exporter` Prometheus exporter
-
-### CLI: **vs**
+## CLI: **vs**
 
 - `vs init`: initializes an empty skill
 
@@ -34,3 +31,19 @@ Development install: `python -m pip install skill-sdk[dev]`.
 - `vs translate`: extracts translatable strings from Python modules. Optionally, downloads full catalog from text service
 
 - `vs version`: displays skill version
+
+## Hello World
+
+```python
+from skill_sdk import skill, Response
+
+
+@skill.intent_handler("HELLO_WORLD__INTENT")
+async def handler() -> Response:
+
+    return "Hello World!"
+
+app = skill.init_app()
+
+app.include(handler=handler)
+```
