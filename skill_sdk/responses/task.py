@@ -54,7 +54,9 @@ class ExecutionTime(CamelModel):
         offset: datetime.timedelta = datetime.timedelta(0),
     ) -> "ExecutionTime":
         return ExecutionTime(
-            execute_after=ExecuteAfter(reference=event, offset=isodate.duration_isoformat(offset))
+            execute_after=ExecuteAfter(
+                reference=event, offset=isodate.duration_isoformat(offset)
+            )
         )
 
 
@@ -136,7 +138,9 @@ class DelayedClientTask(CamelModel):
         @param offset:  offset timedelta
         @return:
         """
-        return self.copy(update=dict(execution_time=ExecutionTime.after(event=event, offset=offset)))
+        return self.copy(
+            update=dict(execution_time=ExecutionTime.after(event=event, offset=offset))
+        )
 
 
 ClientTask = DelayedClientTask

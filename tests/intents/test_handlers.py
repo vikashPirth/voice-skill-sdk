@@ -7,6 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 #
+
 import asyncio
 import inspect
 import unittest.mock
@@ -15,13 +16,15 @@ from contextvars import ContextVar
 from typing import List
 import pytest
 
+from skill_sdk import Response
 from skill_sdk.intents import (
+    intent_handler,
     AttributeV2,
     Context,
+    ContextVarExecutor,
     EntityValueException,
 )
 from skill_sdk.util import create_request, mock_datetime_now
-from skill_sdk.intents.handlers import intent_handler, get_inner, ContextVarExecutor
 
 
 class TestHandlerDecorator(unittest.TestCase):
@@ -162,7 +165,10 @@ class TestHandlerDecorator(unittest.TestCase):
         self.assertEqual(m.call_count, 2)
 
     def test_with_error_handler(self):
-        """ Test conversion failure if error_handler supplied """
+        """ Test conversion failure if error_handler provided """
+        from skill_sdk.intents import ErrorHandlerType
+
+        error_handler: ErrorHandlerType
 
         def error_handler(name, exception):
             return name, exception.value, str(exception.__cause__)
@@ -290,6 +296,8 @@ class TestAttributesV2(unittest.TestCase):
 
 @pytest.mark.asyncio
 async def test_async_decorator():
+    from skill_sdk.intents.handlers import get_inner
+
     @intent_handler
     def sync_handler():  # noqa
         pass
@@ -310,6 +318,25 @@ async def test_async_decorator():
 
     assert inspect.iscoroutinefunction(async_handler) is True
     assert inspect.iscoroutinefunction(get_inner(async_handler)) is True
+
+
+@pytest.mark.asyncio
+async def test_async_error_handler():
+    def sync_error_handler(name, exception) -> Response:
+        return Response(str(exception.__cause__))
+
+    async def error_handler(name, exception) -> Response:
+        return Response(str(exception.__cause__))
+
+    with pytest.raises(ValueError):
+
+        @intent_handler(error_handler=sync_error_handler)
+        async def async_handler():
+            return None
+
+    @intent_handler(error_handler=error_handler)
+    async def async_handler():
+        return None
 
 
 @pytest.mark.asyncio

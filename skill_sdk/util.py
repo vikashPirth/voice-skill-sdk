@@ -74,6 +74,12 @@ class Server(uvicorn.Server):
 
     WAIT_TIME = 1e-3
 
+    def __init__(self, *args, **kwargs):
+        if "loop" not in kwargs:
+            kwargs.update(dict(loop="asyncio"))
+        config = uvicorn.Config(*args, **kwargs)
+        super().__init__(config)
+
     @contextlib.contextmanager
     def run_in_thread(self):
         thread = threading.Thread(target=self.run)

@@ -7,6 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 #
+import datetime
 import logging
 import unittest
 import pathlib
@@ -20,7 +21,6 @@ from skill_sdk.i18n import (
     _load_gettext,
     Message,
     Translations,
-    load_translations,
     _,
     _n,
     _a,
@@ -276,6 +276,15 @@ class TestMessage(unittest.TestCase):
     def test_strip(self):
         self.assertEqual("Message", Message(" !Message?!,. ").strip(" !?,."))
 
+    def test_add(self):
+        m = Message("1") + " " + Message("2")
+        self.assertEqual("1 2", m)
+        self.assertEqual("1", m.key)
+        self.assertEqual("1 2", Message("1") + " " + "2")
+        self.assertEqual("1 2", "1" + " " + Message("2"))
+        with self.assertRaises(TypeError):
+            Message("1") + 1
+
 
 class TestTranslations(unittest.TestCase):
     @patch("subprocess.check_output")
@@ -324,9 +333,58 @@ class TestMultiStringTranslation(unittest.TestCase):
         self.assertEqual(message.value, "WHATEVA")
         self.assertEqual(message.kwargs, {"a": "1", "b": "1"})
 
+        self.assertEqual("KEY3", self.tr.gettext("KEY3"))
+
     def test_message_ngettext(self):
         with patch("skill_sdk.i18n.random.choice", return_value="WHATEVA"):
             message = self.tr.ngettext("KEY1", "KEY2", 1, a="1", b="1")
         self.assertEqual(message.key, "KEY1")
         self.assertEqual(message.value, "WHATEVA")
         self.assertEqual(message.kwargs, {"a": "1", "b": "1"})
+
+    def test_message_getalltexts(self):
+        message = self.tr.getalltexts("KEY1")
+        self.assertEqual(message[0].key, "KEY1")
+        self.assertEqual(message[1].key, "KEY1")
+        self.assertEqual(message[0].value, "VALUE11")
+        self.assertEqual(message[1].value, "VALUE12")
+
+        self.assertEqual(["KEY3"], self.tr.getalltexts("KEY3"))
+
+
+class TestFormatFunctions(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tr = Translations()
+        self.tr.lang = "en"
+
+    def test_format_list(self):
+        self.assertEqual("", self.tr.format_list([]))
+        self.assertEqual("dog and fox", self.tr.format_list(["dog", "fox"]))
+        self.assertEqual(
+            "cat, dog, and fox", self.tr.format_list(["cat", "dog", "fox"])
+        )
+
+    def test_nl_build(self):
+        with self.assertRaises(TypeError):
+            self.assertEqual(self.tr.nl_build("Header"), "")
+
+        self.assertEqual(
+            "Chuck Norris can: instantiate interfaces",
+            self.tr.nl_build("Chuck Norris can", ["instantiate interfaces"]),
+        )
+        self.assertEqual(
+            "Chuck Norris can: instantiate interfaces and jump over the lazy fox",
+            self.tr.nl_build(
+                "Chuck Norris can", ["instantiate interfaces", "jump over the lazy fox"]
+            ),
+        )
+
+    @util.mock_datetime_now(
+        datetime.datetime(year=2100, month=12, day=31, hour=15), datetime
+    )
+    def test_format_datetime(self):
+        self.assertEqual(
+            "Dec 31, 2100, 3:00:00 PM", self.tr.format_datetime(datetime.datetime.now())
+        )
+        self.assertEqual("3:00:00 PM", self.tr.format_time(datetime.datetime.now()))
+        self.assertEqual("Dec 31, 2100", self.tr.format_date(datetime.datetime.now()))

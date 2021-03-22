@@ -7,8 +7,12 @@
 # For details see the file LICENSE in the top directory.
 #
 #
+
 import unittest
-from skill_sdk.util import snake_to_camel, camel_to_snake
+import pytest
+from fastapi.testclient import TestClient
+from skill_sdk import init_app
+from skill_sdk.util import camel_to_snake, snake_to_camel, Server
 
 
 class TestUtils(unittest.TestCase):
@@ -34,3 +38,16 @@ class TestUtils(unittest.TestCase):
         @return:
         """
         self.assertEqual("camelCase", snake_to_camel("camelCase"))
+
+
+def test_server_run_in_thread():
+    app = init_app()
+    client = TestClient(app)
+
+    with Server(app).run_in_thread():
+        openapi = client.get("/openapi.json").json()
+        assert openapi["info"] == {
+            "title": "skill-noname",
+            "description": "Magenta Voice Skill SDK for Python",
+            "version": "1",
+        }

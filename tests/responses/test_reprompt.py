@@ -8,39 +8,43 @@
 #
 #
 
-import unittest
-from unittest.mock import patch
+from skill_sdk.responses import Response, Reprompt, ResponseType
 
-from skill_sdk.responses import Response, Reprompt
-
-from skill_sdk.util import create_context
+from skill_sdk.intents import request
 
 
-class TestReprompt(unittest.TestCase):
-    def setUp(self):
-        self.ctx = create_context("TELEKOM_Clock_GetTime")
+def test_reprompt_response(monkeypatch):
+    from skill_sdk.util import test_request
 
+    with test_request("SMALLTALK__GREETINGS"):
+        assert isinstance(Reprompt("abc123"), Response)
 
-"""
-    def test_reprompt_response(self):
-        self.assertIsInstance(Reprompt('abc123'), Response)
-        response = Reprompt('abc123').dict(self.ctx)
-        self.assertEqual(response['session']['attributes']['TELEKOM_Clock_GetTime_reprompt_count'], '1')
-        self.assertEqual(response['text'], 'abc123')
-        self.assertEqual(response['type'], 'ASK')
-        with patch.dict(self.ctx.session, {'TELEKOM_Clock_GetTime_reprompt_count': '1'}):
-            response = Reprompt('abc123').dict(self.ctx)
-            self.assertEqual(response['session']['attributes']['TELEKOM_Clock_GetTime_reprompt_count'], '2')
-            self.assertEqual(response['text'], 'abc123')
-            self.assertEqual(response['type'], 'ASK')
-            response = Reprompt('abc123', '321cba', 2).dict(self.ctx)
-            self.assertNotIn('TELEKOM_Clock_GetTime_reprompt_count', response['session']['attributes'])
-            self.assertEqual(response['text'], '321cba')
-            self.assertEqual(response['type'], 'TELL')
-        with patch.dict(self.ctx.session, {'TELEKOM_Clock_GetTime_reprompt_count': 'not a number'}):
-            response = Reprompt('abc123').dict(self.ctx)
-            self.assertEqual(response['session']['attributes']['TELEKOM_Clock_GetTime_reprompt_count'], '1')
-        response = Reprompt('abc123', entity='Time').dict(self.ctx)
-        self.assertEqual(response['session']['attributes']['TELEKOM_Clock_GetTime_reprompt_count'], '1')
-        self.assertEqual(response['session']['attributes']['TELEKOM_Clock_GetTime_Time_reprompt_count'], '1')
-"""
+        response = Reprompt("abc123").dict()
+        assert response["text"] == "abc123"
+        assert response["type"] == ResponseType.ASK
+        assert request.session["SMALLTALK__GREETINGS_reprompt_count"] == 1
+
+        response = Reprompt("abc123").dict()
+        assert response["text"] == "abc123"
+        assert response["type"] == ResponseType.ASK
+        assert request.session["SMALLTALK__GREETINGS_reprompt_count"] == 2
+
+        response = Reprompt("abc123", "321cba", 2).dict()
+        assert response["text"] == "321cba"
+        assert response["type"] == ResponseType.TELL
+        assert "SMALLTALK_GREETINGS_reprompt_count" not in request.session
+
+        monkeypatch.setitem(
+            request.session.attributes,
+            "SMALLTALK__GREETINGS_reprompt_count",
+            "not a number",
+        )
+        Reprompt("abc123").dict()
+        assert request.session["SMALLTALK__GREETINGS_reprompt_count"] == 1
+
+        response = Reprompt("abc123", entity="Time").dict()
+        assert request.session["SMALLTALK__GREETINGS_Time_reprompt_count"] == 1
+
+        attributes = response["session"]["attributes"]
+        assert attributes["SMALLTALK__GREETINGS_reprompt_count"] == "1"
+        assert attributes["SMALLTALK__GREETINGS_Time_reprompt_count"] == "1"

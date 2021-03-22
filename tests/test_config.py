@@ -59,8 +59,15 @@ class TestLoadConfig(unittest.TestCase):
             self.assertFalse(config.load_additional())
 
 
-def test_extra_attributes_allowed():
-    from skill_sdk.config import settings
+def test_extra_attributes_allowed(monkeypatch):
+    from skill_sdk.config import settings, Settings
 
-    # That raises ValueError: "Settings" object has no field "NEW_KID_ON_THE_BLOCK"
+    # Should not raise ValueError: "Settings" object has no field "NEW_KID_ON_THE_BLOCK"
     settings.NEW_KID_ON_THE_BLOCK = "1"
+
+    # Configuration can be also loaded from a dictionary-like object
+    monkeypatch.setattr(
+        Settings.Config, "conf_file", {"new-section": {"my-key": "value"}}
+    )
+    settings = Settings()
+    assert settings.NEW_SECTION_MY_KEY == "value"  # noqa

@@ -7,6 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 #
+
 import os
 import time
 import asyncio
@@ -58,6 +59,9 @@ class TestContext(unittest.TestCase):
                 self.assertEqual(local_today.day, 20)
                 self.assertEqual(local_today.hour, 0)
                 self.assertEqual(local_today.minute, 0)
+
+    def test_missing_attribute(self):
+        self.assertEqual("Value", self.ctx._get_attr_value("Non-existing", "Value"))
 
 
 def run_thread(func):

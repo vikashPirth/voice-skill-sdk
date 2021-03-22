@@ -24,6 +24,7 @@ from skill_sdk.responses import (
 from skill_sdk.util import create_context
 from skill_sdk.responses.task import ClientTask
 
+
 class TestResponse(unittest.TestCase):
     def setUp(self):
         self.simple_response = Response("abc123", ResponseType.TELL)
@@ -135,9 +136,7 @@ class TestResponse(unittest.TestCase):
             )
 
     def test_response_with_task(self):
-        response = tell("Hola").with_task(
-            ClientTask.invoke("WEATHER__INTENT")
-        )
+        response = tell("Hola").with_task(ClientTask.invoke("WEATHER__INTENT"))
         self.assertEqual(
             {
                 "type": "TELL",

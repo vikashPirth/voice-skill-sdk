@@ -19,6 +19,7 @@ import logging
 from typing import (
     AbstractSet,
     Any,
+    Awaitable,
     Callable,
     Dict,
     List,
@@ -26,6 +27,7 @@ from typing import (
     Tuple,
     Text,
     Type,
+    Union,
 )
 
 from pydantic.utils import lenient_issubclass
@@ -40,7 +42,7 @@ from functools import wraps, reduce, partial
 logger = logging.getLogger(__name__)
 AnyType = Type[Any]
 AnyFunc = Callable[..., Any]
-ErrorHandlerType = Callable[[Text, "EntityValueException"], Response]
+ErrorHandlerType = Callable[[Text, "EntityValueException"], Union[Awaitable, Response]]
 
 
 class EntityValueException(Exception):
@@ -182,7 +184,7 @@ def get_converters(
     for name, param in list(parameters):
         if param.annotation == inspect.Parameter.empty:
             raise ValueError(
-                f"Function {func_name} - parameter '{name}' has no type hint defined"
+                f"Function {func_name} - parameter '{name}' has no type annotation"
             )
 
         converters[name] = partial(reduce_func, _converters(param.annotation))
@@ -273,6 +275,11 @@ def intent_handler(
         )
 
         if inspect.iscoroutinefunction(inner):
+
+            if error_handler and not inspect.iscoroutinefunction(error_handler):
+                raise ValueError(
+                    f"Error handler {repr(error_handler.__name__)} must be a coroutine"
+                )
 
             @wraps(inner)
             async def wrapper(request: Request = None, *args, **kwargs) -> Response:

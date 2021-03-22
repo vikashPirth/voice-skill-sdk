@@ -56,5 +56,3 @@ class TestTasks(unittest.TestCase):
             },
             task.dict(),
         )
-
-

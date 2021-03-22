@@ -23,6 +23,7 @@ def test_intent_handlers():
         app.include("Test_Intent", handler=lambda: "Hola")
 
         with pytest.raises(ValueError):
+            # Cannot redefine existing intent...
             app.include("Test_Intent", handler=lambda: "Hola")
 
         with pytest.raises(ValueError):
@@ -32,13 +33,27 @@ def test_intent_handlers():
                 ...
 
         with pytest.raises(ValueError):
-            app.include("Test_Intent", handler="Hola")  # noqa
+            # Wrong handler type...
+            app.include("Another_Test_Intent", handler="Hola")  # noqa
 
-        @app.intent_handler
-        def handler():
-            ...
 
-        assert handler.__intent_handler__ is True
+@pytest.mark.asyncio
+async def test_with_error_handler():
+    app = skill.init_app()
+
+    with closing(app):
+
+        def error_handler(name, exc):
+            return str(exc.__cause__)
+
+        def handler(number: int):
+            return int(number)
+
+        app.include(
+            "Another_Test_Intent", handler=handler, error_handler=error_handler  # noqa
+        )
+        result = await app.test_intent("Another_Test_Intent", number="str")
+        assert result.text == "invalid literal for int() with base 10: 'str'"
 
 
 @pytest.mark.asyncio

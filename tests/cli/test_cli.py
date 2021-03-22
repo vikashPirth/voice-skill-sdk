@@ -24,8 +24,9 @@ APP = "app:app"
 @pytest.fixture
 def debug_logging(monkeypatch):
     from skill_sdk import log
-    monkeypatch.setattr(settings, 'LOG_LEVEL', 'DEBUG')
-    monkeypatch.setattr(settings, 'LOG_FORMAT', 'human')
+
+    monkeypatch.setattr(settings, "LOG_LEVEL", "DEBUG")
+    monkeypatch.setattr(settings, "LOG_FORMAT", "human")
     log.setup_logging()
     return True
 
