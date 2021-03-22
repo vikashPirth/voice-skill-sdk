@@ -2,6 +2,24 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.14.0] - 2021-03-22  
+
+**Miscellaneous**
+
+-   Skill SPI has been bumped to version 1.4.1.
+    
+    You can now attach [client tasks](docs/client_tasks.md) to the response, for example, 
+    tell the client to execute another intent:
+    ```python
+    import datetime
+    from skill_sdk.responses import ClientTask, Response
+    
+    response = Response("Weather forecast follows.").with_task(
+        ClientTask.invoke("WEATHER__INTENT")
+    )
+    ```
+
+
 ## [v0.12.2] - 2021-03-12  
 
 **Bugfixes**
