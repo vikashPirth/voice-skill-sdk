@@ -81,6 +81,6 @@ class TestIntentsResult(unittest.TestCase):
         """Test Result representation"""
         result = Result({"a": 1}, target_device_id="Secondary")
         self.assertEqual(
-            "Result(data={'a': 1}, local=True, target_device_id='Secondary')",
+            "Result(data={'a': 1}, local=True, target_device_id='Secondary', delayed_client_task=None)",
             repr(result),
         )

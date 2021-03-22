@@ -18,7 +18,10 @@ from pydantic import ValidationError
 
 from skill_sdk.i18n import Message
 from skill_sdk.util import CamelModel
-from skill_sdk.responses import Card, Command, ListSection, Result
+from skill_sdk.responses.card import Card, ListSection
+from skill_sdk.responses.command import Command
+from skill_sdk.responses.result import Result
+from skill_sdk.responses.task import ClientTask
 
 
 class ResponseType(Enum):
@@ -194,3 +197,13 @@ class SkillInvokeResponse(CamelModel):
 
         session = SessionResponse(attributes=attributes)
         return self.copy(update=dict(session=session))
+
+    def with_task(self, task: ClientTask):
+        """
+        Add a delayed client task
+
+        @param task:
+        @return:
+        """
+        result = self.result or Result(data={})
+        return self.copy(update=dict(result=result.with_task(task)))

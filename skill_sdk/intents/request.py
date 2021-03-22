@@ -48,6 +48,9 @@ class Context(CamelModel):
     # Request locale
     locale: Text = Field(example=SAMPLE_LOCALE)
 
+    # Skill id
+    skill_id: Optional[Text]
+
     # Skill tokens
     tokens: Dict[Text, Text]
 

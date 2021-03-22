@@ -22,7 +22,7 @@ from skill_sdk.responses import (
     ResponseType,
 )
 from skill_sdk.util import create_context
-
+from skill_sdk.responses.task import ClientTask
 
 class TestResponse(unittest.TestCase):
     def setUp(self):
@@ -133,6 +133,31 @@ class TestResponse(unittest.TestCase):
                 attr1="attr-1",
                 attr2="attr-2",
             )
+
+    def test_response_with_task(self):
+        response = tell("Hola").with_task(
+            ClientTask.invoke("WEATHER__INTENT")
+        )
+        self.assertEqual(
+            {
+                "type": "TELL",
+                "text": "Hola",
+                "result": {
+                    "data": {},
+                    "local": True,
+                    "delayedClientTask": {
+                        "invokeData": {"intent": "WEATHER__INTENT", "parameters": {}},
+                        "executionTime": {
+                            "executeAfter": {
+                                "reference": "SPEECH_END",
+                                "offset": "P0D",
+                            }
+                        },
+                    },
+                },
+            },
+            response.dict(),
+        )
 
     def test_tell(self):
         r = tell("Hello")

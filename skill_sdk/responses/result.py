@@ -14,6 +14,7 @@
 
 from typing import Dict, Optional, Text
 from skill_sdk.util import CamelModel
+from skill_sdk.responses.task import DelayedClientTask
 
 
 class Result(CamelModel):
@@ -31,6 +32,9 @@ class Result(CamelModel):
 
     # Id of the controlled device
     target_device_id: Optional[Text]
+
+    # Delayed client task
+    delayed_client_task: Optional[DelayedClientTask]
 
     def __init__(
         self, data: Dict, local: bool = True, target_device_id: Text = None
@@ -57,3 +61,13 @@ class Result(CamelModel):
         :return:
         """
         return self.data.update(*args, **kwargs)
+
+    def with_task(self, task: DelayedClientTask):
+        """
+        Add task to result
+
+        @param task:
+        @return:
+        """
+        self.delayed_client_task = task
+        return self

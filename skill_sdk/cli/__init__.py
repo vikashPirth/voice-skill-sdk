@@ -47,9 +47,7 @@ def add_logging_options(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def import_module_app(
-    import_from: Text, reload: bool = False
-) -> Tuple[ModuleType, Skill]:
+def import_module_app(import_from: Text, reload: bool = False) -> Tuple[ModuleType, Skill]:
     """
     Import application from either python file or directory
 

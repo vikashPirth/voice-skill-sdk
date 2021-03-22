@@ -20,7 +20,7 @@ from enum import Enum
 from typing import Any, Dict, Iterator, List, Optional, Text, Tuple, Union
 from configparser import BasicInterpolation, ConfigParser, SectionProxy
 
-from pydantic import BaseSettings, fields
+from pydantic import BaseSettings, fields, Extra
 from pydantic.env_settings import SettingsSourceCallable
 
 
@@ -268,6 +268,7 @@ class Settings(BaseSettings):
 
         conf_file = SKILL_CONFIG_FILE
         case_sensitive = True
+        extra = Extra.allow
 
         @classmethod
         def conf_settings(cls, *args) -> Dict[Text, Any]:
