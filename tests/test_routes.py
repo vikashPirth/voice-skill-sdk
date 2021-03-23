@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 
 from skill_sdk.config import settings
 from skill_sdk.util import create_request
-from skill_sdk.skill import init_app, intent_handler
+from skill_sdk.skill import init_app
 from skill_sdk.__version__ import __version__, __spi_version__
 
 
@@ -67,7 +67,7 @@ class TestRoutes(unittest.TestCase):
         assert response.status_code == 404
         assert response.json() == {"code": 1, "text": "Intent not found!"}
 
-    def test_invoke_response(self):
+    def test_invoke_response_tell(self):
         def handler():
             from skill_sdk.intents.request import r
 
@@ -84,6 +84,28 @@ class TestRoutes(unittest.TestCase):
         assert response.status_code == 200
         assert response.json() == {
             "text": "Hola",
-            "type": "TELL",
-            "session": {"attributes": {"Session Key": "Hola"}},
+            "type": "TELL"
+        }
+
+    def test_invoke_response_ask(self):
+        from skill_sdk import ask
+
+        def handler():
+            from skill_sdk.intents.request import r
+
+            r.session["Session Key"] = "Hello"
+            return ask("Hello?")
+
+        self.app.include("Test_Intent", handler=handler)
+
+        response = self.client.post(
+            ENDPOINT,
+            data=create_request("Test_Intent", session={}).json(),
+            headers=self.auth,
+        )
+        assert response.status_code == 200
+        assert response.json() == {
+            "text": "Hello?",
+            "type": "ASK",
+            "session": {"attributes": {"Session Key": "Hello"}},
         }

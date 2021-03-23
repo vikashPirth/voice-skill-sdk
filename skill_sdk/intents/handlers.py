@@ -33,7 +33,7 @@ from pydantic.utils import lenient_issubclass
 from skill_sdk.util import run_in_executor
 from skill_sdk.intents import entities
 from skill_sdk.intents import Context, Request, Session, RequestContextVar
-from skill_sdk.responses import Response
+from skill_sdk.responses import Response, _enrich
 
 from functools import wraps, reduce, partial
 
@@ -84,22 +84,6 @@ async def invoke(handler: AnyFunc, request: Request) -> Response:
 
         logger.debug("Intent call result: %s", repr(result))
         return result
-
-
-def _enrich(response: Response) -> Response:
-    from skill_sdk.intents.request import r
-
-    if isinstance(response, str):
-        logger.debug("Handler response is %s, converting to Response", str)
-        response = Response(text=response)
-
-    # Copy session attributes from global request
-    if r.session.attributes:
-        attributes = copy.deepcopy(r.session.attributes)
-        logger.debug("Adding session attributes: %s", repr(attributes))
-        return response.with_session(**attributes)
-
-    return response
 
 
 def _is_subtype(cls: Any, class_or_tuple: Any) -> bool:

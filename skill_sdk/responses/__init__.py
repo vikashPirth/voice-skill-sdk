@@ -42,6 +42,7 @@ from skill_sdk.responses.response import (
     SkillInvokeResponse,
     SkillInvokeResponse as Response,
     ResponseType,
+    _enrich,
 )
 
 from skill_sdk.responses.reprompt import Reprompt

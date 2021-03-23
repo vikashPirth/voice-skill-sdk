@@ -25,7 +25,7 @@ from skill_sdk.responses.result import Result
 from skill_sdk.responses.task import ClientTask
 
 
-class ResponseType(Enum):
+class ResponseType(str, Enum):
     """
     Response types:
 
@@ -189,8 +189,7 @@ class SkillInvokeResponse(CamelModel):
         @return:
         """
 
-        # FIXME: we don't like this `.value` thing, but util.BaseModel.Config.use_enum_values is True
-        if self.type == ResponseType.TELL.value:
+        if self.type == ResponseType.TELL:
             raise ValidationError(
                 f"Response type: {self.type} ends the session.",
                 type(self),
@@ -208,3 +207,21 @@ class SkillInvokeResponse(CamelModel):
         """
         result = self.result or Result(data={})
         return self.copy(update=dict(result=result.with_task(task)))
+
+
+def _enrich(response: SkillInvokeResponse) -> SkillInvokeResponse:
+    from skill_sdk.intents.request import r
+
+    if isinstance(response, str):
+        # Convert string response to Response object
+        response = SkillInvokeResponse(text=response)
+
+    #
+    # Copy session attributes from global request,
+    # unless response is TELL, that ends the session
+    #
+    if response.type != ResponseType.TELL and r.session.attributes:
+        attributes = copy.deepcopy(r.session.attributes)
+        return response.with_session(**attributes)
+
+    return response

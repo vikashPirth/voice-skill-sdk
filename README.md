@@ -22,15 +22,15 @@ Development installation: `python -m pip install skill-sdk[dev]`.
 
 ## CLI: **vs**
 
-- `vs init`: initializes an empty skill
+- `vs init`: initialize an empty skill
 
-- `vs run`: deploys the skill in production mode
+- `vs run`: deploy the skill in production mode
 
-- `vs run`: deploys the skill in development mode (with skill Designer UI)
+- `vs develop`: deploy the skill in development mode (with skill Designer UI)
 
-- `vs translate`: extracts translatable strings from Python modules. Optionally, downloads full catalog from text service
+- `vs translate`: extract translatable strings from Python modules. Optionally, download full catalog from text service
 
-- `vs version`: displays skill version
+- `vs version`: display skill version
 
 ## Hello World
 
@@ -40,7 +40,6 @@ from skill_sdk import skill, Response
 
 @skill.intent_handler("HELLO_WORLD__INTENT")
 async def handler() -> Response:
-
     return "Hello World!"
 
 app = skill.init_app()
