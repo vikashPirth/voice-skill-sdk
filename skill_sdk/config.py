@@ -146,9 +146,9 @@ def clean_section(d: SectionProxy, **kwargs) -> Dict[Text, Any]:
     Helper to clean a ConfigParser's section and return as dictionary
         convert boolean values to bools, integer values to ints, float values to floats
 
-    @param d:
-    @param kwargs:
-    @return:
+    :param d:
+    :param kwargs:
+    :return:
     """
 
     def get(option, chain: Iterator):
@@ -241,8 +241,8 @@ class Settings(BaseSettings):
         """
         Add new fields to the model
 
-        @param field_definitions:
-        @return:
+        :param field_definitions:
+        :return:
         """
         new_fields: Dict[str, fields.ModelField] = {}
         new_annotations: Dict[str, Optional[type]] = {}

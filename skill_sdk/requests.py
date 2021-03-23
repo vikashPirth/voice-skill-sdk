@@ -52,13 +52,13 @@ class Client(httpx.Client):
         """
         Construct sync client
 
-        @param internal:        identifies a request to an internal service
+        :param internal:        identifies a request to an internal service
                                 propagate the tracing headers, if the request is internal
 
-        @param circuit_breaker: optional circuit breaker, DEFAULT_CIRCUIT_BREAKER if not set
-        @param timeout:         optional timeout for a request
-        @param exclude:         list of HTTP status codes that are treated as "normal" (no exception is raised)
-        @param kwargs:          keyword arguments passed over to request
+        :param circuit_breaker: optional circuit breaker, DEFAULT_CIRCUIT_BREAKER if not set
+        :param timeout:         optional timeout for a request
+        :param exclude:         list of HTTP status codes that are treated as "normal" (no exception is raised)
+        :param kwargs:          keyword arguments passed over to request
         """
         self.internal = internal
         self.circuit_breaker = circuit_breaker or DEFAULT_CIRCUIT_BREAKER
@@ -118,13 +118,13 @@ class AsyncClient(httpx.AsyncClient):
         """
         Construct sync client
 
-        @param internal:        identifies a request to an internal service
+        :param internal:        identifies a request to an internal service
                                 propagate the tracing headers, if the request is internal
 
-        @param circuit_breaker: optional circuit breaker, DEFAULT_CIRCUIT_BREAKER if not set
-        @param timeout:         optional timeout for a request
-        @param exclude:         list of HTTP status codes that are treated as "normal"
-        @param kwargs:          keyword arguments passed over to request
+        :param circuit_breaker: optional circuit breaker, DEFAULT_CIRCUIT_BREAKER if not set
+        :param timeout:         optional timeout for a request
+        :param exclude:         list of HTTP status codes that are treated as "normal"
+        :param kwargs:          keyword arguments passed over to request
         """
         self.internal = internal
         self.circuit_breaker = circuit_breaker or DEFAULT_CIRCUIT_BREAKER

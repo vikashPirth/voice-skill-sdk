@@ -63,9 +63,9 @@ async def invoke(handler: AnyFunc, request: Request) -> Response:
         awaits the call if handler is a coroutine
         runs in executor if handler is `def`
 
-    @param handler:
-    @param request:
-    @return:
+    :param handler:
+    :param request:
+    :return:
     """
 
     with RequestContextVar(request=request):
@@ -362,8 +362,8 @@ def _as_attributes(attrs_v2: List[entities.AttributeV2]) -> List[Any]:
     """
     Convert entities: list of AttributesV2 to simple values list
 
-    @param attrs_v2:
-    @return:
+    :param attrs_v2:
+    :return:
     """
     return [_.value for _ in attrs_v2]
 

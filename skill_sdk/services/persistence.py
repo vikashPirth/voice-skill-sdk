@@ -35,7 +35,7 @@ class PersistenceService(BaseService):
         """
         Read the data from service
 
-        @param path:
+        :param path:
         :return:
         """
 

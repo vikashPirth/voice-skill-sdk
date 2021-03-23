@@ -66,8 +66,8 @@ class Result(CamelModel):
         """
         Add task to result
 
-        @param task:
-        @return:
+        :param task:
+        :return:
         """
         self.delayed_client_task = task
         return self

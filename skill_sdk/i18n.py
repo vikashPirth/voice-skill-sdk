@@ -126,8 +126,8 @@ class Message(str):
         """
         Concatenate messages (or Message and str)
 
-        @param other:
-        @return:
+        :param other:
+        :return:
         """
         if isinstance(other, Message):
             value = self.value + other.value
@@ -143,8 +143,8 @@ class Message(str):
         """
         Join messages in iterable and return a concatenated Message.
 
-        @param iterable:
-        @return:
+        :param iterable:
+        :return:
         """
         return reduce(lambda x, y: x + self + y, iterable)
 
@@ -231,8 +231,8 @@ class MultiStringTranslation(Translations):
         """
         Load catalogue from YAML file
 
-        @param fp:
-        @return:
+        :param fp:
+        :return:
         """
 
         try:
@@ -321,8 +321,8 @@ def _load_yaml(locale_dir: Text = None) -> Dict[Text, MultiStringTranslation]:
     """
     Load multi-string translations from YAML files
 
-    @param locale_dir:
-    @return:
+    :param locale_dir:
+    :return:
     """
 
     logger.info("Loading YAML translations...")
@@ -338,8 +338,8 @@ def _load_gettext(locale_dir: Text = None) -> Dict[Text, Translations]:
     """
     Load `gettext` translations from *.po/*.mo files
 
-    @param locale_dir:
-    @return:
+    :param locale_dir:
+    :return:
     """
 
     logger.info("Loading gettext translations...")

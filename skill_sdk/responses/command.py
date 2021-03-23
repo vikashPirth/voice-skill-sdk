@@ -84,8 +84,8 @@ class AudioPlayer(Command):
         """
         Start playing a generic internet stream, specified by "url" parameter
 
-        @param url:
-        @return:
+        :param url:
+        :return:
         """
         return AudioPlayer(AudioPlayer.Action.PLAY_STREAM, url=url)
 
@@ -94,8 +94,8 @@ class AudioPlayer(Command):
         """
         Start playing a stream, before pronouncing the response
 
-        @param url:
-        @return:
+        :param url:
+        :return:
         """
         return AudioPlayer(AudioPlayer.Action.PLAY_STREAM_BEFORE_TEXT, url=url)
 
@@ -105,9 +105,9 @@ class AudioPlayer(Command):
         Stop currently playing media (voicemail, radio, content tts),
             optionally say text BEFORE stopping
 
-        @param content_type:
-        @param text:
-        @return:
+        :param content_type:
+        :param text:
+        :return:
         """
         content_type = content_type or AudioPlayer.ContentType.RADIO
         text = text or ""
@@ -123,9 +123,9 @@ class AudioPlayer(Command):
         """
         Pause playback, optionally say text AFTER playback paused
 
-        @param content_type:
-        @param text:
-        @return:
+        :param content_type:
+        :param text:
+        :return:
         """
         content_type = content_type or AudioPlayer.ContentType.RADIO
         text = text or ""
@@ -141,8 +141,8 @@ class AudioPlayer(Command):
         """
         Resume paused media, say response text before resuming
 
-        @param content_type:
-        @return:
+        :param content_type:
+        :return:
         """
         content_type = content_type or AudioPlayer.ContentType.RADIO
 
@@ -167,8 +167,8 @@ class Calendar(Command):
         """
         Snooze calendar alarm by optional number of seconds
 
-        @param snooze_seconds:
-        @return:
+        :param snooze_seconds:
+        :return:
         """
         return Calendar(Calendar.Action.SNOOZE_START, snooze_seconds=snooze_seconds)
 
@@ -177,7 +177,7 @@ class Calendar(Command):
         """
         Cancel current snooze
 
-        @return:
+        :return:
         """
         return Calendar(Calendar.Action.SNOOZE_CANCEL)
 
@@ -213,8 +213,8 @@ class System(Command):
         Send a `Stop` event: stops a foreground activity on the device.
         If there was another activity in background, it will gain focus.
 
-        @param skill_type:  Stop a skill-related activity, or everything, if no skill specified
-        @return:
+        :param skill_type:  Stop a skill-related activity, or everything, if no skill specified
+        :return:
         """
         return System(System.Action.STOP, skill=skill_type)
 
@@ -223,7 +223,7 @@ class System(Command):
         """
         Pause currently active content (if supported)
 
-        @return:
+        :return:
         """
         return System(System.Action.PAUSE)
 
@@ -232,7 +232,7 @@ class System(Command):
         """
         Resume media (if paused)
 
-        @return:
+        :return:
         """
         return System(System.Action.RESUME)
 
@@ -241,7 +241,7 @@ class System(Command):
         """
         Switch to next item in content channel
 
-        @return:
+        :return:
         """
         return System(System.Action.NEXT)
 
@@ -250,7 +250,7 @@ class System(Command):
         """
         Switch to previous item in content channel
 
-        @return:
+        :return:
         """
         return System(System.Action.PREVIOUS)
 
@@ -259,7 +259,7 @@ class System(Command):
         """
         Repeat last uttered sentence (from the dialog channel)
 
-        @return:
+        :return:
         """
         return System(System.Action.SAY_AGAIN)
 
@@ -268,7 +268,7 @@ class System(Command):
         """
         Increase the volume one notch
 
-        @return:
+        :return:
         """
         return System(System.Action.VOLUME_UP)
 
@@ -277,7 +277,7 @@ class System(Command):
         """
         Decrease the volume one notch
 
-        @return:
+        :return:
         """
         return System(System.Action.VOLUME_DOWN)
 
@@ -286,7 +286,7 @@ class System(Command):
         """
         Set the volume to an absolute value (0-10)
 
-        @return:
+        :return:
         """
         if value not in range(10):
             raise ValueError("Value %s in not in expected range (0 - 10)", repr(value))
@@ -314,7 +314,7 @@ class Timer(Command):
         """
         Fire up a "timer" animation
 
-        @return:
+        :return:
         """
         return Timer(Timer.Action.SET_TIMER)
 
@@ -323,6 +323,6 @@ class Timer(Command):
         """
         Cancel currently running "timer"
 
-        @return:
+        :return:
         """
         return Timer(Timer.Action.CANCEL_TIMER)

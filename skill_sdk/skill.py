@@ -11,6 +11,7 @@
 # Skill runner
 #
 
+import asyncio
 import inspect
 import logging
 from functools import partial
@@ -248,3 +249,21 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
 
 
 intent_handler = Skill.intent_handler
+
+
+def test_intent(intent: str, translation: i18n.Translations = None, **kwargs):
+    """
+    Backward compatible test helper
+
+    :param intent:      Intent name
+    :param translation: Translations to use (NullTranslations if not set)
+    :param kwargs:      Intent's attributes
+    :return:
+    """
+
+    app = Skill()
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    return loop.run_until_complete(app.test_intent(intent, translation, **kwargs))

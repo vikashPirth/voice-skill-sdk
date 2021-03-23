@@ -194,11 +194,11 @@ class Card(CamelModel):
         """
         Add action to card
 
-        @param action_text:
-        @param action:
-        @param action_prominent_text:
-        @param kwargs:
-        @return:
+        :param action_text:
+        :param action:
+        :param action_prominent_text:
+        :param kwargs:
+        :return:
         """
         data = self.data.copy(
             update=dict(

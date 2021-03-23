@@ -154,8 +154,8 @@ async def ws_endpoint(websocket: WebSocket):
     """
     Dump logs output to websocket
 
-    @param websocket:
-    @return:
+    :param websocket:
+    :return:
     """
     await notifier.connect(websocket)
     try:
@@ -172,8 +172,8 @@ def setup(app: FastAPI):
     """
     Install skill designer UI routes and CORS middleware
 
-    @param app:
-    @return:
+    :param app:
+    :return:
     """
 
     # CORS middleware to allow requests from dev and prod UI

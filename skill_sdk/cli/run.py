@@ -26,7 +26,7 @@ def execute(arguments):
     """
     Initialize and run the app with "uvicorn" server
 
-    @return:
+    :return:
     """
     from skill_sdk import config, log, skill
 

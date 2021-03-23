@@ -57,7 +57,7 @@ async def test_with_error_handler():
 
 
 @pytest.mark.asyncio
-async def test_test_intent():
+async def test_test_intent_async():
     app = skill.init_app()
 
     with closing(app):
@@ -66,6 +66,18 @@ async def test_test_intent():
 
         app.include("Test_Intent", handler=lambda: "Hola")
         result = await app.test_intent("Test_Intent")
+
+        assert result.text == "Hola"
+        assert result.type == ResponseType.TELL
+
+
+def test_sync_test_intent():
+    app = skill.init_app()
+
+    with closing(app):
+
+        app.include("Test_Intent", handler=lambda: "Hola")
+        result = skill.test_intent("Test_Intent")
 
         assert result.text == "Hola"
         assert result.type == ResponseType.TELL

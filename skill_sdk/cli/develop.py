@@ -36,8 +36,8 @@ def execute(arguments):
         override debug flag from configuration
         initialize Designer UI
 
-    @param arguments:
-    @return:
+    :param arguments:
+    :return:
     """
     from skill_sdk import config, log, skill
 

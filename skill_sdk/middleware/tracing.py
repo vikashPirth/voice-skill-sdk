@@ -64,9 +64,9 @@ def setup(app: FastAPI, tracer) -> None:
     """
     Setup tracing: register a middleware and set global tracer instance
 
-    @param app:
-    @param tracer:
-    @return:
+    :param app:
+    :param tracer:
+    :return:
     """
     set_global_tracer(tracer)
     app.add_middleware(StarletteTracingMiddleWare, tracer=tracer)

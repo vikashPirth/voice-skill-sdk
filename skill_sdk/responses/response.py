@@ -122,18 +122,18 @@ class SkillInvokeResponse(CamelModel):
         """
         Attach Card to a response
 
-        @param card:
-        @param title_text:
-        @param type_description:
-        @param prominent_text:
-        @param text:
-        @param sub_text:
-        @param action:
-        @param action_text:
-        @param action_prominent_text:
-        @param icon_url:
-        @param list_sections:
-        @return:
+        :param card:
+        :param title_text:
+        :param type_description:
+        :param prominent_text:
+        :param text:
+        :param sub_text:
+        :param action:
+        :param action_text:
+        :param action_prominent_text:
+        :param icon_url:
+        :param list_sections:
+        :return:
         """
         card = card or Card(
             title_text=title_text,
@@ -153,8 +153,8 @@ class SkillInvokeResponse(CamelModel):
         """
         Add a command to execute on the client
 
-        @param command:
-        @return:
+        :param command:
+        :return:
         """
         result = Result(command.dict())
         return self.copy(update=dict(result=result))
@@ -171,7 +171,7 @@ class SkillInvokeResponse(CamelModel):
         :param message:
         :param message_payload:
         :param target_name:
-        @return:
+        :return:
         """
         message = message or PushNotification(
             message_payload=message_payload, target_name=target_name
@@ -185,8 +185,8 @@ class SkillInvokeResponse(CamelModel):
             (valid only for ResponseType.ASK/ASK_FREETEXT:
              ResponseType.TELL immediately ends the session)
 
-        @param attributes:
-        @return:
+        :param attributes:
+        :return:
         """
 
         if self.type == ResponseType.TELL:
@@ -202,8 +202,8 @@ class SkillInvokeResponse(CamelModel):
         """
         Add a delayed client task
 
-        @param task:
-        @return:
+        :param task:
+        :return:
         """
         result = self.result or Result(data={})
         return self.copy(update=dict(result=result.with_task(task)))

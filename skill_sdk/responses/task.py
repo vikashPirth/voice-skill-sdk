@@ -98,10 +98,10 @@ class DelayedClientTask(CamelModel):
             >>>         )
 
 
-        @param intent:      Intent name to invoke
-        @param skill_id:    Optional skill Id
-        @param kwargs:      Key/values map converted into attributes for skill invocation
-        @return:
+        :param intent:      Intent name to invoke
+        :param skill_id:    Optional skill Id
+        :param kwargs:      Key/values map converted into attributes for skill invocation
+        :return:
         """
         invoke_data = InvokeData(intent=intent, skill_id=skill_id, parameters=kwargs)
         execution_time = ExecutionTime.after(ReferenceType.SPEECH_END)
@@ -115,8 +115,8 @@ class DelayedClientTask(CamelModel):
             Excetute the task in 10 seconds:
             >>> task.at(datetime.datetime.now() + datetime.timedelta(seconds=10))
 
-        @param time:    Time point to execute the task
-        @return:
+        :param time:    Time point to execute the task
+        :return:
         """
         return self.copy(update=dict(execution_time=ExecutionTime.at(time)))
 
@@ -134,9 +134,9 @@ class DelayedClientTask(CamelModel):
             To delay task execution by 10 seconds after speech ends:
             >>> task.after(ReferenceType.SPEECH_END, datetime.timedelta(seconds=10))
 
-        @param event:   even reference type (SPEECH_END - after speech ends, THIS_RESPONSE - before speech starts)
-        @param offset:  offset timedelta
-        @return:
+        :param event:   even reference type (SPEECH_END - after speech ends, THIS_RESPONSE - before speech starts)
+        :param offset:  offset timedelta
+        :return:
         """
         return self.copy(
             update=dict(execution_time=ExecutionTime.after(event=event, offset=offset))

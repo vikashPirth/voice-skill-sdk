@@ -124,8 +124,8 @@ class TimeRange:
         """
         Generator yielding datetime values within a particular frame: hours/days/weeks/etc
 
-        @param frame:
-        @return:
+        :param frame:
+        :return:
         @throws:        OverflowError in open-end datetime case
         """
 

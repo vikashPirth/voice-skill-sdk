@@ -328,12 +328,12 @@ def test_request(
     """
     Context manager to setup global request object for unit tests
 
-    @param intent:      Intent name for the test request
-    @param session:     Session attributes
-    @param translation: Optional translations
-    @param kwargs:      The rest of kwargs goes to `create_context`
+    :param intent:      Intent name for the test request
+    :param session:     Session attributes
+    :param translation: Optional translations
+    :param kwargs:      The rest of kwargs goes to `create_context`
 
-    @return:
+    :return:
     """
     from skill_sdk.i18n import Translations
     from skill_sdk.intents.request import RequestContextVar
@@ -342,7 +342,7 @@ def test_request(
         kwargs.pop("translation", Translations())
     )
 
-    return RequestContextVar(request=request)
+    return RequestContextVar("request", request=request)
 
 
 def create_context(

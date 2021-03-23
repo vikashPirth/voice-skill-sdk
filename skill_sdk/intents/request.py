@@ -14,6 +14,7 @@
 
 import datetime
 import logging
+from contextlib import ContextDecorator
 from contextvars import ContextVar, Token
 from typing import Any, Dict, List, Optional, Text
 from dateutil import tz
@@ -183,7 +184,7 @@ class InvokeSkillRequest(CamelModel):
         return self.copy(update=dict(_trans=translation))
 
 
-class RequestContextVar:
+class RequestContextVar(ContextDecorator):
     """Context manager to make InvokeSkillRequest object globally importable"""
 
     _request_scope_storage: ContextVar[Dict[Text, Any]] = ContextVar(
