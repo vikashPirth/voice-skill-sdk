@@ -82,10 +82,7 @@ class TestRoutes(unittest.TestCase):
             headers=self.auth,
         )
         assert response.status_code == 200
-        assert response.json() == {
-            "text": "Hola",
-            "type": "TELL"
-        }
+        assert response.json() == {"text": "Hola", "type": "TELL"}
 
     def test_invoke_response_ask(self):
         from skill_sdk import ask
