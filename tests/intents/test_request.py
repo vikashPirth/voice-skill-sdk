@@ -20,7 +20,12 @@ from dateutil import tz
 import pytest
 
 from skill_sdk.intents import RequestContextVar, request
-from skill_sdk.util import create_context, create_request, mock_datetime_now
+from skill_sdk.util import (
+    create_context,
+    create_request,
+    mock_datetime_now,
+    run_in_executor,
+)
 from skill_sdk.i18n import Translations
 
 logger = logging.getLogger(__name__)
@@ -128,8 +133,6 @@ class TestContextLocal(unittest.TestCase):
 
 @pytest.mark.asyncio
 async def test_context_local_session():
-    from skill_sdk.intents.handlers import ContextVarExecutor
-
     def one(_):
         with RequestContextVar(request=_):
             del request.session["key-1"]
@@ -165,8 +168,7 @@ async def test_context_local_session():
         "TELEKOM_Demo_Intent", session={"key-1": "value-1", "key-2": "value-2"}
     )
 
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(ContextVarExecutor(), init, req)
-    await loop.run_in_executor(ContextVarExecutor(), one, req)
-    await loop.run_in_executor(ContextVarExecutor(), init, req)
-    await loop.run_in_executor(ContextVarExecutor(), two, req)
+    await run_in_executor(init, req)
+    await run_in_executor(one, req)
+    await run_in_executor(init, req)
+    await run_in_executor(two, req)

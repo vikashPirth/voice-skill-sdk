@@ -26,7 +26,6 @@ from skill_sdk.intents.request import (
 from skill_sdk.intents.handlers import (
     intent_handler,
     invoke,
-    ContextVarExecutor,
     EntityValueException,
     ErrorHandlerType,
 )

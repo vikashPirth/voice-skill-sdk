@@ -42,9 +42,9 @@ def test_reprompt_response(monkeypatch):
         Reprompt("abc123").dict()
         assert request.session["SMALLTALK__GREETINGS_reprompt_count"] == 1
 
-        response = Reprompt("abc123", entity="Time").dict()
+        Reprompt("abc123", entity="Time").dict()
         assert request.session["SMALLTALK__GREETINGS_Time_reprompt_count"] == 1
 
-        attributes = response["session"]["attributes"]
-        assert attributes["SMALLTALK__GREETINGS_reprompt_count"] == "1"
-        assert attributes["SMALLTALK__GREETINGS_Time_reprompt_count"] == "1"
+        attributes = request.session.attributes
+        assert attributes["SMALLTALK__GREETINGS_reprompt_count"] == 1
+        assert attributes["SMALLTALK__GREETINGS_Time_reprompt_count"] == 1

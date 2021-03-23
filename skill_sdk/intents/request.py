@@ -212,6 +212,7 @@ class RequestContextVar:
 
     def __enter__(self):
         self.__request_token = self._request_scope_storage.set(self.kwargs)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._request_scope_storage.reset(self.__request_token)

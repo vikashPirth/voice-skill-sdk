@@ -21,9 +21,9 @@ from skill_sdk.intents import (
     intent_handler,
     AttributeV2,
     Context,
-    ContextVarExecutor,
     EntityValueException,
 )
+from skill_sdk import util
 from skill_sdk.util import create_request, mock_datetime_now
 
 
@@ -377,7 +377,7 @@ def test_context_vars_executor():
         ret = await loop.run_in_executor(None, handler)
         assert ret is None
 
-        ret = await loop.run_in_executor(ContextVarExecutor(), same_context_handler)
+        ret = await util.run_in_executor(same_context_handler)
         assert ret == {"a": 1}
 
     loop = asyncio.get_event_loop()

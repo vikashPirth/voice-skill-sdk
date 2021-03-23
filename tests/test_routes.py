@@ -68,12 +68,22 @@ class TestRoutes(unittest.TestCase):
         assert response.json() == {"code": 1, "text": "Intent not found!"}
 
     def test_invoke_response(self):
-        self.app.include("Test_Intent", handler=lambda: "Hola")
+        def handler():
+            from skill_sdk.intents.request import r
+
+            r.session["Session Key"] = "Hola"
+            return "Hola"
+
+        self.app.include("Test_Intent", handler=handler)
 
         response = self.client.post(
             ENDPOINT,
-            data=create_request("Test_Intent").json(),
+            data=create_request("Test_Intent", session={}).json(),
             headers=self.auth,
         )
         assert response.status_code == 200
-        assert response.json() == {"text": "Hola", "type": "TELL"}
+        assert response.json() == {
+            "text": "Hola",
+            "type": "TELL",
+            "session": {"attributes": {"Session Key": "Hola"}},
+        }

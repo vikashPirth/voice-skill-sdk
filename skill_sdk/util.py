@@ -10,17 +10,25 @@
 
 import re
 import time
-import orjson
-import datetime
+import asyncio
 import inspect
-import contextlib
+import datetime
 import threading
+import contextlib
 import unittest.mock
-from typing import Any, Callable, Dict, List, Mapping, Text, Union
+from functools import partial
+from contextvars import copy_context
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Callable, Dict, List, Mapping, Text, TypeVar, Union
+
+import orjson
 import pydantic
 from pydantic import validator, ValidationError  # noqa
 from pydantic.utils import lenient_issubclass
 import uvicorn
+
+
+T = TypeVar("T")
 
 
 #
@@ -91,6 +99,23 @@ class Server(uvicorn.Server):
         finally:
             self.should_exit = True
             thread.join()
+
+
+class ContextVarExecutor(ThreadPoolExecutor):
+    """Copy existing contextVars before executing"""
+
+    def submit(self, *args, **kwargs):
+        ctx = copy_context()
+
+        return super().submit(ctx.run, *args, **kwargs)
+
+
+async def run_in_executor(func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    loop = asyncio.get_running_loop()
+
+    return await loop.run_in_executor(
+        ContextVarExecutor(), partial(func, *args, **kwargs)
+    )
 
 
 class BaseModel(pydantic.BaseModel):

@@ -11,9 +11,7 @@
 # Type hints processing and intent handler invoke
 #
 
-import asyncio
-from contextvars import copy_context
-from concurrent.futures import ThreadPoolExecutor
+import copy
 import inspect
 import logging
 from typing import (
@@ -32,6 +30,7 @@ from typing import (
 
 from pydantic.utils import lenient_issubclass
 
+from skill_sdk.util import run_in_executor
 from skill_sdk.intents import entities
 from skill_sdk.intents import Context, Request, Session, RequestContextVar
 from skill_sdk.responses import Response
@@ -57,21 +56,12 @@ class EntityValueException(Exception):
         super().__init__(*args)
 
 
-class ContextVarExecutor(ThreadPoolExecutor):
-    """Copy existing contextVars before executing"""
-
-    def submit(self, *args, **kwargs):
-        ctx = copy_context()
-
-        return super().submit(ctx.run, *args, **kwargs)
-
-
 async def invoke(handler: AnyFunc, request: Request) -> Response:
     """
     Invoke intent handler:
 
         awaits the call if handler is a coroutine
-        runs in executor if handler is a simple `def`
+        runs in executor if handler is `def`
 
     @param handler:
     @param request:
@@ -88,18 +78,28 @@ async def invoke(handler: AnyFunc, request: Request) -> Response:
         if inspect.iscoroutinefunction(handler):
             response = await handler(request)
         else:
-            loop = asyncio.get_running_loop()
-            response = await loop.run_in_executor(
-                ContextVarExecutor(),
-                handler,
-                request,
-            )
+            response = await run_in_executor(handler, request)
 
-        if isinstance(response, str):
-            response = Response(text=response)
+        result = _enrich(response)
 
-        logger.debug("Intent call result: %s", repr(response))
-        return response
+        logger.debug("Intent call result: %s", repr(result))
+        return result
+
+
+def _enrich(response: Response) -> Response:
+    from skill_sdk.intents.request import r
+
+    if isinstance(response, str):
+        logger.debug("Handler response is %s, converting to Response", str)
+        response = Response(text=response)
+
+    # Copy session attributes from global request
+    if r.session.attributes:
+        attributes = copy.deepcopy(r.session.attributes)
+        logger.debug("Adding session attributes: %s", repr(attributes))
+        return response.with_session(**attributes)
+
+    return response
 
 
 def _is_subtype(cls: Any, class_or_tuple: Any) -> bool:

@@ -208,21 +208,3 @@ class SkillInvokeResponse(CamelModel):
         """
         result = self.result or Result(data={})
         return self.copy(update=dict(result=result.with_task(task)))
-
-    def dict(self, *args, **kwargs) -> Dict[Text, Any]:
-        """
-        Add session attributes when exporting
-
-        @param args:
-        @param kwargs:
-        @return:
-        """
-        from skill_sdk.intents import request
-
-        try:
-            # Copy session attributes
-            attributes = copy.deepcopy(request.session.attributes)
-            return super(SkillInvokeResponse, self.with_session(**attributes)).dict()
-        except AttributeError:
-            # Fallback to parent if None
-            return super().dict()
