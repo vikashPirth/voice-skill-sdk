@@ -19,7 +19,7 @@ import unittest.mock
 from functools import partial
 from contextvars import copy_context
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Callable, Dict, List, Mapping, Text, TypeVar, Union
+from typing import Any, Awaitable, Callable, Dict, List, Mapping, Text, TypeVar, Union
 
 import orjson
 import pydantic
@@ -116,6 +116,16 @@ async def run_in_executor(func: Callable[..., T], *args: Any, **kwargs: Any) -> 
     return await loop.run_in_executor(
         ContextVarExecutor(), partial(func, *args, **kwargs)
     )
+
+
+def run_until_complete(func: Awaitable[T]) -> T:
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    return loop.run_until_complete(func)
 
 
 class BaseModel(pydantic.BaseModel):
@@ -338,8 +348,10 @@ def test_request(
     from skill_sdk.i18n import Translations
     from skill_sdk.intents.request import RequestContextVar
 
+    translations = kwargs.pop("translation", Translations())
+
     request = create_request(intent, session=session, **kwargs).with_translation(
-        kwargs.pop("translation", Translations())
+        translations
     )
 
     return RequestContextVar("request", request=request)

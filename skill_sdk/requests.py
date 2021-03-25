@@ -17,7 +17,7 @@ import logging
 from warnings import warn
 
 import httpx
-from httpx import HTTPError, Response  # noqa
+from httpx import codes, HTTPError, Response  # noqa
 
 from aiobreaker import (
     CircuitBreaker,
@@ -46,7 +46,7 @@ class Client(httpx.Client):
         internal: bool = False,
         circuit_breaker: CircuitBreaker = None,
         timeout: Union[int, float] = None,
-        exclude: Iterable[httpx.codes] = None,
+        exclude: Iterable[codes] = None,
         **kwargs,
     ) -> None:
         """
@@ -65,13 +65,20 @@ class Client(httpx.Client):
         self.exclude = tuple(exclude) if exclude else ()
         super().__init__(timeout=timeout or DEFAULT_REQUESTS_TIMEOUT, **kwargs)
 
-    def request(self, *args, **kwargs):
+    def request(
+        self,
+        *args,
+        exclude: Iterable[codes] = None,
+        **kwargs,
+    ):
+        exclude = exclude or self.exclude
+
         @self.circuit_breaker
         def _inner_call(*a, **kw):
             """Wraps Client.request"""
             _r = super(Client, self).request(*a, **kw)
 
-            if _r.status_code in self.exclude:
+            if _r.status_code in exclude:
                 logger.debug("Status code %s is excluded", _r.status_code)
             else:
                 _r.raise_for_status()
@@ -83,7 +90,7 @@ class Client(httpx.Client):
             if self.internal:
                 logger.debug("Internal service, adding tracing headers.")
                 kwargs["headers"] = {
-                    **kwargs.get("headers", {}),
+                    **(kwargs.get("headers", None) or {}),
                     **tracing_headers(),
                 }
 
@@ -112,7 +119,7 @@ class AsyncClient(httpx.AsyncClient):
         internal: bool = False,
         circuit_breaker: CircuitBreaker = None,
         timeout: Union[int, float] = None,
-        exclude: List[httpx.codes] = None,
+        exclude: List[codes] = None,
         **kwargs,
     ) -> None:
         """
@@ -131,13 +138,20 @@ class AsyncClient(httpx.AsyncClient):
         self.exclude = tuple(exclude) if exclude else ()
         super().__init__(timeout=timeout or DEFAULT_REQUESTS_TIMEOUT, **kwargs)
 
-    async def request(self, *args, **kwargs):
+    async def request(
+        self,
+        *args,
+        exclude: Iterable[codes] = None,
+        **kwargs,
+    ):
+        exclude = exclude or self.exclude
+
         @self.circuit_breaker
         async def _inner_call(*a, **kw):
             """Wraps Client.request"""
             _r = await super(AsyncClient, self).request(*a, **kw)
 
-            if _r.status_code in self.exclude:
+            if _r.status_code in exclude:
                 logger.debug("Status code %s is excluded", _r.status_code)
             else:
                 _r.raise_for_status()
@@ -149,7 +163,7 @@ class AsyncClient(httpx.AsyncClient):
             if self.internal:
                 logger.debug("Internal service, adding tracing headers.")
                 kwargs["headers"] = {
-                    **kwargs.get("headers", {}),
+                    **(kwargs.get("headers", None) or {}),
                     **tracing_headers(),
                 }
 
