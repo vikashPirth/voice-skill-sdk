@@ -100,7 +100,9 @@ class BaseService:
         return headers
 
     def _make(self, client):
-        client.request = partial(client.request, headers=self.headers, timeout=self.timeout)
+        client.request = partial(
+            client.request, headers=self.headers, timeout=self.timeout
+        )
         return client
 
     @property
