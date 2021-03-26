@@ -73,6 +73,14 @@ class Client(httpx.Client):
     ):
         exclude = exclude or self.exclude
 
+        # Propagate tracing headers if internal request
+        if self.internal:
+            logger.debug("Internal service, adding tracing headers.")
+            kwargs["headers"] = {
+                **(kwargs.get("headers", None) or {}),
+                **tracing_headers(),
+            }
+
         @self.circuit_breaker
         def _inner_call(*a, **kw):
             """Wraps Client.request"""
@@ -86,17 +94,7 @@ class Client(httpx.Client):
             return _r
 
         try:
-            # Propagate tracing headers if internal request
-            if self.internal:
-                logger.debug("Internal service, adding tracing headers.")
-                kwargs["headers"] = {
-                    **(kwargs.get("headers", None) or {}),
-                    **tracing_headers(),
-                }
-
-            # Overwrite `timeout` parameter
-            result = _inner_call(*args, **{**kwargs, **dict(timeout=self.timeout)})
-
+            result = _inner_call(*args, **kwargs)
             logger.debug("HTTP completed with status code: %d", result.status_code)
 
         except HTTPError as e:
@@ -146,6 +144,14 @@ class AsyncClient(httpx.AsyncClient):
     ):
         exclude = exclude or self.exclude
 
+        # Propagate tracing headers if internal request
+        if self.internal:
+            logger.debug("Internal service, adding tracing headers.")
+            kwargs["headers"] = {
+                **(kwargs.get("headers", None) or {}),
+                **tracing_headers(),
+            }
+
         @self.circuit_breaker
         async def _inner_call(*a, **kw):
             """Wraps Client.request"""
@@ -159,19 +165,7 @@ class AsyncClient(httpx.AsyncClient):
             return _r
 
         try:
-            # Propagate tracing headers if internal request
-            if self.internal:
-                logger.debug("Internal service, adding tracing headers.")
-                kwargs["headers"] = {
-                    **(kwargs.get("headers", None) or {}),
-                    **tracing_headers(),
-                }
-
-            # Overwrite `timeout` parameter
-            result = await _inner_call(
-                *args, **{**kwargs, **dict(timeout=self.timeout)}
-            )
-
+            result = await _inner_call(*args, **kwargs)
             logger.debug("HTTP completed with status code: %d", result.status_code)
 
         except HTTPError as e:

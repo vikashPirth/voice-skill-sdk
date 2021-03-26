@@ -302,7 +302,7 @@ def create_request(
     intent: Text, session: Union[CamelModel, Dict[Text, Text]] = None, **kwargs
 ):
     """
-    Skill invoke request factory.
+    Skill invoke request factory: used in unit tests to mock a skill invoke request
 
     :param intent:      Intent name
     :param session:     Session (or session attributes)
@@ -312,15 +312,24 @@ def create_request(
 
     from skill_sdk.__version__ import __spi_version__
     from skill_sdk.intents import Request, Session
+    from skill_sdk.responses import SessionResponse
 
+    example: Dict = Session.Config.schema_extra["example"]
     if isinstance(session, Session):
-        _session = session
+        _session = session.copy()
+    elif isinstance(session, SessionResponse):
+        _session = Session(
+            **{
+                **dict(id=example["id"], new=False),
+                **dict(attributes=session.attributes),
+            }
+        )
     elif isinstance(session, Dict):
         _session = Session(
-            **{**Session.Config.schema_extra["example"], **dict(attributes=session)}
+            **{**dict(id=example["id"], new=example["new"]), **dict(attributes=session)}
         )
     else:
-        _session = Session(**Session.Config.schema_extra["example"])
+        _session = Session(**example)
 
     return Request(
         context=create_context(intent=intent, **kwargs),

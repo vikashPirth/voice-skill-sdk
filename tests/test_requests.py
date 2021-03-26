@@ -48,36 +48,10 @@ class TestClient(unittest.TestCase):
             c.get(LOCALHOST)
             assert route.called
 
-    @patch.object(httpx.Client, "request")
-    def test_request_timeout_if_set(self, client_mock):
-        with Client(timeout=6.6) as s:
-            s.get(LOCALHOST)
-            client_mock.assert_called_once_with(
-                "GET",
-                LOCALHOST,
-                allow_redirects=True,
-                timeout=httpx.Timeout(6.6),
-                params=None,
-                headers=None,
-                cookies=None,
-                auth=ANY,
-            )
-
-    @patch.object(httpx.Client, "request")
     @patch.object(skill_sdk.requests, "DEFAULT_REQUESTS_TIMEOUT", 10)
-    def test_request_timeout_from_config(self, client_mock):
+    def test_request_timeout_from_config(self):
         with Client() as s:
-            s.get(LOCALHOST)
-            client_mock.assert_called_once_with(
-                "GET",
-                LOCALHOST,
-                allow_redirects=True,
-                timeout=httpx.Timeout(10),
-                params=None,
-                headers=None,
-                cookies=None,
-                auth=ANY,
-            )
+            assert s.timeout == httpx.Timeout(10)
 
     @respx.mock
     def test_check_raise(self):

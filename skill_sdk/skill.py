@@ -16,7 +16,7 @@ import inspect
 import logging
 from functools import partial
 from types import MappingProxyType
-from typing import Any, Callable, Dict, Mapping, Text
+from typing import Any, Callable, Dict, Mapping, Text, Union
 from fastapi import FastAPI
 
 from skill_sdk import i18n, util
@@ -171,13 +171,18 @@ class Skill(FastAPI):
         return partial(Skill.__register, intent, error_handler=error_handler)
 
     async def test_intent(
-        self, intent: Text, translation: i18n.Translations = None, **kwargs
+        self,
+        intent: Text,
+        translation: i18n.Translations = None,
+        session: Union[util.CamelModel, Dict[Text, Text]] = None,
+        **kwargs,
     ) -> Response:
         """
         Test an intent implementation
 
         :param intent:      Intent name
         :param translation: Translations to use (NullTranslations if not set)
+        :param session:     Mocked session (can be a session result of previous test invoke)
         :param kwargs:      Intent's attributes
         :return:
         """
@@ -186,7 +191,7 @@ class Skill(FastAPI):
         except KeyError:
             raise KeyError(f"Intent {intent} not found")
 
-        r = util.create_request(intent, **kwargs).with_translation(
+        r = util.create_request(intent, session=session, **kwargs).with_translation(
             translation if translation else i18n.Translations()
         )
 
@@ -251,19 +256,24 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
 intent_handler = Skill.intent_handler
 
 
-def test_intent(intent: str, translation: i18n.Translations = None, **kwargs):
+def test_intent(
+    intent: Text,
+    translation: i18n.Translations = None,
+    session: Union[util.CamelModel, Dict[Text, Text]] = None,
+    **kwargs,
+) -> Response:
     """
     Backward compatible test helper
 
     :param intent:      Intent name
     :param translation: Translations to use (NullTranslations if not set)
+    :param session:     Mocked session (can be a session result of previous test invoke)
     :param kwargs:      Intent's attributes
     :return:
     """
 
     app = Skill()
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    return loop.run_until_complete(app.test_intent(intent, translation, **kwargs))
+    return util.run_until_complete(
+        app.test_intent(intent, translation, session=session, **kwargs)
+    )
