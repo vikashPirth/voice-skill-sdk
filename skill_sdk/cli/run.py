@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# "run" CLI command
-#
+"""CLI: "run" command"""
 
 import argparse
 import logging
@@ -24,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def execute(arguments):
     """
-    Initialize and run the app with "uvicorn" server
+    Initialize and run an app with "uvicorn" server
 
     :return:
     """
@@ -54,6 +52,12 @@ def execute(arguments):
 
 
 def add_subparser(subparsers):
+    """
+    Command arguments parser
+
+    :param subparsers:
+    :return:
+    """
 
     run_parser = subparsers.add_parser(
         "run",

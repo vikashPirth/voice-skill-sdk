@@ -7,6 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
+import os
 import sys
 import pathlib
 import pkg_resources
@@ -17,6 +18,7 @@ from pytest import CaptureFixture
 
 from skill_sdk.config import settings
 from skill_sdk.cli import import_module_app, develop, init, run, version
+from skill_sdk.util import run_until_complete
 
 APP = "app:app"
 
@@ -115,3 +117,24 @@ def test_version(capsys: CaptureFixture, mocker):
 
     out = capsys.readouterr()
     assert "0.1" in out.out
+
+
+@pytest.fixture
+def change_dir(request):
+    """Fixture: set current dir to the path of `scaffold` project, and revert after the test"""
+
+    scaffold_path = pkg_resources.resource_filename(init.__name__, "scaffold")
+    os.chdir(scaffold_path)
+    yield
+    os.chdir(request.config.invocation_dir)
+
+
+def test_scaffold(change_dir):
+    """Run scaffold project testing suite"""
+
+    _, app = import_module_app("app:app", reload=True)
+
+    response = run_until_complete(app.test_intent("SMALLTALK__GREETINGS"))
+    assert response.text == "HELLOAPP_HELLO"
+
+    pytest.main(["tests"])

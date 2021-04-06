@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Error middleware
-#
+"""Error middleware"""
 
 import logging
 import traceback
@@ -29,9 +27,23 @@ NOT_FOUND = "Not found"
 
 
 def setup_middleware(app: FastAPI):
+    """
+    Setup error handlers (only those that have a corresponding error code in skill SPI):
+
+        - 400: BAD_REQUEST
+        - 404: NOT_FOUND
+        - 422 is reraised as 400
+        - 500: INTERNAL_ERROR
+
+    :param app:
+    :return:
+    """
+
     @app.exception_handler(400)
     async def handle_400(request, exc):
-        logger.exception("400 raised, returning bad request: %s", repr(exc))
+        """Log the exception and return BAD_REQUEST"""
+
+        logger.exception("%s %s: %s", request.method, request.url, repr(exc))
         return JSONResponse(
             status_code=400,
             content=dict(code=ErrorCode.BAD_REQUEST, text=BAD_REQUEST),
@@ -39,6 +51,8 @@ def setup_middleware(app: FastAPI):
 
     @app.exception_handler(404)
     async def handle_404(request, exc):
+        """Log the exception and return NOT_FOUND"""
+
         logger.exception("%s %s: %s", request.method, request.url, repr(exc))
         return JSONResponse(
             status_code=404,
@@ -61,12 +75,19 @@ def setup_middleware(app: FastAPI):
 
     @app.exception_handler(500)
     async def handle_500(request, exc):
+        """Log the exception and return INTERNAL_ERROR"""
+
         logger.exception("500 error raised, returning internal error: %s", repr(exc))
+        content = dict(
+            code=ErrorCode.INTERNAL_ERROR,
+            text=INTERNAL_ERROR,
+        )
+
+        # Output the exception in "debug" mode
+        if request.app.debug():
+            content.update(detail=jsonable_encoder(traceback.format_exc()))
+
         return JSONResponse(
             status_code=500,
-            content=dict(
-                code=ErrorCode.INTERNAL_ERROR,
-                text=INTERNAL_ERROR,
-                detail=jsonable_encoder(traceback.format_exc()),
-            ),
+            content=content,
         )

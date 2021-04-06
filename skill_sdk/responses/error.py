@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Error responses
-#
+"""Error responses"""
 
 from enum import IntEnum
 from typing import Any, Optional, Text

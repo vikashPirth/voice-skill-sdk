@@ -8,9 +8,7 @@
 #
 #
 
-#
-# Persistence service
-#
+"""Persistence service"""
 
 import json
 import logging
@@ -26,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class PersistenceService(BaseService):
-    """ Persistence service: a simple key-value store """
+    """Persistence service: a simple key-value store"""
 
     VERSION = 1
     NAME = "persistence"

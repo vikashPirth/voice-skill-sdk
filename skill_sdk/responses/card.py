@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Companion app (cApp) cards
-#
+"""Companion app (cApp) cards"""
 
 from enum import Enum
 from typing import List, Optional, Text, Union
@@ -149,8 +147,6 @@ class Card(CamelModel):
     ) -> None:
         """
         Accept and ignore `type_` as positional argument for backward compatibility
-
-        :param kwargs:  keyword arguments to create CardData
 
         :param type_:
         :param type:

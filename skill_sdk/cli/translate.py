@@ -7,14 +7,48 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# "translate" CLI command:
-#
+"""CLI: "translate" command"""
 
 import argparse
 
 
+def execute(args: argparse.Namespace) -> None:
+    """
+    Extract translations from Python modules,
+    optionally can download translations from the text service
+
+    :param args:
+    :return:
+    """
+    from skill_sdk.config import settings
+    from skill_sdk.tools.translate import download_translations, extract_translations
+
+    #
+    # If download URL specified, download translations from text services and save locally:
+    # this is a step to migrate skills and decommission the service
+    #
+    # Once skills are migrated, this function becomes obsolete
+    #
+    if args.download_url:
+        download_translations(
+            args.download_url,
+            settings.SKILL_NAME,
+            args.token,
+            args.tenant,
+            args.force,
+        )
+
+    else:
+        extract_translations(args.modules)
+
+
 def add_subparser(subparsers) -> None:
+    """
+    Command arguments parser
+
+    :param subparsers:
+    :return:
+    """
 
     translate_parser = subparsers.add_parser(
         "translate",
@@ -70,21 +104,3 @@ def add_subparser(subparsers) -> None:
     )
 
     translate_parser.set_defaults(command=execute)
-
-
-def execute(args: argparse.Namespace) -> None:
-    from skill_sdk import skill
-    from skill_sdk.config import settings
-    from skill_sdk.tools.translate import download_translations, extract_translations
-
-    if args.download_url:
-        download_translations(
-            args.download_url,
-            settings.SKILL_NAME,
-            args.token,
-            args.tenant,
-            args.force,
-        )
-
-    else:
-        extract_translations(args.modules)

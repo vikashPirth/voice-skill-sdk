@@ -1,3 +1,14 @@
+#
+# voice-skill-sdk
+#
+# (C) 2021, Deutsche Telekom AG
+#
+# This file is distributed under the terms of the MIT license.
+# For details see the file LICENSE in the top directory.
+#
+
+"""Skill Desinger UI"""
+
 import asyncio
 import inspect
 from json import dumps
@@ -42,6 +53,7 @@ SAMPLES = {
 
 
 class Parameter(CamelModel):
+    """Parameter record format"""
 
     # Parameter name
     name: Text
@@ -73,6 +85,7 @@ class Parameter(CamelModel):
 
 
 class Intent(CamelModel):
+    """Intent record format"""
 
     # Intent name
     name: Text
@@ -134,7 +147,7 @@ class Notifier:
     async def _notify(self, message: Text):
         living_connections = []
         while len(self.connections) > 0:
-            # Looping like this is necessary in case a disconnection is handled
+            # Looping is necessary in case a disconnection is handled
             # during await websocket.send_text(message)
             websocket = self.connections.pop()
             await websocket.send_text(message)
@@ -142,6 +155,12 @@ class Notifier:
         self.connections = living_connections
 
     async def worker(self, queue):
+        """
+        Async worker: waits for a log record and sends to subscribed clients
+
+        :param queue:
+        :return:
+        """
         while True:
             record: logging.LogRecord = await queue.get()
             await self.push(dumps(record.__dict__))
@@ -206,6 +225,8 @@ def setup(app: FastAPI):
 
     @app.on_event("startup")
     async def startup():
+        """Initializes websocket listener"""
+
         # Prime the push notification generator
         await notifier.generator.asend(None)
 
@@ -214,11 +235,16 @@ def setup(app: FastAPI):
 
         # Setup a queue that passes log records to websockets
         queue = asyncio.Queue()
-        handler = logging.handlers.QueueHandler(queue)
+
+        # Default format of the log record in front-end
         formatter = logging.Formatter("%(levelname)-8s %(name)s - %(message)s")
+
+        handler = logging.handlers.QueueHandler(queue)
         handler.setLevel(logger.level)
         handler.setFormatter(formatter)
         logger.addHandler(handler)
+
+        # Start the notifier's worker
         asyncio.ensure_future(notifier.worker(queue))
 
     # Root UI

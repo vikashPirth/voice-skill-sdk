@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Skill invoke response
-#
+"""Skill invoke response"""
 
 import copy
 from enum import Enum
@@ -205,6 +203,15 @@ class SkillInvokeResponse(CamelModel):
 
 
 def _enrich(response: SkillInvokeResponse) -> SkillInvokeResponse:
+    """
+    Post-process a skill invoke response:
+
+        - If simple text is returned - convert to Response
+        - If session attributes are present - add to response
+
+    :param response:
+    :return:
+    """
     from skill_sdk.intents.request import r
 
     if isinstance(response, str):

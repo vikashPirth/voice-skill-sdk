@@ -7,8 +7,8 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# "develop" CLI command:
+"""CLI: "develop" command"""
+
 #
 #   - starts skill-designer
 #   - starts skill in development mode
@@ -66,6 +66,12 @@ def execute(arguments):
 
 
 def add_subparser(subparsers):
+    """
+    Command arguments parser
+
+    :param subparsers:
+    :return:
+    """
 
     run_parser = subparsers.add_parser(
         "develop",

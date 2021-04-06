@@ -7,6 +7,8 @@
 # For details see the file LICENSE in the top directory.
 #
 
+"""CLI: utility functions"""
+
 import sys
 import argparse
 import logging
@@ -19,6 +21,12 @@ from skill_sdk import Skill
 
 
 def add_logging_options(parser: argparse.ArgumentParser) -> None:
+    """
+    Add common logging argument parameters
+
+    :param parser:
+    :return:
+    """
     logging_arguments = parser.add_argument_group("Logging options")
 
     logging_arguments.add_argument(
@@ -84,6 +92,7 @@ def import_module_app(
     if reload:
         reload_submodules(module)
 
+    # Return imported module (and possibly, the name of application variable, eg `main:app`)
     return module, getattr(module, app_str, None)
 
 

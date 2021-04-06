@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# HTTP sync/async clients with circuit breaker
-#
+"""HTTP sync/async clients with circuit breaker"""
 
 from datetime import timedelta
 from typing import Iterable, List, Union
@@ -38,7 +36,9 @@ DEFAULT_CIRCUIT_BREAKER = CircuitBreaker(
 
 
 class Client(httpx.Client):
-    """Sync HTTP client with a circuit breaker"""
+    """
+    Sync HTTP client with a circuit breaker
+    """
 
     def __init__(
         self,
@@ -73,7 +73,7 @@ class Client(httpx.Client):
     ):
         exclude = exclude or self.exclude
 
-        # Propagate tracing headers if internal request
+        # Propagate tracing headers if request is created as "internal"
         if self.internal:
             logger.debug("Internal service, adding tracing headers.")
             kwargs["headers"] = {
@@ -109,7 +109,9 @@ class Client(httpx.Client):
 
 
 class AsyncClient(httpx.AsyncClient):
-    """Async client with a circuit breaker"""
+    """
+    Async client with a circuit breaker
+    """
 
     def __init__(
         self,
@@ -144,7 +146,7 @@ class AsyncClient(httpx.AsyncClient):
     ):
         exclude = exclude or self.exclude
 
-        # Propagate tracing headers if internal request
+        # Propagate tracing headers if request is created as "internal"
         if self.internal:
             logger.debug("Internal service, adding tracing headers.")
             kwargs["headers"] = {
@@ -181,6 +183,7 @@ class AsyncClient(httpx.AsyncClient):
 
 class CircuitBreakerSession(Client):
     """**DEPRECATED**: HTTP(s) session with a circuit breaker.
+
     Renamed to `skill_sdk.requests.Client`
     The name is left for backward compatibility
 

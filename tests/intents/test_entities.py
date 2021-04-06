@@ -84,7 +84,9 @@ class TestEntityTimeRange(unittest.TestCase):
         self.assertFalse(datetime.datetime(year=2019, month=2, day=8, hour=12) in r)
         self.assertTrue(datetime.time(hour=13) in r)
         self.assertTrue(datetime.date(year=2019, month=2, day=8) in r)
-        self.assertFalse(2 in r)
+
+        with self.assertRaises(TypeError):
+            (2 in r)
 
         # can't compare offset-naive and offset-aware datetimes
         with self.assertRaises(TypeError):

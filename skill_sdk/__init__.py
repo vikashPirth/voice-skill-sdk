@@ -1,5 +1,3 @@
-"""Magenta Voice Skill SDK for Python"""
-
 #
 # voice-skill-sdk
 #
@@ -20,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+"""Magenta Voice Skill SDK for Python"""
 
 from .__version__ import __version__
 

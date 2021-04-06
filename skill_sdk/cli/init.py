@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# "init" CLI command
-#
+"""CLI: "init" command"""
 
 import sys
 import argparse
@@ -18,7 +16,50 @@ from pathlib import Path
 from distutils.dir_util import copy_tree
 
 
+def execute(args: argparse.Namespace) -> None:
+    """
+    Initialize an empty skill project
+
+    :param args:
+    :return:
+    """
+    import questionary
+
+    # Projects folder path
+    path = Path(
+        args.out
+        if args.out is not None
+        else questionary.path(
+            "Enter a path to create your project [default: '.']", only_directories=True
+        ).ask()
+    ).resolve()
+
+    if not path.is_dir():
+        exit(f"{repr(path)} not found.")
+
+    #
+    # Intent handlers are by default in "impl" folder,
+    # if the folder exists, we have to ask user's permission to overwrite it
+    #
+    if (path / "impl").exists():
+        confirm = questionary.confirm(
+            f'Project directory {repr(path / "impl")} exists. Overwrite?', default=True
+        ).ask()
+        if not confirm:
+            sys.exit("Exiting...")
+
+    scaffold_path = pkg_resources.resource_filename(__name__, "scaffold")
+    copy_tree(scaffold_path.__str__(), path.__str__())
+    print(f"Project initialized at {repr(path.absolute())}.")
+
+
 def add_subparser(subparsers) -> None:
+    """
+    Command arguments parser
+
+    :param subparsers:
+    :return:
+    """
 
     init_parser = subparsers.add_parser(
         "init",
@@ -41,29 +82,3 @@ def add_subparser(subparsers) -> None:
     )
 
     init_parser.set_defaults(command=execute)
-
-
-def execute(args: argparse.Namespace) -> None:
-    import questionary
-
-    path = Path(
-        args.out
-        if args.out is not None
-        else questionary.path(
-            "Enter a path to create your project [default: '.']", only_directories=True
-        ).ask()
-    ).resolve()
-
-    if not path.is_dir():
-        exit(f"{repr(path)} not found.")
-
-    if (path / "impl").exists():
-        confirm = questionary.confirm(
-            f'Project directory {repr(path / "impl")} exists. Overwrite?', default=True
-        ).ask()
-        if not confirm:
-            sys.exit("Exiting...")
-
-    scaffold_path = pkg_resources.resource_filename(__name__, "scaffold")
-    copy_tree(scaffold_path.__str__(), path.__str__())
-    print(f"Project initialized at {repr(path.absolute())}.")

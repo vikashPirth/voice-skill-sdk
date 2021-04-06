@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Prometheus middleware
-#
+"""Prometheus middleware"""
 
 import time
 import logging
@@ -38,8 +36,12 @@ except ModuleNotFoundError:
 
 
 class Prometheus(PrometheusMiddleware):
+    """Middleware factory"""
+
     @staticmethod
     def requests_latency():
+        """HTTP requests latency histogram"""
+
         metric_name = HTTP_REQUESTS_LATENCY_SECONDS
         if metric_name not in PrometheusMiddleware._metrics:
             PrometheusMiddleware._metrics[metric_name] = Histogram(
@@ -51,6 +53,8 @@ class Prometheus(PrometheusMiddleware):
 
     @staticmethod
     def partner_requests_count():
+        """HTTP requests to partner services counter"""
+
         metric_name = HTTP_PARTNER_REQUEST_COUNT
         if metric_name not in PrometheusMiddleware._metrics:
             PrometheusMiddleware._metrics[metric_name] = Counter(
@@ -102,6 +106,13 @@ def partner_call(partner_name: Text, func: Callable[..., Any]):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        """
+        The actual logic: collect status code from wrapped function call and increase a metric counter
+
+        :param args:
+        :param kwargs:
+        :return:
+        """
         response = func(*args, **kwargs)
 
         try:
@@ -117,6 +128,13 @@ def partner_call(partner_name: Text, func: Callable[..., Any]):
 
 
 def setup(app: FastAPI) -> None:
+    """
+    Setup the Prometheus exporter middleware,
+    and an app route to export the metrics
+
+    :param app:
+    :return:
+    """
 
     app.add_middleware(
         Prometheus,

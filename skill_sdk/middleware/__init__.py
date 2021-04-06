@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Middleware definitions
-#
+"""Middleware definitions"""
 
 from starlette_context.middleware import RawContextMiddleware
 from starlette_context import context  # noqa
@@ -24,6 +22,13 @@ from skill_sdk.middleware.log import HeaderKeys
 
 
 def setup_middleware(app):
+    """
+    Setup default middlewares: error and context
+
+    :param app:
+    :return:
+    """
+
     error.setup_middleware(app)
 
     app.add_middleware(

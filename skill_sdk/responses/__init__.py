@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Skill responses
-#
+"""Skill responses"""
 
 from typing import Text
 

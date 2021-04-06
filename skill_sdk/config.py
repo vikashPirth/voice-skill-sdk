@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Create application instance from config files
-#
+"""Create application instance from config files"""
 
 import os
 import re
@@ -33,7 +31,8 @@ SKILL_CONFIG_FILE = "skill.conf"
 
 
 class EnvVarInterpolation(BasicInterpolation):
-    """Interpolation to expand environment variables in the format:
+    """
+    Interpolation to expand environment variables in the format:
 
     [section]
     key = ${ENV_VAR:default}
@@ -41,6 +40,18 @@ class EnvVarInterpolation(BasicInterpolation):
     """
 
     def before_get(self, parser, section, option, value, defaults):
+        """
+        If value matches the template (${ENV_VAR:default}),
+        extract the value from environment variable,
+        or set it to default
+
+        :param parser:
+        :param section:
+        :param option:
+        :param value:
+        :param defaults:
+        :return:
+        """
         match = ENV_VAR_TEMPLATE.match(value)
         if not match:
             return os.path.expandvars(value)
@@ -56,6 +67,12 @@ class EnvVarInterpolation(BasicInterpolation):
 
 
 def get_skill_config_file(config: Text = None) -> Text:
+    """
+    Check if skill config file exists
+
+    :param config:
+    :return:
+    """
     config_file = (
         config if config is not None else os.getenv("CONFIG_FILE", SKILL_CONFIG_FILE)
     )
@@ -73,7 +90,8 @@ def get_skill_config_file(config: Text = None) -> Text:
 
 
 def load_additional() -> List[Text]:
-    """Load additional configuration files
+    """
+    Load additional configuration files
 
     :return:
     """
@@ -98,7 +116,8 @@ def load_additional() -> List[Text]:
 
 
 def read_config(path: List[Text]) -> ConfigParser:
-    """Read configuration from files
+    """
+    Read configuration from files
 
     :param path:    path to the configuration file
     :return:        configuration dictionary
@@ -152,6 +171,14 @@ def clean_section(d: SectionProxy, **kwargs) -> Dict[Text, Any]:
     """
 
     def get(option, chain: Iterator):
+        """
+        Consequentially apply operations from the chain on the value provided by `option` parameter,
+        if operation raises an exception, try the next one
+
+        :param option:
+        :param chain:
+        :return:
+        """
         try:
             return next(chain)(option)
         except (AttributeError, TypeError, ValueError):
@@ -178,6 +205,7 @@ class FormatType(str, Enum):
 
 
 class Settings(BaseSettings):
+    """Skill settings"""
 
     # Default values for skill name/title/description and version
     SKILL_NAME: Text = "skill-noname"
@@ -223,9 +251,19 @@ class Settings(BaseSettings):
     ]
 
     def debug(self) -> bool:
+        """
+        Tell if skill is in "debug" mode
+
+        :return:
+        """
         return self.SKILL_DEBUG
 
     def app_config(self) -> Dict[Text, Any]:
+        """
+        This section values will be used to initialize FastAPI object
+
+        :return:
+        """
         return dict(
             title=self.SKILL_NAME,
             version=self.SKILL_VERSION,
@@ -234,6 +272,11 @@ class Settings(BaseSettings):
         )
 
     def http_config(self) -> Dict[Text, Any]:
+        """
+        These values will be forwarded as keyword arguments to HTTP server
+
+        :return:
+        """
         return dict(port=self.HTTP_PORT)
 
     @classmethod
@@ -265,6 +308,7 @@ class Settings(BaseSettings):
         cls.__annotations__.update(new_annotations)
 
     class Config(BaseSettings.Config):
+        """Default config: read from skill.conf file"""
 
         conf_file = SKILL_CONFIG_FILE
         case_sensitive = True
@@ -272,12 +316,30 @@ class Settings(BaseSettings):
 
         @classmethod
         def conf_settings(cls, *args) -> Dict[Text, Any]:
+            """
+            Read configuration setting in ConfigParser format from "skill.conf":
+
+                replace dashes with underscores in section names and configuration keys,
+                join names and keys with underscore ("_") and convert to upper case
+
+                So that a following config:
+
+                ```ini
+                [section]
+                key = Value
+                ```
+
+                will be available as:
+
+                >>> settings.SECTION_KEY
+                >>> "Value"
+
+            :param args:
+            :return:
+            """
 
             try:
                 c: ConfigParser = init_config(cls.conf_file)
-
-                def _make_key(string: Text) -> Text:
-                    return string.upper().replace("-", "_")
 
                 d: Dict[Text, Any] = {
                     "_".join((_make_key(section), _make_key(field))): value
@@ -298,7 +360,27 @@ class Settings(BaseSettings):
             env_settings: SettingsSourceCallable,
             file_secret_settings: SettingsSourceCallable,
         ) -> Tuple[SettingsSourceCallable, ...]:
+            """
+            Override the parent to insert "conf_settings" values
+
+            :param init_settings:
+            :param env_settings:
+            :param file_secret_settings:
+            :return:
+            """
             return init_settings, cls.conf_settings, env_settings, file_secret_settings
+
+
+def _make_key(string: Text) -> Text:
+    """
+    Helper to convert section/value keys to env vars format:
+
+        upper case and replace dashes with underscores
+
+    :param string:
+    :return:
+    """
+    return string.upper().replace("-", "_")
 
 
 settings = Settings()

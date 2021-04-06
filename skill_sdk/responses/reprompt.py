@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Re-prompt response
-#
+"""Re-prompt response"""
 
 from typing import Optional, Text
 

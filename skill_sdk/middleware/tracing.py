@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Tracing middleware
-#
+"""Tracing middleware"""
 
 import logging
 from fastapi import FastAPI

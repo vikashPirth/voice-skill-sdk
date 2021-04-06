@@ -8,9 +8,7 @@
 #
 #
 
-#
-# Text service
-#
+"""**DEPRECATED**: Text service"""
 
 import json
 import logging
@@ -27,28 +25,43 @@ logger = logging.getLogger(__name__)
 
 
 class Locale(CamelModel):
+    """Language code in ISO 639-1 format"""
+
     code: Text
 
 
 class LocaleInfo(CamelModel):
+    """List of supported languages"""
+
     supported_languages: List[Locale]
 
     @validator("supported_languages", each_item=True)
-    def check_lang_regex(cls, v: Locale):
+    def check_lang_regex(cls, v: Locale):  # pylint: disable=E0213
         if i18n.RE_TRANSLATIONS.match(v.code):
             return v
 
 
 class Translation(CamelModel):
+    """Text service translation record"""
 
+    # Language
     locale: Text
+
+    # Scope (usually skill name)
     scope: Text
+
+    # Translation tag
     tag: Text
+
+    # Translations (possibly, multiple)
     sentences: List[Text]
+
+    # Tenant, the record is valid for
+    tenant: Text
+
     comment: Optional[Text]
     last_change_date: Optional[datetime]
     creation_date: Optional[datetime]
-    tenant: Text
 
 
 TranslationCatalog = Dict[Text, Dict[Text, List[Text]]]

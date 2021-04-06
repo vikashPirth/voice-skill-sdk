@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Client commands
-#
+"""Client commands"""
 
 from enum import Enum
 from typing import Dict, Optional, Text
@@ -66,6 +64,8 @@ class AudioPlayer(Command):
     """
 
     class Action(Text, Enum):
+        """Available action commands"""
+
         PLAY_STREAM = "play_stream"
         PLAY_STREAM_BEFORE_TEXT = "play_stream_before_text"
         STOP = "stop"
@@ -73,6 +73,8 @@ class AudioPlayer(Command):
         RESUME = "resume"
 
     class ContentType(Text, Enum):
+        """Defined channel/content types"""
+
         RADIO = "radio"
         VOICEMAIL = "voicemail"
 
@@ -156,6 +158,8 @@ class Calendar(Command):
     """
 
     class Action(Text, Enum):
+        """Available action commands"""
+
         SNOOZE_START = "snooze_start"
         SNOOZE_CANCEL = "snooze_cancel"
 
@@ -189,6 +193,8 @@ class System(Command):
     """
 
     class Action(Text, Enum):
+        """Available action commands"""
+
         STOP = "stop"
         PAUSE = "pause"
         RESUME = "resume"
@@ -200,6 +206,8 @@ class System(Command):
         VOLUME_TO = "volume_to"
 
     class SkillType(Text, Enum):
+        """Defined channel/skill types"""
+
         TIMER = "Timer"
         CONVERSATION = "Conversation"
         MEDIA = "Media"
@@ -303,6 +311,8 @@ class Timer(Command):
     """
 
     class Action(Text, Enum):
+        """Available action commands"""
+
         SET_TIMER = "set_timer"
         CANCEL_TIMER = "cancel_timer"
 

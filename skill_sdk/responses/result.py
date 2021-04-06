@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Skill invoke response
-#
+"""Skill invoke data response"""
 
 from typing import Dict, Optional, Text
 from skill_sdk.util import CamelModel
@@ -21,7 +19,8 @@ class Result(CamelModel):
     """Skill result in machine-readable format"""
 
     class Config:
-        # This model instances are mutable for backward compatibility
+        """This model instances are mutable for backward compatibility"""
+
         allow_mutation = True
 
     # Result data

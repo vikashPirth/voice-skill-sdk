@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Route definitions
-#
+"""Route definitions"""
 
 import logging
 import secrets
@@ -37,7 +35,19 @@ security = HTTPBasic()
 
 
 def check_credentials(username: Text, password: Text):
+    """
+    Check request credentials:
+
+        currently basic credential validation is used
+        skill is invoked with user name "cvi" and a password specified as api_key in skill configuration
+
+    :param username:
+    :param password:
+    :return:
+    """
+
     def wrapper(credentials: HTTPBasicCredentials = Security(security)):
+        """Check credentials and throw HTTP_401_UNAUTHORIZED if incorrect"""
         if not (
             secrets.compare_digest(credentials.username, username)
             and secrets.compare_digest(credentials.password, password)
@@ -147,6 +157,17 @@ async def health(r: Request) -> JSONResponse:
 
 
 def setup_routes(app: FastAPI):
+    """
+    Setup default skill routes:
+
+        - GET   /info
+        - POST  /
+        - GET   /k8s/readiness
+        - GET   /k8s/liveness
+
+    :param app:
+    :return:
+    """
 
     authentication = (
         [Depends(check_credentials(settings.SKILL_API_USER, settings.SKILL_API_KEY))]

@@ -8,6 +8,8 @@
 # For details see the file LICENSE in the top directory.
 #
 
+"""Utility functions"""
+
 import re
 import time
 import asyncio
@@ -30,11 +32,6 @@ import uvicorn
 
 
 T = TypeVar("T")
-
-
-#
-#   Utility functions
-#
 
 
 def camel_to_snake(name):
@@ -112,6 +109,14 @@ class ContextVarExecutor(ThreadPoolExecutor):
 
 
 async def run_in_executor(func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    """
+    Run a synchronous function in a thread pool to prevent blocking
+
+    :param func:
+    :param args:
+    :param kwargs:
+    :return:
+    """
     loop = asyncio.get_running_loop()
 
     return await loop.run_in_executor(
@@ -120,6 +125,12 @@ async def run_in_executor(func: Callable[..., T], *args: Any, **kwargs: Any) -> 
 
 
 def run_until_complete(func: Awaitable[T]) -> T:
+    """
+    Run an asynchronous function in synchronous context
+
+    :param func:
+    :return:
+    """
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -148,6 +159,7 @@ class BaseModel(pydantic.BaseModel):
     """
 
     class Config:
+        """Alter default config for base models"""
 
         # Use orjson to serialize
         json_dumps = orjson_dumps
@@ -183,6 +195,7 @@ class CamelModel(BaseModel):
     """CamelModel will use camelCase aliases for snake_case fields"""
 
     class Config:
+        """Set `snake_to_camel` as alias generator function"""
 
         alias_generator = snake_to_camel
 
@@ -263,6 +276,12 @@ def intent_examples(intents: Mapping[Text, Callable]) -> Dict[str, Dict]:
 
 
 def populate_intent_examples(intents: Mapping[Text, Callable]):
+    """
+    Create intent invoke examples for Swagger UI
+
+    :param intents:
+    :return:
+    """
     from skill_sdk.intents import Context
 
     Context.__config__.schema_extra = {"examples": intent_examples(intents)}
@@ -367,7 +386,7 @@ def test_request(
         translations
     )
 
-    return RequestContextVar("request", request=request)
+    return RequestContextVar(request=request)
 
 
 def create_context(

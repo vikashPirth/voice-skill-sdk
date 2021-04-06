@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Client tasks (delayed or scheduled)
-#
+"""Client tasks (delayed or scheduled)"""
 
 import datetime
 from enum import Enum
@@ -21,11 +19,14 @@ from skill_sdk.util import CamelModel
 
 
 class ReferenceType(Text, Enum):
+    """Reference anchor: either end of the speech or beginning of the speech (when response is received)"""
+
     SPEECH_END = "SPEECH_END"
     THIS_RESPONSE = "THIS_RESPONSE"
 
 
 class ExecuteAfter(CamelModel):
+    """Command is executed after speech end with optional offset"""
 
     reference: ReferenceType = ReferenceType.SPEECH_END
 

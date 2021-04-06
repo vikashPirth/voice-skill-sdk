@@ -7,8 +7,13 @@
 # For details see the file LICENSE in the top directory.
 #
 
+"""CLI: "version" command"""
+
 #
-# "version" CLI command
+# Simply outputs the skill version as specified in config files:
+#
+#   this command is used in internal GitLab pipelines
+#   to generate docker image name for the skill
 #
 
 import argparse
@@ -27,6 +32,12 @@ def execute(*args):
 
 
 def add_subparser(subparsers):
+    """
+    Command arguments parser
+
+    :param subparsers:
+    :return:
+    """
 
     version_parser = subparsers.add_parser(
         "version",

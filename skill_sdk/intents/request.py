@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Skill invocation request
-#
+"""Skill invoke request"""
 
 import datetime
 import logging
@@ -126,8 +124,7 @@ class Session(CamelModel):
     """Device session"""
 
     class Config:
-        # Session is mutable for backward compatibility
-        allow_mutation = True
+        """Sample values for Swagger UI"""
 
         schema_extra: Dict = {
             "example": {
@@ -136,6 +133,9 @@ class Session(CamelModel):
                 "new": True,
             }
         }
+
+        # Session is mutable for backward compatibility
+        allow_mutation = True
 
     # Session identifier
     id: Text
@@ -187,15 +187,14 @@ class InvokeSkillRequest(CamelModel):
 class RequestContextVar(ContextDecorator):
     """Context manager to make InvokeSkillRequest object globally importable"""
 
+    _scope = "request"
     _request_scope_storage: ContextVar[Dict[Text, Any]] = ContextVar(
         "invoke_skill_request"
     )
 
     __request_token: Optional[Token] = None
 
-    def __init__(self, scope: Text = None, **kwargs: Any):
-        self._scope = scope
-
+    def __init__(self, **kwargs: Any):
         # Deep-copy request to allow mutating session attributes
         self.kwargs = {k: v.copy(deep=True) for k, v in kwargs.items()}
 
@@ -221,13 +220,14 @@ class RequestContextVar(ContextDecorator):
             return False
 
 
-def _context_var(scope):
-    return RequestContextVar(scope)
+def _context_var():
+    """Wrapper to cheat mypy"""
+    return RequestContextVar()
 
 
 #
 # Global objects
 #
-request: InvokeSkillRequest = _context_var("request")  # noqa
+request: InvokeSkillRequest = _context_var()  # noqa
 
 r = request

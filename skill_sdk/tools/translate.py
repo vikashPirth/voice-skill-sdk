@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Internationalization
-#
+"""Internationalization"""
 
 import logging
 import subprocess

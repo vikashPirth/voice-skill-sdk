@@ -7,11 +7,8 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Skill runner
-#
+"""Skill runner"""
 
-import asyncio
 import inspect
 import logging
 from functools import partial
@@ -39,6 +36,7 @@ FALLBACK_INTENT = "FALLBACK_INTENT"
 
 
 class Skill(FastAPI):
+    """Overloads FastAPI with intent handlers and translations"""
 
     locales: Mapping[Text, i18n.Translations]
 
@@ -244,6 +242,15 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
 
     middleware.setup_middleware(app)
     routes.setup_routes(app)
+
+    # Since Prometheus metrics exporter is optional,
+    # try to load prometheus middleware and simply eat an exception
+    try:
+        from middleware.prometheus import setup
+
+        setup(app)
+    except ModuleNotFoundError:
+        pass
 
     if develop:
         from skill_sdk import ui

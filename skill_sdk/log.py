@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Logging
-#
+"""Logging"""
 
 import os
 import time
@@ -100,6 +98,7 @@ class CloudGELFFormatter(logging.Formatter):
 
 
 def get_config_dict(log_level: int, log_format: config.FormatType) -> Dict:
+    """Logging configuration dictionary"""
 
     conf = {
         "gelf": {

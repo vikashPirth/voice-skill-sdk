@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Type hints processing and intent handler invoke
-#
+"""Type hints processing and intent handler invoke"""
 
 import copy
 import inspect
@@ -294,6 +292,7 @@ def _parse_and_call(
     error_handler: ErrorHandlerType = None,
     **kwargs,
 ):
+    """Extract parameters from invoke request and call intent handler"""
 
     signature = inspect.signature(func)
     parameters = signature.parameters.items()
@@ -345,6 +344,7 @@ def _log_and_call(message: Text, func: Callable, *args, **kwargs):
 
 
 def _parse_errors(arguments: Dict[Text, Any], silent: bool = True):
+    """Extract type/value conversion exceptions"""
     errors = next(
         iter(
             (name, ex)

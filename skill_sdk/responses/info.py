@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Skill info response
-#
+"""Skill info response"""
 
 from typing import Text, Tuple
 

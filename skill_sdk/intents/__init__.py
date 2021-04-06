@@ -8,9 +8,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Skill requests
-#
+"""Intent requests"""
 
 from skill_sdk.intents.entities import AttributeV2
 

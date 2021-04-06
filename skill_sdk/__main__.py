@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Command line interface
-#
+"""Command line interface"""
 
 import sys
 import argparse
@@ -27,22 +25,36 @@ from skill_sdk import config, log
 
 
 def main() -> None:
-    """CLI - run as a standalone python app"""
+    """
+    CLI - run as a standalone python app
+
+    :return:
+    """
 
     parser = argparse.ArgumentParser(
         prog="vs",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description="Magenta Voice Skill CLI. 'vs' command is a helper that "
-        "allows you to run several Magenta skill tasks: "
+        "allows you to execute Magenta skill tasks: "
         "initialize skill project, define or test your intent handlers.",
     )
 
     add_logging_options(parser)
     subparsers = parser.add_subparsers(dest="command", help="Skill commands")
+
+    # Initialize a skill project
     init.add_subparser(subparsers)
+
+    # Run the skill with uvicorn server
     run.add_subparser(subparsers)
+
+    # Run the skill in development mode (with Designer UI)
     develop.add_subparser(subparsers)
+
+    # Extracts translatable strings from Python modules
     translate.add_subparser(subparsers)
+
+    # Output skill version
     version.add_subparser(subparsers)
 
     arguments = parser.parse_args()

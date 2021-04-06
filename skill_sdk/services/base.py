@@ -8,9 +8,7 @@
 #
 #
 
-#
-# Base for internal services
-#
+"""Base for internal services"""
 
 import logging
 from typing import Dict, Text, TypeVar

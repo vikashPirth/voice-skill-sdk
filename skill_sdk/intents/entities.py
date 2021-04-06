@@ -7,9 +7,7 @@
 # For details see the file LICENSE in the top directory.
 #
 
-#
-# Intent entities and conversion functions
-#
+"""Intent entities and conversion functions"""
 
 import re
 import logging
@@ -97,18 +95,21 @@ class TimeRange:
             parser.parse(v) if v else None for v in value.split("/")
         ]
 
-    def __contains__(self, value) -> bool:
+    def __contains__(
+        self, value: Union[datetime.datetime, datetime.date, datetime.time]
+    ) -> bool:
 
         begin = self.begin or datetime.datetime.min
         end = self.end or datetime.datetime.max
 
         if isinstance(value, datetime.time):
             return begin.time() <= value <= end.time()
-        if isinstance(value, datetime.datetime):
+        elif isinstance(value, datetime.datetime):
             return begin <= value <= end
-        if isinstance(value, datetime.date):
+        elif isinstance(value, datetime.date):
             return begin.date() <= value <= end.date()
-        return False
+
+        raise TypeError("Can't compare TimeRange to %s", type(value).__name__)
 
     def __eq__(self, other):
         try:
@@ -225,6 +226,8 @@ class AttributeV2(CamelModel, Generic[T]):
     extras: Optional[Dict[Text, Text]]
 
     class Config:
+        """Sample values for Swagger UI"""
+
         schema_extra = {
             "example": {
                 "id": 1,
@@ -236,7 +239,7 @@ class AttributeV2(CamelModel, Generic[T]):
         }
 
     @root_validator(pre=True)
-    def remove_none_values(cls, values: Dict):
+    def remove_none_values(cls, values: Dict):  # pylint: disable=E0213
         return {k: v for k, v in values.items() if v is not None}
 
     def __init__(

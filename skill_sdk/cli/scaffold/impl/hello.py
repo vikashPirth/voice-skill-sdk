@@ -1,12 +1,15 @@
 #
 # voice-skill-sdk
 #
-# (C) 2021, YOUR_NAME (YOUR COMPANY), Deutsche Telekom AG
+# (C) 2021, YOUR_NAME (YOUR COMPANY)
 #
 # This file is distributed under the terms of the MIT license.
 # For details see the file LICENSE in the top directory.
 #
 #
+
+"""Your intent handlers"""
+
 from skill_sdk import Response, skill, tell
 from skill_sdk.i18n import _
 
