@@ -31,7 +31,17 @@ setup(
         "Programming Language :: Python :: Implementation :: CPython",
     ],
     packages=find_packages(),
-    package_data={"": ["*"], "skill_sdk.ui": ["css/*", "js/*"]},
+    package_data={
+        "": ["*"],
+        "skill_sdk.cli": [
+            "scaffold/*",
+            "scaffold/impl/*",
+            "scaffold/locale/*",
+            "scaffold/scripts/*",
+            "scaffold/tests/*",
+        ],
+        "skill_sdk.ui": ["css/*", "js/*"],
+    },
     install_requires=[
         "fastapi",
         "pydantic>=1.8,<2.0.0",
@@ -60,7 +70,6 @@ setup(
             "starlette-exporter>=0.7.0",
         ],
         "all": [
-            # TODO: describe in the docs the process of plugging in the StarletteTracingMiddleWare with a tracer
             "starlette-opentracing>=0.1.0",
             "starlette-exporter>=0.7.0",
         ],

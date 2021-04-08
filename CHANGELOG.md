@@ -2,7 +2,42 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 1.0
+## 1.0.1 - 2021-04-08
+
+### Bugfixes
+
+- [#47](https://github.com/telekom/voice-skill-sdk/issues/47):
+  Scaffold project files added to both binary and source distribution. 
+
+### Features
+
+
+- [#45](https://github.com/telekom/voice-skill-sdk/pull/45): 
+  New "response_hook" parameter when constructing `requests.Client/AsyncClient`.
+  Allows plugging in observability metrics when calling partner services. 
+  For example, to count partner service requests with response codes:
+  
+  ```python
+  from skill_sdk.requests import AsyncClient
+  from skill_sdk.middleware.prometheus import count_partner_calls
+  
+  async with AsyncClient(
+      response_hook=count_partner_calls("partner-service")
+  ) as client:
+      response = await client.get("https://partner-service-api")
+  ```
+
+
+- [#43](https://github.com/telekom/voice-skill-sdk/pull/43): 
+  Source code documentation has been reviewed. 
+
+
+- [#42](https://github.com/telekom/voice-skill-sdk/pull/42): 
+  Asyncio event loops can be nested when calling `utils.run_until_complete`. 
+  Usable when mixing sync and async handlers. 
+
+
+## 1.0 - 2021-03-26
 
 ### Major changes 
 
