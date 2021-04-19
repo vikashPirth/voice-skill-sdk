@@ -13,12 +13,13 @@
 import logging
 from typing import Dict, Text, TypeVar
 
+from aiobreaker import CircuitBreaker
+
 from skill_sdk.intents import r
 from skill_sdk.requests import AsyncClient, Client
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar("T")
 DEFAULT_AUTH_TOKEN = "cvi"
 
 # Default timeout when accessing the service
@@ -37,7 +38,10 @@ class BaseService:
     # Service name
     NAME: Text = "base"
 
-    # Service URL
+    # Circuit breaker: shared between client instances
+    circuit_breaker: CircuitBreaker
+
+    # Base service URL
     url: Text = ""
 
     # Timeout value
@@ -52,18 +56,25 @@ class BaseService:
         self,
         url: Text,
         *,
+        internal: bool = True,
         timeout: float = DEFAULT_SERVICE_TIMEOUT,
         headers: Dict[Text, Text] = None,
+        add_auth_header: bool = None,
         auth_token: Text = DEFAULT_AUTH_TOKEN,
-        add_auth_header: bool = True,
-        internal: bool = True,
     ) -> None:
         self.url = url
+        self.internal = internal
         self.timeout = timeout
         self.auth_token = auth_token
-        self.add_auth_header = add_auth_header
-        self.internal = internal
         self._headers = headers or {}
+
+        # `True` for internal services, `False` for external, unless specified explicitly
+        self.add_auth_header = (
+            add_auth_header if add_auth_header is not None else internal
+        )
+
+        # circuit breaker with defaults: (fail_max=5, timeout_duration=60 sec)
+        self.circuit_breaker = CircuitBreaker()
 
     def auth_header(self):
         """Add "Authorization" header for bearer auth
@@ -92,7 +103,7 @@ class BaseService:
         }
 
         # If inside a request, add "Content-Language"
-        if r.context:
+        if r and r.context:
             _headers.update({"Content-Language": r.context.locale})
 
         # Add "Authorization" header if requested
@@ -106,13 +117,14 @@ class BaseService:
 
     @property
     def client(self) -> Client:
-        """Creates and new client with circuit breaker"""
+        """Creates new client with circuit breaker"""
 
         return Client(
             internal=self.internal,
             base_url=self.url,
             headers=self.headers,
             timeout=self.timeout,
+            circuit_breaker=self.circuit_breaker,
         )
 
     @property
@@ -124,4 +136,5 @@ class BaseService:
             base_url=self.url,
             headers=self.headers,
             timeout=self.timeout,
+            circuit_breaker=self.circuit_breaker,
         )

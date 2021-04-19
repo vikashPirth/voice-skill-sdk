@@ -37,7 +37,7 @@ Runtime installation with Prometheus metrics exporter and distributed tracing ad
 Development installation: `python -m pip install skill-sdk[dev]`.
 
 ## Quickstart
-To bootstrap a new project, install SDK in development mode:
+To bootstrap a new project, install SDK for development:
 ```
 pip install skill-sdk[dev]
 ```
@@ -63,7 +63,7 @@ from skill_sdk import skill, Response
 
 @skill.intent_handler("HELLO_WORLD__INTENT")
 async def handler() -> Response:
-    return "Hello World!"
+    return Response("Hello World!")
 
 app = skill.init_app()
 
