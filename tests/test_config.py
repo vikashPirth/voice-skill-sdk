@@ -9,7 +9,7 @@ CONFIG_INI = """
 subkey = value
 
 [key2]
-subkey2 = ${ENV_VAR:default}
+subkey2 = ${ENV_VAR:default/{0}/items}
 
 [key3]
 subkey3 = ${ENV_VAR_WITHOUT_DEFAULT}
