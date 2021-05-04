@@ -24,7 +24,7 @@ from pydantic.env_settings import SettingsSourceCallable
 
 logger = logging.getLogger(__name__)
 
-ENV_VAR_TEMPLATE = re.compile(r'^\${(.*)}$')
+ENV_VAR_TEMPLATE = re.compile(r"^\${(.*)}$")
 
 # Skill default config file name
 SKILL_CONFIG_FILE = "skill.conf"
