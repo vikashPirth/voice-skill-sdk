@@ -2,6 +2,24 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.14.1] - 2021-05-94  
+
+**Features**
+
+-   Device location endpoint added to location service. 
+    It is a preferable way for a skill to get device location information, such as address or zip-code.  
+
+**Miscellaneous**
+
+-   Requirements bump:
+    - apispec from 4.3.0 to 4.4.0
+    - arrow from 1.0.2 to 1.1.0
+    - gunicorn from 20.0.4 to 20.1.0
+    - prometheus_client from 0.10.0 to 0.10.1
+    - py-zipkin from 0.20.1 to 0.20.2 
+    - requests-mock from 1.8.0 to 1.9.2
+
+
 ## [v0.14.0] - 2021-03-22  
 
 **Miscellaneous**
