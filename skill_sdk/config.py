@@ -49,7 +49,7 @@ DEFAULT_TOKENS_FILE = 'tokens.json'
 # Filesystem paths to look for config and tokens
 SEARCH_PATH = [Path('./'), Path('../'), Path('/'), Path('~')]
 
-ENV_VAR_TEMPLATE = re.compile(r'\${([^}^{]+)\}')
+ENV_VAR_TEMPLATE = re.compile(r'^\${(.*)}$')
 
 logger = logging.getLogger(__name__)
 

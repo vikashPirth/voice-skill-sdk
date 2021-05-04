@@ -108,3 +108,14 @@ class TestEnvironment(unittest.TestCase):
         self.assertEqual(the_config['section']['key'], 'default')
         with patch('os.environ', new={'ENV_VAR': 'environment_variable'}):
             self.assertEqual(the_config['section']['key'], 'environment_variable')
+
+    def test_expand_vars_with_curlies(self):
+        config_data = """
+        [section]
+        key = ${ENV_VAR:default/{0}/items}
+        """
+        the_config = Config()
+        the_config.read_string(config_data)
+        self.assertEqual(the_config['section']['key'], 'default/{0}/items')
+        with patch('os.environ', new={'ENV_VAR': 'environment_variable'}):
+            self.assertEqual(the_config['section']['key'], 'environment_variable')
