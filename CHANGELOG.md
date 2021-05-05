@@ -2,6 +2,29 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 1.0.2 - 2021-05-05
+
+### Features
+
+
+- [#49](https://github.com/telekom/voice-skill-sdk/pull/49):
+  On-demand debug logging. This feature is activated with `X-User-Debug-Log` header: 
+  if header is present in skill invoke request, logging level is lowered to DEBUG.
+  
+
+- [#51](https://github.com/telekom/voice-skill-sdk/pull/51):
+  Address lookup and device location endpoints of location service:
+  
+    - `LocationService.device_location` retrieves the device location (the info, a user has setup in companion app) with geo coordinates.
+
+    - `LocationService.address_lookup` returns a list of addresses (with geo-coordinates) for a given query.
+    A query consists of any of address fields (country, zip, street name, house number).
+
+### Bugfixes
+
+- Environment variable placeholders (in `skill.conf`) may now contain curly braces, 
+  so you can have formatted string literals as default values.   
+
 ## 1.0.1 - 2021-04-08
 
 ### Bugfixes
