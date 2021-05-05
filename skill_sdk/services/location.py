@@ -15,12 +15,14 @@
 import json
 import logging
 import requests
+from functools import partial
 
 from timezonefinder.timezonefinder import TimezoneFinder
 from skill_sdk.config import config
 from skill_sdk import entities
 from skill_sdk.caching.decorators import CallCache
 from skill_sdk.caching.local import LocalFIFOCache
+from skill_sdk.requests import CircuitBreakerSession
 from skill_sdk.services.base import BaseService
 from skill_sdk.services.prometheus import partner_call, prometheus_latency
 
@@ -177,6 +179,20 @@ class LocationService(BaseService):
                 logger.error("%s/device-location responded with error: %s", self.url, ex)
                 if isinstance(ex, requests.exceptions.RequestException):
                     raise
+
+    @property
+    def session(self):
+        """
+        The service returns HTTP 404 (Not Found) if no data available
+        To workaround this behaviour, make 404 a non-failure code
+        """
+
+        _session = CircuitBreakerSession(internal=True,
+                                         circuit_breaker=self.CIRCUIT_BREAKER,
+                                         good_codes=(range(200, 400), 404))
+
+        _session.request = partial(_session.request, headers=self._headers(), timeout=self.timeout)
+        return _session
 
 
 def setup_service():

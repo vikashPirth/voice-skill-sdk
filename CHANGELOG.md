@@ -2,7 +2,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [v0.14.1] - 2021-05-94  
+## [v0.14.2] - 2021-05-05  
+
+**Bugfixes**
+
+-   Environment variable placeholders can contain curly braces in default values. 
+    You can define formatted string literals as default values.   
+
+
+-   Location service returns 404 (Not Found) if no location data is present for a device. 
+    This error code is now treated as normal, and `None` value is returned instead. 
+
+## [v0.14.1] - 2021-05-04  
 
 **Features**
 

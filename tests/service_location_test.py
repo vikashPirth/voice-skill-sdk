@@ -198,3 +198,6 @@ class TestDeviceLocation(unittest.TestCase):
         req_mock.get('http://service-location-service:1555/v1/location/device-location', text='{}', status_code=500)
         with self.assertRaises(BadHttpResponseCodeException):
             service.device_location()
+
+        req_mock.get('http://service-location-service:1555/v1/location/device-location', text='', status_code=404)
+        self.assertIsNone(service.device_location())
