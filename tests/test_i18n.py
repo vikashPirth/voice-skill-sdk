@@ -13,6 +13,7 @@ import unittest
 import pathlib
 import subprocess
 from unittest.mock import patch, mock_open, MagicMock
+import yaml
 
 from skill_sdk import i18n, util
 from skill_sdk.i18n import (
@@ -21,6 +22,7 @@ from skill_sdk.i18n import (
     _load_gettext,
     Message,
     Translations,
+    MultiStringTranslation,
     _,
     _n,
     _a,
@@ -48,20 +50,48 @@ KEY2:
     - VALUE22
 """
 
+TEST_ALL_DATA = """
+zh:
+    KEY1:
+        - VALUE11
+        - VALUE12
+    KEY2:
+        - VALUE21
+        - VALUE22
+bb:
+    KEY1: VALUEBB        
+"""
+
 
 class TestI18n(unittest.TestCase):
     @patch("subprocess.check_output")
+    @patch("skill_sdk.i18n._load_all", return_value={})
+    @patch("skill_sdk.i18n._load_yaml", return_value={})
     @patch("skill_sdk.i18n.Path.open", mock_open(read_data=EMPTY_MO_DATA), create=True)
-    def test_load_translations(self, *args):
+    def test_load_gettext_translations(self, *args):
         mock = MagicMock()
         mock.glob.return_value = [pathlib.Path("zh.mo")]
         with patch("skill_sdk.i18n.get_locale_dir", return_value=mock):
             self.assertEqual(
-                _load_gettext(".")["zh"]._catalog,
                 {"": "Content-Type: text/plain; charset=UTF-8\n"},
+                i18n.load_translations()["zh"]._catalog,
             )
             mock.glob.return_value = [pathlib.Path("bad_lang_code.mo")]
-            self.assertEqual(_load_gettext("."), {})
+            self.assertEqual(i18n.load_translations(), {})
+
+    def test_load_all_translations(self):
+        with patch("pathlib.io.open", mock_open(read_data=TEST_ALL_DATA), create=True):
+            tr = i18n.load_translations()
+        self.assertEqual(tr["bb"].gettext("KEY1"), "VALUEBB")
+        self.assertEqual(tr["zh"].getalltexts("KEY2"), ["VALUE21", "VALUE22"])  # noqa
+
+        data = yaml.safe_load(TEST_ALL_DATA)
+        with patch(
+            "pathlib.io.open",
+            mock_open(read_data=yaml.safe_dump({**data, **{"invalid": {}}})),
+            create=True,
+        ), self.assertRaises(RuntimeError):
+            i18n.load_translations()
 
     @patch("builtins.open", mock_open(read_data=EMPTY_MO_DATA), create=True)
     def test_make_lazy_translation(self):
@@ -314,7 +344,7 @@ class TestMultiStringTranslation(unittest.TestCase):
         mock = MagicMock()
         mock.glob.return_value = [pathlib.Path("zh.yaml")]
         with patch("skill_sdk.i18n.get_locale_dir", return_value=mock):
-            self.tr = _load_yaml()["zh"]
+            self.tr = _load_yaml().get("zh")
 
     def test_load_invalid_yaml(self):
         with patch(
@@ -324,7 +354,15 @@ class TestMultiStringTranslation(unittest.TestCase):
             mock.glob.return_value = [pathlib.Path("zh.yaml")]
             with patch("skill_sdk.i18n.get_locale_dir", return_value=mock):
                 with self.assertRaises(RuntimeError):
-                    self.tr = _load_yaml()
+                    _load_yaml()
+
+    def test_from_dict(self):
+        data = yaml.safe_load(TEST_YAML_DATA)
+        tr = MultiStringTranslation.from_dict("de", {"de": data})
+        self.assertEqual(tr.getalltexts("KEY1"), ["VALUE11", "VALUE12"])
+
+        with self.assertRaises(RuntimeError):
+            MultiStringTranslation.from_dict("zh", {"de": {}})
 
     def test_message_gettext(self):
         with patch("skill_sdk.i18n.random.choice", return_value="WHATEVA"):

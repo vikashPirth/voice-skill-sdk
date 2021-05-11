@@ -2,6 +2,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- Support local skill translations in [Rails-compatible](https://guides.rubyonrails.org/i18n.html) YAML format.
+
 ## 1.0.2 - 2021-05-05
 
 ### Features
@@ -15,7 +19,7 @@ All notable changes to this project will be documented in this file.
 - [#51](https://github.com/telekom/voice-skill-sdk/pull/51):
   Address lookup and device location endpoints of location service:
   
-    - `LocationService.device_location` retrieves the device location (the info, a user has setup in companion app) with geo coordinates.
+    - `LocationService.device_location` retrieves the device location (the info, a user has set up in companion app) with geo coordinates.
 
     - `LocationService.address_lookup` returns a list of addresses (with geo-coordinates) for a given query.
     A query consists of any of address fields (country, zip, street name, house number).
