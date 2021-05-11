@@ -14,8 +14,10 @@ import subprocess
 from unittest.mock import patch, mock_open, MagicMock
 from configparser import ConfigParser
 
+import yaml
+
 from skill_sdk import l10n
-from skill_sdk.l10n import load_translations, Message, Translations, MultiStringTranslation
+from skill_sdk.l10n import Message, Translations, MultiStringTranslation
 
 # This is a content of an empty .mo file
 EMPTY_MO_DATA = b'\xde\x12\x04\x95\x00\x00\x00\x00\x01\x00\x00\x00\x1c\x00\x00\x00$\x00\x00\x00\x03\x00\x00\x00,' \
@@ -31,23 +33,22 @@ KEY2:
     - VALUE22
 """
 
+TEST_ALL_DATA = """
+zh:
+    KEY1:
+        - VALUE11
+        - VALUE12
+    KEY2:
+        - VALUE21
+        - VALUE22
+bb:
+    KEY1: VALUEBB        
+"""
+
 test_old_data = '{"DEMO_MSG": ["impl/1.py"]}'
 
 
 class TestL10n(unittest.TestCase):
-
-    @patch("pathlib.io.open", mock_open(read_data=EMPTY_MO_DATA), create=True)
-    @patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('zh.mo')])
-    @patch('skill_sdk.l10n.Translations', return_value=None)
-    def test_load_translations(self, *args):
-        mock = MagicMock()
-        mock.glob.return_value = [pathlib.Path('zh.mo')]
-        with patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
-            self.assertIsNone(l10n._load_gettext()['zh'])
-
-        mock.glob.return_value = [pathlib.Path('bad_lang_code.mo')]
-        with patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
-            self.assertEqual(l10n._load_gettext(), {})
 
     @patch('builtins.open', mock_open(read_data=b'\xde\x12\x04\x95\x00\x00\x00\x00\x01\x00\x00\x00\x1c\x00\x00\x00$\x00\x00\x00\x03\x00\x00\x00,\x00\x00\x00\x00\x00\x00\x008\x00\x00\x00(\x00\x00\x009\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00Content-Type: text/plain; charset=UTF-8\n\x00'), create=True)
     def test_make_lazy_translation(self):
@@ -141,6 +142,35 @@ class TestL10n(unittest.TestCase):
     @patch('skill_sdk.l10n.config.resolve_glob', return_value=[pathlib.Path('zh.mo')])
     def test_compile_locales(self, *args):
         self.assertIsNone(l10n.compile_locales())
+        with patch.object(pathlib.Path, "exists", return_value=True), patch.object(logging.Logger, "info") as log:
+            l10n.compile_locales()
+            log.assert_called_once_with("Skipping %s: %s exists", "zh.mo", pathlib.PosixPath("zh.mo"))
+
+    @patch("skill_sdk.l10n._load_all", return_value={})
+    @patch("skill_sdk.l10n._load_yaml", return_value={})
+    @patch("pathlib.io.open", mock_open(read_data=EMPTY_MO_DATA), create=True)
+    @patch("skill_sdk.l10n.config.resolve_glob", return_value=[pathlib.Path("zh.mo")])
+    @patch("skill_sdk.l10n.Translations", return_value=None)
+    def test_load_gettext_translations(self, *args):
+        mock = MagicMock()
+        mock.glob.return_value = [pathlib.Path('zh.mo')]
+        with patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
+            self.assertIsNone(l10n.load_translations()['zh'])
+
+        mock.glob.return_value = [pathlib.Path('bad_lang_code.mo')]
+        with patch('skill_sdk.l10n.get_locale_dir', return_value=mock):
+            self.assertEqual(l10n.load_translations(), {})
+
+    def test_load_all_translations(self):
+        with patch("pathlib.io.open", mock_open(read_data=TEST_ALL_DATA), create=True):
+            tr = l10n.load_translations()
+        self.assertEqual(tr["bb"].gettext("KEY1"), "VALUEBB")
+        self.assertEqual(tr["zh"].getalltexts("KEY2"), ["VALUE21", "VALUE22"])  # noqa
+        data = yaml.safe_load(TEST_ALL_DATA)
+        data.update({"invalid": {}})
+        with patch("pathlib.io.open", mock_open(read_data=yaml.safe_dump(data)), create=True), \
+                self.assertRaises(RuntimeError):
+            l10n.load_translations()
 
 
 class TestMessage(unittest.TestCase):
@@ -296,6 +326,17 @@ class TestMultiStringTranslation(unittest.TestCase):
         self.assertEqual(message.key, "KEY1")
         self.assertEqual(message.value, "WHATEVA")
         self.assertEqual(message.kwargs, {"a": "1", "b": "1"})
+
+    def test_load_ruby_format(self):
+        tr = MultiStringTranslation("zh")
+        data = yaml.safe_load(TEST_YAML_DATA)
+
+        with self.assertRaises(RuntimeError):
+            tr._load_catalog({"bo": data})
+
+        tr._load_catalog({"zh": data})
+        self.assertEqual(tr.getalltexts("KEY1"), ["VALUE11", "VALUE12"])
+        self.assertEqual(tr.getalltexts("KEY2"), ["VALUE21", "VALUE22"])
 
 
 class TestNLFunctions(unittest.TestCase):
