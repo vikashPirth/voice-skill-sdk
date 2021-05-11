@@ -158,6 +158,13 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(response.text, '2001-12-31')
         self.assertEqual(response.result['date_date'], datetime.date(2001, 12, 31))
 
+        @intent_handler('Another_Test_Helper_Intent')
+        def decorated_test():
+            from skill_sdk.intents import context
+            return Response(context.intent_name)
+
+        self.assertEqual('Another_Test_Helper_Intent', invoke_intent('Another_Test_Helper_Intent').text)
+
         with self.assertRaises(KeyError):
             invoke_intent('Test_Blah_Intent')
 

@@ -193,7 +193,7 @@ def invoke_intent(intent_name: str, skill=None, **kwargs):
     except KeyError:
         raise KeyError(f"Intent {intent_name} not found")
 
-    with test_context(intent, **kwargs) as ctx:
+    with test_context(intent_name, **kwargs) as ctx:
         return intent(ctx)
 
 
