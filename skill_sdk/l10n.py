@@ -18,7 +18,6 @@ import subprocess
 from pathlib import Path
 from threading import local
 from functools import reduce
-from types import MappingProxyType
 from typing import Dict, Iterator, Iterable, List, Mapping, Optional, Text, Tuple, Union
 
 import yaml
@@ -30,9 +29,10 @@ from .config import config
 
 _thread_locals = local()
 
-LOCALE_DIR = 'locale'
-PROGRAM_NOT_FOUND = 'Failed to launch %s: not found. Make sure you have GNU gettext tools installed.'
-RE_TRANSLATIONS = re.compile(r'^[a-z]{2}(-[A-Z]{2})?$')
+LOCALE_DIR = "locale"
+LOCALE_FILE = "locales.yaml"
+PROGRAM_NOT_FOUND = "Failed to launch %s: not found. Make sure you have GNU gettext tools installed."
+RE_TRANSLATIONS = re.compile(r"^[a-z]{2}(-[A-Z]{2})?$")
 logger = logging.getLogger(__name__)
 
 
@@ -70,8 +70,7 @@ def make_lazy(locale, func, alt=None):
     :return:
     """
     def lazy_func(*args, **kwargs):
-        """
-        Lazy translations wrapper """
+        """Lazy translations wrapper"""
         try:
             return getattr(locale(), func)(*args, **kwargs)
         except AttributeError:
@@ -279,17 +278,33 @@ class MultiStringTranslation(Translations):
         # Set catalog from local translation
         if fp is not None:
             try:
-                catalog = yaml.safe_load(fp)
-                self._catalog = {
-                    k: v if isinstance(v, list) else [v]
-                    for k, v in catalog.items()
-                }
+                self._load_catalog(yaml.safe_load(fp))
                 self.files: List[Text] = list(filter(None, [getattr(fp, "name", None)]))
-            except (ReaderError, ScannerError) as ex:
-                logger.exception(
-                    "Could not load translations from %s: %s", repr(fp), repr(ex)
-                )
+            except (AttributeError, ReaderError, ScannerError) as ex:
+                logger.exception("Could not load translations from %s: %s", repr(fp), repr(ex))
                 raise RuntimeError from ex
+
+    def _load_catalog(self, catalog):
+        # Support Ruby-format translations with language code as top level key:
+        pointer = catalog
+        keys = list(catalog)
+        if len(catalog) == 1 and RE_TRANSLATIONS.match(keys[0]):
+            # Double-check if top level language code is same as file name
+            if self.lang == keys[0]:
+                pointer = catalog[keys[0]]
+            else:
+                raise RuntimeError("Invalid language code %s when loading %s.", repr(keys[0]), repr(self.lang))
+
+        self._catalog = {
+            k: v if isinstance(v, list) else [v]
+            for k, v in pointer.items()
+        }
+
+    @staticmethod
+    def from_dict(lang: Text, catalog: Dict) -> 'MultiStringTranslation':
+        translation = MultiStringTranslation(lang)
+        translation._load_catalog(catalog)
+        return translation
 
     def __repr__(self):
         return f"<{type(self).__name__}: {repr(self.files)}>"
@@ -472,19 +487,25 @@ def update_translation(locale: str, messages: Dict, locale_dir: str = None):
         logger.info('Nothing to translate in %s', po_file.name)
 
 
-def compile_locales(locale_dir: str = None):
+def compile_locales(locale_dir: Text = None, force: bool = False):
     """
     Compile all languages available in locale_dir:
         launches `msgfmt` utility to compile .po to .mo files
 
     :param locale_dir:
+    :param force:       force compilation even if *.mo files exist
     :return:
     """
     program = 'msgfmt'
     search_glob = get_locale_dir(locale_dir) / '*.po'
     for po_file in config.resolve_glob(search_glob):
-        logger.info('Compiling %s ...', po_file.name)
         try:
+            mo_file = po_file.with_suffix(".mo")
+            if mo_file.exists() and not force:
+                logger.info("Skipping %s: %s exists", po_file.name, mo_file)
+                continue
+
+            logger.info('Compiling %s ...', po_file.name)
             subprocess.check_output([program, '-o', str(po_file.with_suffix('.mo')), str(po_file)],
                                     text=True,
                                     stderr=subprocess.PIPE,)
@@ -494,6 +515,29 @@ def compile_locales(locale_dir: str = None):
 
         except subprocess.CalledProcessError as ex:
             logger.error('Failed to compile %s: %s', po_file.name, repr(ex))
+
+
+def _load_all(locale_file: Text = LOCALE_FILE) -> Dict[Text, MultiStringTranslation]:
+    """
+    Load translations from a single locale file ("locales.yaml" by default)
+
+    :param locale_file:
+    :return:
+    """
+    try:
+        with Path(locale_file).open() as fp:
+            catalog = yaml.safe_load(fp)
+            if not all((RE_TRANSLATIONS.match(x) for x in catalog)):
+                raise RuntimeError("One or more invalid language codes found: %s.", repr(list(catalog)))
+
+            return {
+                lang: MultiStringTranslation.from_dict(lang, catalog[lang])
+                for lang in catalog
+            }
+
+    except FileNotFoundError:
+        logger.debug("%s not found.", locale_file)
+        return {}
 
 
 def _load_yaml(locale_dir: Text = None) -> Dict[Text, MultiStringTranslation]:
@@ -540,6 +584,11 @@ def load_translations(locale_dir: Text = None) -> Mapping[Text, Translations]:
     :return:
     """
 
-    _translations = _load_yaml(locale_dir) or _load_gettext(locale_dir)
+    _translations = _load_all() or _load_yaml(locale_dir) or _load_gettext(locale_dir)
+
+    if _translations:
+        logger.info("Loaded: %s", list(_translations))
+    else:
+        logger.info("No local translations found.")
 
     return _translations
