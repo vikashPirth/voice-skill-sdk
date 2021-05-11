@@ -23,8 +23,11 @@ from yaml.reader import ReaderError
 from yaml.scanner import ScannerError
 from babel import dates, lists, support
 
-# Place your `[lang].po` files to `locale` directory
+# Place your `[lang].yaml` / `[lang].po` files to `locale` directory
 LOCALE_DIR = "locale"
+
+# Place combined YAML translations to `locales.yaml` file
+LOCALE_FILE = "locales.yaml"
 
 PROGRAM = "pybabel"
 PROGRAM_NOT_FOUND = f'Failed to launch "{PROGRAM} %s": not found. Make sure "{PROGRAM}" is in your PATH.'
@@ -238,18 +241,40 @@ class MultiStringTranslation(Translations):
         """
 
         try:
-            catalog = yaml.safe_load(fp)
-            self._catalog = {
-                k: v if isinstance(v, list) else [v] for k, v in catalog.items()
-            }
+            self._load_catalog(yaml.safe_load(fp))
         except (ReaderError, ScannerError) as ex:
             logger.exception(
                 "Could not load translations from %s: %s", repr(fp), repr(ex)
             )
             raise RuntimeError from ex
 
+    def _load_catalog(self, catalog):
+        # Support Ruby-format translations with language code as top level key:
+        pointer = catalog
+        keys = list(catalog)
+        if len(catalog) == 1 and RE_TRANSLATIONS.match(keys[0]):
+            # Double-check if top level language code is the same as file name
+            if self.lang == keys[0]:
+                pointer = catalog[keys[0]]
+            else:
+                raise RuntimeError(
+                    "Invalid language code %s when loading %s.",
+                    repr(keys[0]),
+                    repr(self.lang),
+                )
+
+        self._catalog = {
+            k: v if isinstance(v, list) else [v] for k, v in pointer.items()
+        }
+
+    @staticmethod
+    def from_dict(lang: Text, catalog: Dict) -> "MultiStringTranslation":
+        translation = MultiStringTranslation(lang)
+        translation._load_catalog(catalog)
+        return translation
+
     def __repr__(self):
-        return f"<{type(self).__name__}: {repr(self.files)}>"
+        return f"<{type(self).__name__}: {repr(self.lang)}>"
 
     def gettext(self, message, *args, **kwargs):
         logger.debug("Translating message %s to %s", repr(message), repr(self.lang))
@@ -319,6 +344,31 @@ def compile_locales(locale_dir: Text = None, force: bool = False):
             raise
 
 
+def _load_all(locale_file: Text = LOCALE_FILE) -> Dict[Text, MultiStringTranslation]:
+    """
+    Load translations from a single locale file
+
+    :param locale_file:
+    :return:
+    """
+    try:
+        with Path(locale_file).open() as fp:
+            catalog = yaml.safe_load(fp)
+            if not all((RE_TRANSLATIONS.match(x) for x in catalog)):
+                raise RuntimeError(
+                    "One or more invalid language codes found: %s.", repr(list(catalog))
+                )
+
+            return {
+                lang: MultiStringTranslation.from_dict(lang, catalog[lang])
+                for lang in catalog
+            }
+
+    except FileNotFoundError:
+        logger.debug("%s not found.", locale_file)
+        return {}
+
+
 def _load_yaml(locale_dir: Text = None) -> Dict[Text, MultiStringTranslation]:
     """
     Load multi-string translations from YAML files
@@ -354,14 +404,24 @@ def _load_gettext(locale_dir: Text = None) -> Dict[Text, Translations]:
     }
 
 
-def load_translations(locale_dir: Text = None) -> Mapping[Text, Translations]:
+def load_translations(
+    locale_file: Text = LOCALE_FILE, locale_dir: Text = LOCALE_DIR
+) -> Mapping[Text, Translations]:
     """
-    Load local languages available in locale_dir
+    Load local languages from locale_file or locale_dir
 
-    :param locale_dir:
+    :param locale_file: YAML file with combined translations  ("locales.yaml")
+    :param locale_dir:  Folder to load YAML/PO/MO files with single translation per file ("locale/")
     :return:
     """
 
-    translations = _load_yaml(locale_dir) or _load_gettext(locale_dir)
+    translations = (
+        _load_all(locale_file) or _load_yaml(locale_dir) or _load_gettext(locale_dir)
+    )
+
+    if translations:
+        logger.info("Loaded: %s", list(translations))
+    else:
+        logger.info("No local translations found.")
 
     return MappingProxyType(translations)
