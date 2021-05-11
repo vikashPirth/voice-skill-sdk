@@ -1,0 +1,54 @@
+---
+include:
+  - project: 'smarthub_cloud/ci-blueprint'
+    ref: master
+    file: '/templates/.docker-build-config.yml'
+
+stages:
+  - test
+  - analyze
+  - deploy
+
+test:
+  image: $CI_PYTHON
+  stage: test
+  script:
+    # Run tests with tox
+    - tox
+  tags: [docker_dind]
+  artifacts:
+    paths: [coverage.xml]
+    expire_in: 8 hours
+
+analyze_source:
+  #
+  # Sonar scanner:
+  #
+  image: $CI_PYTHON
+  stage: analyze
+  dependencies: [test]
+  script:
+    - sonar-scanner
+      -Dsonar.sources=./skill_sdk
+      -Dsonar.exclusions=./skill_sdk/cli/scaffold/*
+      -Dsonar.projectVersion=$(python setup.py --version)
+  tags: [docker_dind]
+
+deploy_package:
+  image: $CI_PYTHON
+  stage: deploy
+  before_script:
+    - python setup.py sdist
+    - python setup.py bdist_wheel
+  variables:
+      TWINE_USERNAME: $PYPI_REPO_USER
+      TWINE_PASSWORD: $PYPI_REPO_PW
+  script:
+    - twine upload --repository-url $NEXUS3_URL dist/*
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 day
+  only:
+    - tags
+  tags: [docker_dind]
