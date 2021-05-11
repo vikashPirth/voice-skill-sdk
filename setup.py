@@ -40,7 +40,7 @@ setup(
             "scaffold/scripts/*",
             "scaffold/tests/*",
         ],
-        "skill_sdk.ui": ["css/*", "js/*"],
+        "skill_sdk.ui": ["css/*", "js/*", "templates/*"],
     },
     install_requires=[
         "fastapi==0.65.0",
