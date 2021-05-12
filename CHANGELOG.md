@@ -2,6 +2,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.14.3] - 2021-05-12  
+
+**Features**
+
+-   Internationalization module supports YAML translations in [RoR i18n](docs/i18n.md#Ruby on Rails i18n Translations) format.  
+
+**Bugfixes**
+
+-   Test helper `skill.test_intent` fixed with correct intent name creating a test invoke context. 
+
 ## [v0.14.2] - 2021-05-05  
 
 **Bugfixes**
