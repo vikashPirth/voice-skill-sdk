@@ -113,9 +113,10 @@ class TestSkillGenerator(unittest.TestCase):
         test_dir = tempfile.mkdtemp()
         venv = pathlib.Path(test_dir) / VENV_DIR
         python = venv / ('Scripts' if os.name == 'nt' else 'bin') / 'python'
-        with patch('io.open', new_callable=mock_open, read_data='{"name": "test"}'), \
+        with patch('io.open', new_callable=mock_open, read_data='{"name": "test"}', create=True), \
              patch('skill_generator.__main__.cookiecutter', return_value=test_dir):
-            runner.invoke(venv_main, ['-n', 'test', '-l', 'python', '-o', test_dir, '-m', 'data', '-v'])
+
+            runner.invoke(venv_main, ['-n', 'test', '-l', 'python', '-o', test_dir, '-m', '-', '-v'])
             create_mock.assert_called_once()
             call_mock.assert_any_call((sys.executable, '-m', 'venv', str(venv), '--clear'), stderr=ANY, stdout=ANY)
             call_mock.assert_any_call((str(python), "-m", "pip", "install", "-e", str(HERE.parent)), stderr=ANY, stdout=ANY)
