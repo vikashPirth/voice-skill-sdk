@@ -117,6 +117,13 @@ class Skill(FastAPI):
 
         return self
 
+    def develop(self):
+        """Init development mode: load Designer UI"""
+        from skill_sdk import ui
+
+        ui.setup(self)
+        return self
+
     @staticmethod
     def __register(
         intent: Text,
@@ -204,7 +211,8 @@ class Skill(FastAPI):
                 '"module" property is only available in DEVELOPMENT mode.'
             ) from None
 
-    def close(self):
+    @staticmethod
+    def close():
         """
         Cleanup: Skill.__intents is static to enable backward-compatible "@intent_handler" decorators,
         that are not bound to a skill instance (yet).
@@ -220,7 +228,7 @@ class Skill(FastAPI):
 
         """
 
-        self.__intents.clear()
+        Skill.__intents.clear()
 
 
 def init_app(config_path: Text = None, develop: bool = None) -> Skill:
@@ -261,12 +269,7 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
     except ModuleNotFoundError:
         pass
 
-    if develop:
-        from skill_sdk import ui
-
-        ui.setup(app)
-
-    return app
+    return app.develop() if develop else app
 
 
 intent_handler = Skill.intent_handler

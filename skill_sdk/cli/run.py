@@ -26,13 +26,11 @@ def execute(arguments):
 
     :return:
     """
-    from skill_sdk import config, log, skill
+    from skill_sdk import config, log
 
     log.setup_logging()
 
     module, app = import_module_app(arguments.module)
-    if app is None:
-        app = skill.init_app()
 
     logger.info("Loaded app: %s", repr(app))
 

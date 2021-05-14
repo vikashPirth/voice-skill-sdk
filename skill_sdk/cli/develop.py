@@ -20,7 +20,7 @@ import argparse
 import logging
 from contextlib import closing
 
-import uvicorn
+from uvicorn import Config, Server
 
 from skill_sdk.cli import import_module_app
 
@@ -39,26 +39,30 @@ def execute(arguments):
     :param arguments:
     :return:
     """
-    from skill_sdk import config, log, skill
+    from skill_sdk import config, log, Skill
+    from skill_sdk.cli.reloader import ThreadReload
 
     log.setup_logging(logging.DEBUG, config.FormatType.HUMAN)
-
-    module_str, _, app_str = arguments.module.partition(":")
     config.settings.SKILL_DEBUG = True
 
-    module, app = import_module_app(arguments.module)
-    if app is None:
-        app = skill.init_app()
+    with closing(Skill):
 
-    logger.info("Loaded app: %s", repr(app))
-    logger.info("Loaded handlers: %s", list(app.intents))
+        while True:
+            _, app = import_module_app(arguments.module)
 
-    run_config = config.settings.http_config()
+            logger.info("Loaded app: %s", repr(app))
+            logger.info("Loaded handlers: %s", list(app.intents))
 
-    logger.info("Starting app with config: %s", repr(run_config))
+            run_config = config.settings.http_config()
 
-    with closing(app):
-        uvicorn.run(app, **run_config)
+            logger.info("Starting app with config: %s", repr(run_config))
+
+            config = Config(app.develop(), loop="asyncio", **run_config)
+
+            server = Server(config=config)
+            sock = config.bind_socket()
+            supervisor = ThreadReload(config, target=server.run, sockets=[sock])
+            supervisor.run()
 
 
 def add_subparser(subparsers):
