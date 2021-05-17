@@ -14,6 +14,7 @@ import re
 import time
 import asyncio
 import inspect
+import importlib
 import datetime
 import threading
 import contextlib
@@ -21,7 +22,19 @@ import unittest.mock
 from functools import partial
 from contextvars import copy_context
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Awaitable, Callable, Dict, List, Mapping, Text, TypeVar, Union
+from types import ModuleType
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Set,
+    Text,
+    TypeVar,
+    Union,
+)
 
 import orjson
 import pydantic
@@ -97,6 +110,30 @@ class Server(uvicorn.Server):
         finally:
             self.should_exit = True
             thread.join()
+
+
+def reload_recursive(module: ModuleType, reloaded: Set[Text] = None) -> None:
+    """
+    Recursively reload a module with submodules
+
+    :param module:
+    :param reloaded:
+    :return:
+    """
+    if reloaded is None:
+        reloaded = set()
+
+    for attr_name in dir(module):
+        attr = getattr(module, attr_name)
+        if (
+            isinstance(attr, ModuleType)
+            and attr.__name__ not in reloaded
+            and attr.__name__.startswith(module.__name__)
+        ):
+            reload_recursive(attr, reloaded)
+
+    importlib.reload(module)
+    reloaded.add(module.__name__)
 
 
 class ContextVarExecutor(ThreadPoolExecutor):

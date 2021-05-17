@@ -211,6 +211,11 @@ class Skill(FastAPI):
                 '"module" property is only available in DEVELOPMENT mode.'
             ) from None
 
+    def reload(self) -> "Skill":
+        logger.info("Reloading module: %s", repr(self.module))
+        util.reload_recursive(self.module)
+        return self
+
     @staticmethod
     def close():
         """
