@@ -85,8 +85,9 @@ def import_module_app(import_from: Text) -> Tuple[ModuleType, Skill]:
     else:
         module = importlib.import_module(module_str)
 
-    # Return imported module (and possibly, the name of application variable, eg `main:app`)
+    # Extract the name of application variable, if specified (`main:app`)
     app = getattr(module, app_str, None)
+    # Create a default app, if not
     if app is None:
         app = skill.init_app()
 
@@ -95,4 +96,5 @@ def import_module_app(import_from: Text) -> Tuple[ModuleType, Skill]:
     if isinstance(app, Skill):
         setattr(app, "_module", module)
 
+    # Return imported module and the application instance
     return module, app

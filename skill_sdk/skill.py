@@ -213,7 +213,11 @@ class Skill(FastAPI):
 
     def reload(self) -> "Skill":
         logger.info("Reloading module: %s", repr(self.module))
+
+        self.close()
         util.reload_recursive(self.module)
+
+        logger.info("Loaded handlers: %s", list(self.intents))
         return self
 
     @staticmethod

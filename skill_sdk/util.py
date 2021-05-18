@@ -11,14 +11,15 @@
 """Utility functions"""
 
 import re
+import sys
 import time
 import asyncio
 import inspect
-import importlib
 import datetime
 import threading
 import contextlib
 import unittest.mock
+import importlib.util
 from functools import partial
 from contextvars import copy_context
 from concurrent.futures import ThreadPoolExecutor
@@ -112,28 +113,40 @@ class Server(uvicorn.Server):
             thread.join()
 
 
-def reload_recursive(module: ModuleType, reloaded: Set[Text] = None) -> None:
+def reload_recursive(
+    module: ModuleType, exclude=("sys", "os.path", "builtins", "__main__")
+) -> None:
     """
     Recursively reload a module with submodules
 
     :param module:
-    :param reloaded:
     :return:
     """
-    if reloaded is None:
-        reloaded = set()
+    reloaded = set()
 
-    for attr_name in dir(module):
-        attr = getattr(module, attr_name)
-        if (
-            isinstance(attr, ModuleType)
-            and attr.__name__ not in reloaded
-            and attr.__name__.startswith(module.__name__)
-        ):
-            reload_recursive(attr, reloaded)
+    def reload(m):
+        if m.__name__ in sys.modules:
+            spec = importlib.util.spec_from_file_location(m.__name__, m.__file__)
+            m = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(m)
 
-    importlib.reload(module)
-    reloaded.add(module.__name__)
+    def visit(m):
+        reloaded.add(m)
+        for attr_name in dir(module):
+            attr = getattr(module, attr_name)
+            if isinstance(attr, ModuleType) and attr not in reloaded:
+                name = attr.__name__
+                dot = name.rfind(".")
+                if dot > 0:
+                    parent = sys.modules[name[:dot]]
+                    if parent not in reloaded:
+                        reloaded.add(parent)
+                        reload(parent)
+                else:
+                    visit(attr)
+        reload(m)
+
+    visit(module)
 
 
 class ContextVarExecutor(ThreadPoolExecutor):
