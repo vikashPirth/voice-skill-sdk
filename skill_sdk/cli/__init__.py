@@ -93,7 +93,7 @@ def import_module_app(import_from: Text) -> Tuple[ModuleType, Skill]:
 
     # Add link to the originating module
     # for source reloading and intent handler updates from UI
-    if isinstance(app, Skill):
+    if app.debug:
         setattr(app, "_module", module)
 
     # Return imported module and the application instance

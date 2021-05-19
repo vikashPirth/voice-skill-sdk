@@ -135,3 +135,6 @@ def test_add_delete_handlers(app):
         f"{LOCALHOST}/intents", json=INTENTS[:1] + [NEW_INTENT]
     ).json()
     assert all(("impl" in response, "tests" in response, "runner" in response))
+    with util.mock_date_today(MOCK_DATE):
+        r = client.get(f"{LOCALHOST}/intents")
+        assert r.json() == INTENTS[:1] + [NEW_INTENT]

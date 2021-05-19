@@ -113,40 +113,38 @@ class Server(uvicorn.Server):
             thread.join()
 
 
-def reload_recursive(
-    module: ModuleType, exclude=("sys", "os.path", "builtins", "__main__")
-) -> None:
+def reload_recursive(module: ModuleType) -> ModuleType:
     """
-    Recursively reload a module with submodules
+    Recursively reload a runner module (app.py) with submodules
 
     :param module:
     :return:
     """
     reloaded = set()
 
-    def reload(m):
-        if m.__name__ in sys.modules:
-            spec = importlib.util.spec_from_file_location(m.__name__, m.__file__)
-            m = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(m)
+    def reload_parent(module_name):
+        parent = sys.modules[module_name]
+        if parent not in reloaded:
+            reloaded.add(parent)
+            importlib.reload(parent)
 
     def visit(m):
         reloaded.add(m)
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if isinstance(attr, ModuleType) and attr not in reloaded:
+            if isinstance(attr, Callable):
+                reload_parent(attr.__module__)
+            if isinstance(attr, ModuleType):
                 name = attr.__name__
                 dot = name.rfind(".")
                 if dot > 0:
-                    parent = sys.modules[name[:dot]]
-                    if parent not in reloaded:
-                        reloaded.add(parent)
-                        reload(parent)
-                else:
+                    reload_parent(name[:dot])
+                elif attr not in reloaded:
                     visit(attr)
-        reload(m)
+        importlib.reload(m)
+        return m
 
-    visit(module)
+    return visit(module)
 
 
 class ContextVarExecutor(ThreadPoolExecutor):

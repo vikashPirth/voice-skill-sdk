@@ -215,7 +215,7 @@ class Skill(FastAPI):
         logger.info("Reloading module: %s", repr(self.module))
 
         self.close()
-        util.reload_recursive(self.module)
+        module = util.reload_recursive(self.module)
 
         logger.info("Loaded handlers: %s", list(self.intents))
         return self
