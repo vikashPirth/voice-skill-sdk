@@ -417,7 +417,7 @@ async def post_intents(request: Request, intents: List[Intent]):
     runner = save(render_runner(intents), Path("app.py"), suffix)
 
     # Reload intent handlers
-    request.app.reload()
+    request.app.reload("app")
 
     return responses.JSONResponse(
         content=dict(impl=str(impl), tests=str(tests), runner=str(runner))

@@ -211,11 +211,21 @@ class Skill(FastAPI):
                 '"module" property is only available in DEVELOPMENT mode.'
             ) from None
 
-    def reload(self) -> "Skill":
-        logger.info("Reloading module: %s", repr(self.module))
-
+    def reload(self, app_str: Text = None) -> "Skill":
         self.close()
-        module = util.reload_recursive(self.module)
+
+        logger.info(
+            "Reloading %s from %s",
+            repr(app_str) if app_str else "default app",
+            repr(self.module),
+        )
+        util.reload_recursive(self.module)
+
+        # Get intents and handlers from the application object,
+        # if not supplied, the default app is self anyway
+        if app_str is not None:
+            app: Skill = getattr(self.module, app_str, None)
+            self.intents = app.intents
 
         logger.info("Loaded handlers: %s", list(self.intents))
         return self
