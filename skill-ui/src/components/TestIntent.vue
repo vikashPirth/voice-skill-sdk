@@ -204,6 +204,7 @@ export default {
 
   data: () => ({
       openapi: {},
+      spiVersion: "1.4.1",
       intents: {},
       session: {
         id: 123,
@@ -295,7 +296,7 @@ export default {
             attributes: Object.fromEntries(this.session.attributes.map(e => [e.key, e.value])),
             new: this.session.new,
           },
-          spiVersion: 1.2,
+          spiVersion: this.spiVersion,
         }, null, 2)
       },
       info() {
@@ -304,7 +305,9 @@ export default {
             k => paths[k]["get"] && paths[k]["get"].summary.endsWith("Info")
         )[0]
         this.axios.get('http://localhost:4242' + p).then(
-            r => this.response = JSON.stringify(r.data, null, 2)
+            r => {
+              this.response = JSON.stringify(r.data, null, 2);
+            }
         ).catch(err => this.response = err)
       },
       getIntents() {

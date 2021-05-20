@@ -18,6 +18,7 @@ from fastapi.testclient import TestClient
 
 from skill_sdk.skill import init_app
 from skill_sdk import ui, util
+from skill_sdk.__version__ import __spi_version__
 
 
 LOCALHOST = "http://localhost"
@@ -178,3 +179,15 @@ def test_if_ui_generated():
         len(list((ui_root / "js").glob("chunk-vendors.*.js"))) == 1,
     ]
     assert all((_ for _ in required_files))
+
+
+def test_spi_version():
+    """SPI Version is hardcoded into the TestIntent.vue"""
+
+    ui_root = pathlib.Path(ui.__file__).parent
+
+    assert [
+        js
+        for js in (ui_root / "js").glob("app.*.js")
+        if f'spiVersion:"{__spi_version__}"' in js.read_text()
+    ] != []
