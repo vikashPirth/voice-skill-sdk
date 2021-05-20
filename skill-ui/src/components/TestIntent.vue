@@ -58,11 +58,6 @@
                         :rules="param.required ? rules : []"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="2">
-                    <v-btn icon>
-                      <v-icon>mdi-plus</v-icon>
-                    </v-btn>
-                  </v-col>
                 </v-row>
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -98,8 +93,8 @@
               <v-expansion-panel-content>
                 <v-row>
                   <v-row
-                      v-for="attr in session.attributes"
-                      :key="attr.key"
+                      v-for="(attr, index) in session.attributes"
+                      :key="index"
                       justify="space-around"
                   >
                     <v-col cols="3">
@@ -117,9 +112,16 @@
                       ></v-text-field>
                     </v-col>
                     <v-col cols="1">
-                      <v-btn icon>
-                        <v-icon>mdi-plus</v-icon>
-                      </v-btn>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn icon @click.stop="session.attributes.splice(index, 1)"
+                                 v-bind="attrs"
+                                 v-on="on"
+                          > <v-icon>mdi-minus-circle</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Remove attribute</span>
+                      </v-tooltip>
                     </v-col>
                   </v-row>
                   <v-row
@@ -142,6 +144,18 @@
                       ></v-checkbox>
                     </v-col>
                     <v-col cols="1">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn icon @click="session.attributes.push({key: 'attr-' + (session.attributes.length + 1),
+                                          value: 'value-' + (session.attributes.length + 1)})"
+                                 v-bind="attrs"
+                                 v-on="on"
+                          >
+                            <v-icon>mdi-plus-circle</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Add attribute</span>
+                      </v-tooltip>
                     </v-col>
                   </v-row>
                 </v-row>
