@@ -228,6 +228,7 @@ export default {
   }),
 
   created: function() {
+      this.$root.$refs.testIntentTab = this;
       this.getAPIDescription();
       this.getIntents();
       this.connectLogs();
