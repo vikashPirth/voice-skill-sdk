@@ -106,3 +106,8 @@ class TestRoutes(unittest.TestCase):
             "type": "ASK",
             "session": {"attributes": {"Session Key": "Hello"}},
         }
+
+    def test_root_redirect(self):
+        response = self.client.get("/", allow_redirects=False)
+        assert response.status_code == 307
+        assert response.headers["location"] == "/redoc"

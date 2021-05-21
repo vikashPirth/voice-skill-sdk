@@ -15,7 +15,7 @@ import secrets
 from typing import Text
 
 from fastapi import Depends, FastAPI, Request, Security
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.exceptions import HTTPException
 from fastapi.security.http import (
     HTTPBasic,
@@ -204,3 +204,11 @@ def setup_routes(app: FastAPI):
     app.add_api_route(
         settings.K8S_LIVENESS, health, name="Liveness Probe", tags=["Health endpoints"]
     )
+
+    # Redirect root to "/redoc" if not in debug mode
+    if not app.debug:
+
+        async def redirect():
+            return RedirectResponse(url=app.redoc_url)
+
+        app.add_api_route("/", redirect)
