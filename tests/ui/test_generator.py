@@ -58,6 +58,27 @@ INTENTS = [
     },
 ]
 
+NEW_INTENT = {
+    "name": "Replacement_Intent",
+    "implementation": ["impl", "handle_replacement_intent"],
+    "parameters": [
+        {
+            "name": "date",
+            "type": "date",
+            "required": True,
+            "sample": MOCK_DATE.isoformat(),
+            "values": [],
+        },
+        {
+            "name": "name",
+            "type": "str",
+            "required": False,
+            "sample": "string value",
+            "values": ["World"],
+        },
+    ],
+}
+
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
@@ -106,3 +127,14 @@ def test_render_handlers(app):
 
     response = client.post(f"{LOCALHOST}/intents", json=INTENTS).json()
     assert all(("impl" in response, "tests" in response, "runner" in response))
+
+
+def test_add_delete_handlers(app):
+    client = TestClient(app)
+    response = client.post(
+        f"{LOCALHOST}/intents", json=INTENTS[:1] + [NEW_INTENT]
+    ).json()
+    assert all(("impl" in response, "tests" in response, "runner" in response))
+    with util.mock_date_today(MOCK_DATE):
+        r = client.get(f"{LOCALHOST}/intents")
+        assert r.json() == INTENTS[:1] + [NEW_INTENT]

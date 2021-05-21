@@ -226,9 +226,14 @@
                   </v-card-text>
 
                   <v-card-text v-else-if="response">
-                    Implementation is saved as {{response}}.
-                    <br />
-                    <b>You may need to re-start the skill</b>: source re-loading functionality is not there yet.
+                    <v-list-item>
+                      <v-list-item-content>
+                        <v-list-item-title>Generated components:</v-list-item-title>
+                        <v-list-item-subtitle>implementation: {{ response.impl }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>unit tests:  {{ response.tests }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>skill runner:  {{ response.runner }}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
                   </v-card-text>
 
                   <v-card-text v-else>
@@ -242,7 +247,7 @@
                     <v-btn
                         color="primary"
                         text
-                        @click="dialog = error = response = null;"
+                        @click="dialog = error = response = null; $root.$refs.testIntentTab.getIntents();"
                     >
                       Close
                     </v-btn>

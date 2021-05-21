@@ -17,7 +17,7 @@ import pathlib
 from typing import Text, Tuple
 from types import ModuleType
 
-from skill_sdk import Skill
+from skill_sdk import skill, Skill
 
 
 def add_logging_options(parser: argparse.ArgumentParser) -> None:
@@ -85,12 +85,16 @@ def import_module_app(import_from: Text) -> Tuple[ModuleType, Skill]:
     else:
         module = importlib.import_module(module_str)
 
-    # Return imported module (and possibly, the name of application variable, eg `main:app`)
+    # Extract the name of application variable, if specified (`main:app`)
     app = getattr(module, app_str, None)
+    # Create a default app, if not
+    if app is None:
+        app = skill.init_app()
 
     # Add link to the originating module
     # for source reloading and intent handler updates from UI
-    if isinstance(app, Skill):
+    if app.debug:
         setattr(app, "_module", module)
 
+    # Return imported module and the application instance
     return module, app

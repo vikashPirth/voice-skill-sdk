@@ -11,6 +11,7 @@
 """Utility functions"""
 
 import re
+import sys
 import time
 import asyncio
 import inspect
@@ -18,10 +19,23 @@ import datetime
 import threading
 import contextlib
 import unittest.mock
+import importlib.util
 from functools import partial
 from contextvars import copy_context
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Awaitable, Callable, Dict, List, Mapping, Text, TypeVar, Union
+from types import ModuleType
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Set,
+    Text,
+    TypeVar,
+    Union,
+)
 
 import orjson
 import pydantic
@@ -97,6 +111,40 @@ class Server(uvicorn.Server):
         finally:
             self.should_exit = True
             thread.join()
+
+
+def reload_recursive(module: ModuleType) -> ModuleType:
+    """
+    Recursively reload a runner module (app.py) with submodules
+
+    :param module:
+    :return:
+    """
+    reloaded = set()
+
+    def reload_parent(module_name):
+        parent = sys.modules[module_name]
+        if parent not in reloaded:
+            reloaded.add(parent)
+            importlib.reload(parent)
+
+    def visit(m):
+        reloaded.add(m)
+        for attr_name in dir(module):
+            attr = getattr(module, attr_name)
+            if isinstance(attr, Callable):
+                reload_parent(attr.__module__)
+            if isinstance(attr, ModuleType):
+                name = attr.__name__
+                dot = name.rfind(".")
+                if dot > 0:
+                    reload_parent(name[:dot])
+                elif attr not in reloaded:
+                    visit(attr)
+        importlib.reload(m)
+        return m
+
+    return visit(module)
 
 
 class ContextVarExecutor(ThreadPoolExecutor):

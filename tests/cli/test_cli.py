@@ -88,6 +88,13 @@ def test_develop(debug_logging, mocker, app):
     uv.run.assert_called_once_with(app, port=4242)
 
 
+"""
+def test_develop_with_reload(change_dir):
+    develop.execute(Namespace(module=APP))
+
+"""
+
+
 def test_init(tmpdir):
 
     init.execute(Namespace(out=tmpdir))

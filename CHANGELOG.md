@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- Skill Designer UI: a tool for rapid skill prototyping.
+    Start a skill with `vs develop app.py` and hit [http://localhost:4242](http://localhost:4242) 
+    to access the UI from a browser.
+  
+
 - Support local skill translations in [Rails-compatible](https://guides.rubyonrails.org/i18n.html) YAML format.
 
 ## 1.0.2 - 2021-05-05
@@ -22,7 +27,7 @@ All notable changes to this project will be documented in this file.
     - `LocationService.device_location` retrieves the device location (the info, a user has set up in companion app) with geo coordinates.
 
     - `LocationService.address_lookup` returns a list of addresses (with geo-coordinates) for a given query.
-    A query consists of any of address fields (country, zip, street name, house number).
+    A query consists the address fields (country, zip, street name, house number).
 
 ### Bugfixes
 

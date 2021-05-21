@@ -39,22 +39,17 @@ def execute(arguments):
     :param arguments:
     :return:
     """
-    from skill_sdk import config, log, skill
+    from skill_sdk import config, log
 
     log.setup_logging(logging.DEBUG, config.FormatType.HUMAN)
 
-    module_str, _, app_str = arguments.module.partition(":")
     config.settings.SKILL_DEBUG = True
-
     module, app = import_module_app(arguments.module)
-    if app is None:
-        app = skill.init_app()
 
     logger.info("Loaded app: %s", repr(app))
     logger.info("Loaded handlers: %s", list(app.intents))
 
     run_config = config.settings.http_config()
-
     logger.info("Starting app with config: %s", repr(run_config))
 
     with closing(app):

@@ -416,11 +416,8 @@ async def post_intents(request: Request, intents: List[Intent]):
     tests = save(render_tests(intents), Path(DEFAULT_MODULE) / "test_impl.py", suffix)
     runner = save(render_runner(intents), Path("app.py"), suffix)
 
-    # TODO: Restart the server.
-    #  Looks like we need to re-implement uvicorn's BaseReload with threading instead of multiprocessing,
-    #  because the integrated re-loader breaks logging functionality in UI:
-    #  somehow the worker in the child subprocesses does not receive notifications from the logger
-    #  (or the logger does not receive them?)
+    # Reload intent handlers
+    request.app.reload("app")
 
     return responses.JSONResponse(
         content=dict(impl=str(impl), tests=str(tests), runner=str(runner))

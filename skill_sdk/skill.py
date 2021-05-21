@@ -117,6 +117,13 @@ class Skill(FastAPI):
 
         return self
 
+    def develop(self):
+        """Init development mode: load Designer UI"""
+        from skill_sdk import ui
+
+        ui.setup(self)
+        return self
+
     @staticmethod
     def __register(
         intent: Text,
@@ -204,7 +211,27 @@ class Skill(FastAPI):
                 '"module" property is only available in DEVELOPMENT mode.'
             ) from None
 
-    def close(self):
+    def reload(self, app_str: Text = "") -> "Skill":
+        self.close()
+
+        logger.info(
+            "Reloading %s from %s",
+            repr(app_str) if app_str else "default app",
+            repr(self.module),
+        )
+        util.reload_recursive(self.module)
+
+        # Get intents and handlers from the application object,
+        # if not supplied, the default app is self anyway
+        app: Skill = getattr(self.module, app_str, None)
+        if app is not None:
+            self.intents = app.intents
+
+        logger.info("Loaded handlers: %s", list(self.intents))
+        return self
+
+    @staticmethod
+    def close():
         """
         Cleanup: Skill.__intents is static to enable backward-compatible "@intent_handler" decorators,
         that are not bound to a skill instance (yet).
@@ -220,7 +247,7 @@ class Skill(FastAPI):
 
         """
 
-        self.__intents.clear()
+        Skill.__intents.clear()
 
 
 def init_app(config_path: Text = None, develop: bool = None) -> Skill:
@@ -261,12 +288,7 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
     except ModuleNotFoundError:
         pass
 
-    if develop:
-        from skill_sdk import ui
-
-        ui.setup(app)
-
-    return app
+    return app.develop() if develop else app
 
 
 intent_handler = Skill.intent_handler

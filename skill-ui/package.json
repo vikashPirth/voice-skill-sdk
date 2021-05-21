@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "core-js": "^3.6.5",
-    "vue": "^2.6.11",
+    "core-js": "^3.12.1",
+    "vue": "^2.6.12",
     "vue-axios": "^3.2.4",
-    "vuetify": "^2.4.0"
+    "vuetify": "^2.5.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
