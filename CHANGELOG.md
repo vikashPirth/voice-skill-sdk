@@ -2,7 +2,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.0.3 - 2021-05-25
 
 - Skill Designer UI: a tool for rapid skill prototyping.
     Start a skill with `vs develop app.py` and hit [http://localhost:4242](http://localhost:4242) 
