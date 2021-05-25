@@ -195,14 +195,15 @@ def setup_routes(app: FastAPI):
         tags=["Skill endpoints"],
     )
 
-    app.add_api_route(
+    app.add_route(
         settings.K8S_READINESS,
         health,
         name="Readiness Probe",
-        tags=["Health endpoints"],
     )
-    app.add_api_route(
-        settings.K8S_LIVENESS, health, name="Liveness Probe", tags=["Health endpoints"]
+    app.add_route(
+        settings.K8S_LIVENESS,
+        health,
+        name="Liveness Probe",
     )
 
     # Redirect root to "/redoc" if not in debug mode
