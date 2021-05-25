@@ -8,9 +8,9 @@
 #
 #
 
-from contextlib import closing
 import pytest
 
+from fastapi.testclient import TestClient
 from skill_sdk import skill, ResponseType
 
 
@@ -73,3 +73,20 @@ def test_test_intent_sync(app):
 
     assert result.text == "Hola"
     assert result.type == ResponseType.TELL
+
+
+def test_technical_endpoints(app):
+    from skill_sdk.config import settings
+
+    app.include("Test_Intent", handler=lambda: "Hola")
+    client = TestClient(app)
+
+    # Kubernetes "readiness"
+    assert client.get(settings.K8S_READINESS).status_code == 200
+
+    # Kubernetes "liveness"
+    assert client.get(settings.K8S_LIVENESS).status_code == 200
+
+    # Prometheus scraper
+    prometheus = getattr(settings, "PROMETHEUS_ENDPOINT", "/prometheus")
+    assert client.get(prometheus).status_code == 200

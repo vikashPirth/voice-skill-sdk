@@ -41,3 +41,12 @@ def setup_middleware(app):
             log.UserDebugLogPlugin(),
         ),
     )
+
+    # Since Prometheus metrics exporter is optional,
+    # try to load prometheus middleware and simply eat an exception
+    try:
+        from skill_sdk.middleware.prometheus import setup
+
+        setup(app)
+    except ModuleNotFoundError:
+        pass

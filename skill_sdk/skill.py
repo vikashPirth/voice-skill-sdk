@@ -281,15 +281,6 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
     middleware.setup_middleware(app)
     routes.setup_routes(app)
 
-    # Since Prometheus metrics exporter is optional,
-    # try to load prometheus middleware and simply eat an exception
-    try:
-        from middleware.prometheus import setup
-
-        setup(app)
-    except ModuleNotFoundError:
-        pass
-
     return app.develop() if develop else app
 
 

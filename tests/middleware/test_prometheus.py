@@ -14,7 +14,6 @@ from types import SimpleNamespace
 import respx
 import httpx
 from httpx import Response
-from aiobreaker import CircuitBreakerError
 
 from skill_sdk.middleware.prometheus import (
     Prometheus,
