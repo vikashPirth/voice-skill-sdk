@@ -263,7 +263,9 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
                                 initializes Designer UI
     :return:
     """
-    from skill_sdk import config, middleware, routes
+    from skill_sdk import config, middleware, log, routes
+
+    log.setup_logging()
 
     if config_path is not None:
         config.settings.Config.conf_file = config_path
