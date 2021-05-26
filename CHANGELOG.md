@@ -2,7 +2,25 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 1.0.4 - 2021-05-26
+
+### Bugfixes
+
+- Fix the initialization of Prometheus metrics exporter endpoint.
+
+
+- **Logging:**
+
+    - Display uvicorn access log in GELF format.
+      
+    - Add Gunicorn logging formatter: can be used to export skill logs as GELF-compatible JSON when deploying with Gunicorn.  
+    To activate, add [`--logger-class=skill_sdk.log.GunicornLogger`](https://docs.gunicorn.org/en/stable/settings.html#logger-class) parameter when deploying the skill.
+  
+
 ## 1.0.3 - 2021-05-25
+
+### Features
+
 
 - Skill Designer UI: a tool for rapid skill prototyping.
     Start a skill with `vs develop app.py` and hit [http://localhost:4242](http://localhost:4242) 
@@ -10,6 +28,7 @@ All notable changes to this project will be documented in this file.
   
 
 - Support local skill translations in [Rails-compatible](https://guides.rubyonrails.org/i18n.html) YAML format.
+
 
 ## 1.0.2 - 2021-05-05
 
