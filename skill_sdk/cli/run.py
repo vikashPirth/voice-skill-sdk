@@ -26,9 +26,7 @@ def execute(arguments):
 
     :return:
     """
-    from skill_sdk import config, log
-
-    log.setup_logging()
+    from skill_sdk import config
 
     module, app = import_module_app(arguments.module)
 

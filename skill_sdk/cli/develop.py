@@ -41,7 +41,9 @@ def execute(arguments):
     """
     from skill_sdk import config, log
 
-    log.setup_logging(logging.DEBUG, config.FormatType.HUMAN)
+    log.setup_logging(
+        getattr(arguments, "loglevel", logging.DEBUG), config.FormatType.HUMAN
+    )
 
     config.settings.SKILL_DEBUG = True
     module, app = import_module_app(arguments.module)

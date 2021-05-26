@@ -51,6 +51,15 @@ The sample startup log, notifying about successful startup:
 [2021-04-09 10:14:42 +0200] [12523] [INFO] Application startup complete.
 ```
 
+## Logging 
+
+To output the logs in JSON GrayLog-compatible form, skill SDK has implemented a log formatter in 
+`skill_sdk.log.GunicornLogger` class. This formatter can be specified in `--logger-class` parameter:
+
+
+`gunicorn -b :4242 -w 2 -k uvicorn.workers.UvicornWorker --logger-class=skill_sdk.log.GunicornLogger app:app`
+
+
 # Development Mode
 
 Deploy the skill in _development mode_ with built-in [Uvicorn](https://www.uvicorn.org/) server:
@@ -70,3 +79,17 @@ Their configuration is defined in skill settings:
 
 
 - **settings.K8S_LIVENESS**: Kubernetes liveness probe endpoint. Default: "/k8s/liveness".
+
+
+# Prometheus Metrics
+
+
+Along with Magenta skill-specific invoke and info endpoints, 
+skill SDK for Python provides liveness and readiness probes for Kubernetes environment.
+
+Their configuration is defined in skill settings:
+
+- **settings.PROMETHEUS_ENDPOINT**: Endpoint for Prometheus scraper. Default: "/prometheus".
+
+> **Note**: Prometheus integration is optional: 
+> to enable Prometheus metrics exporter, skill SDK must be installed with **all** optional components: `pip install skill-sdk[all]` 

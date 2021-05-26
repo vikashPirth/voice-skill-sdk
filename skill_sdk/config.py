@@ -18,7 +18,7 @@ from enum import Enum
 from typing import Any, Dict, Iterator, List, Optional, Text, Tuple, Union
 from configparser import BasicInterpolation, ConfigParser, SectionProxy
 
-from pydantic import BaseSettings, fields, Extra
+from pydantic import BaseSettings, fields, Extra, validator
 from pydantic.env_settings import SettingsSourceCallable
 
 
@@ -233,11 +233,15 @@ class Settings(BaseSettings):
     # Logging
     #
 
+    # Default log level: ERROR
+    LOG_LEVEL: int = logging.ERROR
+
     # Default log format: GELF
     LOG_FORMAT: FormatType = FormatType.GELF
 
-    # Default log level: DEBUG
-    LOG_LEVEL: int = logging.DEBUG
+    @validator("LOG_LEVEL", pre=True, allow_reuse=True)
+    def to_int(cls, v):  # pylint: disable=E0213
+        return v if isinstance(v, int) else logging.getLevelName(v)
 
     # Maximal length of a string in the log
     LOG_ENTRY_MAX_STRING: int = 150

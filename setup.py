@@ -58,6 +58,7 @@ setup(
     ],
     extras_require={
         "dev": [
+            "gunicorn",
             "starlette[full]",
             "mypy",
             "respx",

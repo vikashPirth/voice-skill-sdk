@@ -250,7 +250,9 @@ class Skill(FastAPI):
         Skill.__intents.clear()
 
 
-def init_app(config_path: Text = None, develop: bool = None) -> Skill:
+def init_app(
+    config_path: Text = None, develop: bool = None, configure_logging: bool = None
+) -> Skill:
     """
     Create FastAPI application from configuration file
 
@@ -258,12 +260,20 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
     so any FastAPI initialization parameters, like `debug`, `title`, `description`, `version` can be used
 
     :param config_path:
-    :param develop:         Flag to init an app in "development" mode:
+    :param develop:             Flag to init an app in "development" mode:
                                 overrides debug flag from configuration,
                                 initializes Designer UI
+    :param configure_logging:   If logging settings should be re-initialized:
+                                logging is configured within CLI,
+                                but sometimes you'd want to re-initialize it explicitly,
+                                for example, when using UvicornWorker with Gunicorn
+
     :return:
     """
-    from skill_sdk import config, middleware, routes
+    from skill_sdk import config, middleware, log, routes
+
+    if configure_logging:
+        log.setup_logging()
 
     if config_path is not None:
         config.settings.Config.conf_file = config_path
@@ -278,15 +288,6 @@ def init_app(config_path: Text = None, develop: bool = None) -> Skill:
 
     middleware.setup_middleware(app)
     routes.setup_routes(app)
-
-    # Since Prometheus metrics exporter is optional,
-    # try to load prometheus middleware and simply eat an exception
-    try:
-        from middleware.prometheus import setup
-
-        setup(app)
-    except ModuleNotFoundError:
-        pass
 
     return app.develop() if develop else app
 
