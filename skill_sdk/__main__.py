@@ -58,12 +58,12 @@ def main() -> None:
     version.add_subparser(subparsers)
 
     arguments = parser.parse_args()
-    log.setup_logging(
-        arguments.loglevel or logging.WARNING,
-        log_format=config.FormatType.HUMAN,
-    )
-
     if getattr(arguments, "command", None):
+        log.setup_logging(
+            arguments.loglevel or logging.WARNING,
+            log_format=config.FormatType.HUMAN,
+        )
+
         arguments.command(arguments)
 
     else:

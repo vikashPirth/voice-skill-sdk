@@ -236,8 +236,8 @@ class Settings(BaseSettings):
     # Default log format: GELF
     LOG_FORMAT: FormatType = FormatType.GELF
 
-    # Default log level: DEBUG
-    LOG_LEVEL: int = logging.DEBUG
+    # Default log level: ERROR
+    LOG_LEVEL: int = logging.ERROR
 
     @validator("LOG_LEVEL", pre=True, always=True)
     def to_int(cls, v):  # pylint: disable=E0213

@@ -174,6 +174,31 @@ patch_logger()
 
 ###############################################################################
 #                                                                             #
+#   Optional formatter for GunicornLogger                                     #
+#                                                                             #
+###############################################################################
+try:
+    from gunicorn.glogging import Logger
+
+    class GunicornLogger(Logger):
+        """Gunicorn logger that formats log messages with CloudGELFFormatter"""
+
+        def setup(self, cfg):
+            self.loglevel = config.settings.LOG_LEVEL
+            self.error_log.setLevel(self.loglevel)
+            self.access_log.setLevel(self.loglevel)
+
+            if config.settings.LOG_FORMAT == config.FormatType.GELF:
+                self._set_handler(self.error_log, cfg.errorlog, CloudGELFFormatter())
+                self._set_handler(self.access_log, cfg.errorlog, CloudGELFFormatter())
+
+
+except ModuleNotFoundError:  # pragma: no cover
+    pass
+
+
+###############################################################################
+#                                                                             #
 #  Limit log message size                                                     #
 #                                                                             #
 ###############################################################################

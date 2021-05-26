@@ -12,37 +12,43 @@ import json
 import logging
 from logging import makeLogRecord, INFO
 from unittest.mock import patch
-from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
+import pytest
 from skill_sdk import log, init_app
 
-app = init_app()
+
+@pytest.fixture
+def app():
+    app = init_app()
+
+    @app.route("/test")
+    async def index(*args):
+        record = makeLogRecord(
+            {
+                "levelno": INFO,
+                "levelname": "INFO",
+            }
+        )
+        return JSONResponse(json.loads(log.CloudGELFFormatter().format(record)))
+
+    @app.route("/log")
+    async def index(*args):
+        logger = logging.getLogger(__name__)
+        logger.debug("Debug message")
+        return JSONResponse("ok")
+
+    yield app
+    app.close()
 
 
-@app.route("/test")
-async def index(request: Request):
-    record = makeLogRecord(
-        {
-            "levelno": INFO,
-            "levelname": "INFO",
-        }
-    )
-    return JSONResponse(json.loads(log.CloudGELFFormatter().format(record)))
+@pytest.fixture
+def client(app):
+    return TestClient(app)
 
 
-@app.route("/log")
-async def index(request: Request):
-    logger = logging.getLogger(__name__)
-    logger.debug("Debug message")
-    return JSONResponse("ok")
-
-
-client = TestClient(app)
-
-
-def test_log_record():
+def test_log_record(client):
     resp = client.get(
         "/test",
         headers={
@@ -58,7 +64,7 @@ def test_log_record():
     ] == expected
 
 
-def test_user_log():
+def test_user_log(client):
 
     with patch.object(logging.Logger, "_log") as mock_debug:
         client.get(
@@ -73,3 +79,16 @@ def test_user_log():
             },
         )
         mock_debug.assert_called_once_with(10, "Debug message", ())
+
+
+def test_gunicorn_logger():
+    from types import SimpleNamespace
+    from skill_sdk.log import GunicornLogger, CloudGELFFormatter
+
+    logger = GunicornLogger(SimpleNamespace(errorlog="-"))
+
+    for handler in logger.error_log.handlers:
+        assert isinstance(handler.formatter, CloudGELFFormatter)
+
+    for handler in logger.access_log.handlers:
+        assert isinstance(handler.formatter, CloudGELFFormatter)

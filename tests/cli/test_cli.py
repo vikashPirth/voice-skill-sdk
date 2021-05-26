@@ -7,16 +7,18 @@
 # For details see the file LICENSE in the top directory.
 #
 
-import os
 import sys
 import pathlib
 import pkg_resources
 from argparse import Namespace
 
+from unittest.mock import ANY
+
 import pytest
 from pytest import CaptureFixture
 
 from skill_sdk.config import settings
+from skill_sdk.__main__ import main
 from skill_sdk.cli import import_module_app, develop, init, run, version
 from skill_sdk.util import run_until_complete
 
@@ -46,7 +48,7 @@ def change_dir(monkeypatch):
 
 
 @pytest.fixture
-def app(change_dir, monkeypatch):
+def app(change_dir):
     _, app = import_module_app(APP)
     yield app
     app.close()
@@ -86,13 +88,6 @@ def test_develop(debug_logging, mocker, app):
 
     develop.execute(Namespace(module=APP))
     uv.run.assert_called_once_with(app, port=4242)
-
-
-"""
-def test_develop_with_reload(change_dir):
-    develop.execute(Namespace(module=APP))
-
-"""
 
 
 def test_init(tmpdir):
@@ -139,3 +134,10 @@ def test_scaffold(app):
     assert response.text == "HELLOAPP_HELLO"
 
     pytest.main(["tests"])
+
+
+def test_main(change_dir, mocker, monkeypatch):
+    uv = mocker.patch.object(run, "uvicorn")
+    monkeypatch.setattr("sys.argv", ["vs", "run", APP])
+    main()
+    uv.run.assert_called_once_with(ANY, port=4242)
