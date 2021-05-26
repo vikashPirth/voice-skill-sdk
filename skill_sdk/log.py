@@ -39,6 +39,15 @@ def setup_logging(
 
     try:
         logging.config.dictConfig(get_config_dict(log_level, log_format))
+
+        # Patch Uvicorn logger default format
+        if log_format == config.FormatType.GELF:
+            from uvicorn.config import LOGGING_CONFIG
+
+            LOGGING_CONFIG["formatters"]["access"].update(
+                {"()": "skill_sdk.log.CloudGELFFormatter"}
+            )
+
     except KeyError:
         raise RuntimeError("Invalid log format: %s", repr(log_format))
 

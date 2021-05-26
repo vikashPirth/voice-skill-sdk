@@ -11,13 +11,11 @@ import sys
 import pathlib
 import pkg_resources
 from argparse import Namespace
-
-from unittest.mock import ANY
+from unittest import mock
 
 import pytest
 from pytest import CaptureFixture
 
-from skill_sdk.config import settings
 from skill_sdk.__main__ import main
 from skill_sdk.cli import import_module_app, develop, init, run, version
 from skill_sdk.util import run_until_complete
@@ -28,6 +26,7 @@ APP = "app:app"
 @pytest.fixture
 def debug_logging(monkeypatch):
     from skill_sdk import log
+    from skill_sdk.config import settings
 
     monkeypatch.setattr(settings, "LOG_LEVEL", "DEBUG")
     monkeypatch.setattr(settings, "LOG_FORMAT", "human")
@@ -136,8 +135,9 @@ def test_scaffold(app):
     pytest.main(["tests"])
 
 
-def test_main(change_dir, mocker, monkeypatch):
+def test_main(app, change_dir, mocker, monkeypatch):
     uv = mocker.patch.object(run, "uvicorn")
     monkeypatch.setattr("sys.argv", ["vs", "run", APP])
+    monkeypatch.setenv("LOG_FORMAT", "gelf")
     main()
-    uv.run.assert_called_once_with(ANY, port=4242)
+    uv.run.assert_called_once_with(mock.ANY, port=4242)

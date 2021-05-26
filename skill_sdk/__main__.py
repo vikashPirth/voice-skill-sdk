@@ -21,7 +21,6 @@ from skill_sdk.cli import (
     translate,
     version,
 )
-from skill_sdk import config, log
 
 
 def main() -> None:
@@ -30,6 +29,7 @@ def main() -> None:
 
     :return:
     """
+    from skill_sdk import log
 
     parser = argparse.ArgumentParser(
         prog="vs",
@@ -59,11 +59,7 @@ def main() -> None:
 
     arguments = parser.parse_args()
     if getattr(arguments, "command", None):
-        log.setup_logging(
-            arguments.loglevel or logging.WARNING,
-            log_format=config.FormatType.HUMAN,
-        )
-
+        log.setup_logging(arguments.loglevel)
         arguments.command(arguments)
 
     else:
