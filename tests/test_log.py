@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
 import pytest
-from skill_sdk import log, init_app
+from skill_sdk import config, log, init_app
 
 
 @pytest.fixture
@@ -79,6 +79,22 @@ def test_user_log(client):
             },
         )
         mock_debug.assert_called_once_with(10, "Debug message", ())
+
+
+def test_uvicorn_patched():
+    from uvicorn.config import LOGGING_CONFIG
+
+    log.setup_logging(logging.DEBUG, config.FormatType.GELF)
+    assert LOGGING_CONFIG["formatters"]["access"]["()"].endswith("CloudGELFFormatter")
+    assert LOGGING_CONFIG["loggers"]["uvicorn"]["level"] == logging.DEBUG
+    assert LOGGING_CONFIG["loggers"]["uvicorn.error"]["level"] == logging.DEBUG
+    assert LOGGING_CONFIG["loggers"]["uvicorn.access"]["level"] == logging.DEBUG
+
+    log.setup_logging(logging.ERROR, config.FormatType.HUMAN)
+    assert LOGGING_CONFIG["formatters"]["access"]["()"].endswith("AccessFormatter")
+    assert LOGGING_CONFIG["loggers"]["uvicorn"]["level"] == logging.ERROR
+    assert LOGGING_CONFIG["loggers"]["uvicorn.error"]["level"] == logging.ERROR
+    assert LOGGING_CONFIG["loggers"]["uvicorn.access"]["level"] == logging.ERROR
 
 
 def test_gunicorn_logger():

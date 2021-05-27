@@ -30,6 +30,7 @@ def setup_logging(
     :param log_format:
     :return:
     """
+    from uvicorn.config import LOGGING_CONFIG
 
     log_level = log_level or config.settings.LOG_LEVEL
     log_format = log_format or config.settings.LOG_FORMAT
@@ -40,13 +41,16 @@ def setup_logging(
     try:
         logging.config.dictConfig(get_config_dict(log_level, log_format))
 
-        # Patch Uvicorn logger default format
-        if log_format == config.FormatType.GELF:
-            from uvicorn.config import LOGGING_CONFIG
+        # Patch Uvicorn logger default formats and level
+        LOGGING_CONFIG["formatters"]["access"]["()"] = (
+            "skill_sdk.log.CloudGELFFormatter"
+            if log_format == config.FormatType.GELF
+            else "uvicorn.logging.AccessFormatter"
+        )
 
-            LOGGING_CONFIG["formatters"]["access"].update(
-                {"()": "skill_sdk.log.CloudGELFFormatter"}
-            )
+        LOGGING_CONFIG["loggers"]["uvicorn"]["level"] = log_level
+        LOGGING_CONFIG["loggers"]["uvicorn.error"]["level"] = log_level
+        LOGGING_CONFIG["loggers"]["uvicorn.access"]["level"] = log_level
 
     except KeyError:
         raise RuntimeError("Invalid log format: %s", repr(log_format))
