@@ -10,6 +10,8 @@
 
 import json
 import logging
+import string
+import random
 from logging import makeLogRecord, INFO
 from unittest.mock import patch
 from fastapi.responses import JSONResponse
@@ -24,7 +26,7 @@ def app():
     app = init_app()
 
     @app.route("/test")
-    async def index(*args):
+    async def index(request):
         record = makeLogRecord(
             {
                 "levelno": INFO,
@@ -34,7 +36,7 @@ def app():
         return JSONResponse(json.loads(log.CloudGELFFormatter().format(record)))
 
     @app.route("/log")
-    async def index(*args):
+    async def index(request):
         logger = logging.getLogger(__name__)
         logger.debug("Debug message")
         return JSONResponse("ok")
@@ -108,3 +110,17 @@ def test_gunicorn_logger():
 
     for handler in logger.access_log.handlers:
         assert isinstance(handler.formatter, CloudGELFFormatter)
+
+
+def test_prepare_log_record():
+    max_len = config.settings.LOG_ENTRY_MAX_STRING
+
+    short_text = random.choice(string.ascii_letters) * (max_len - 1)
+    assert log.prepare_for_logging(short_text) == short_text
+
+    long_text = random.choice(string.ascii_letters) * max_len * 2
+    assert len(log.prepare_for_logging(long_text)) == max_len + 3
+
+    token = "eyJblahblahblah.blah"
+    assert log.prepare_for_logging(token) == token
+    assert log.prepare_for_logging(token, hide_tokens=True) == "eyJ*****"
