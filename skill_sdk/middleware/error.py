@@ -84,7 +84,7 @@ def setup_middleware(app: FastAPI):
         )
 
         # Output the exception in "debug" mode
-        if request.app.debug():
+        if request.app.debug:
             content.update(detail=jsonable_encoder(traceback.format_exc()))
 
         return JSONResponse(

@@ -209,7 +209,7 @@ def setup_routes(app: FastAPI):
     # Redirect root to "/redoc" if not in debug mode
     if not app.debug:
 
-        async def redirect():
+        async def redirect(request):
             return RedirectResponse(url=app.redoc_url)
 
-        app.add_api_route("/", redirect)
+        app.add_route("/", redirect)
