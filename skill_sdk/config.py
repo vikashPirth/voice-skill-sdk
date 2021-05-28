@@ -233,8 +233,8 @@ class Settings(BaseSettings):
     # Logging
     #
 
-    # Default log level: ERROR
-    LOG_LEVEL: int = logging.ERROR
+    # Default log level: WARNING
+    LOG_LEVEL: int = logging.WARNING
 
     # Default log format: GELF
     LOG_FORMAT: FormatType = FormatType.GELF

@@ -11,7 +11,6 @@
 
 import sys
 import argparse
-import logging
 
 from skill_sdk.cli import (
     add_logging_options,
@@ -58,14 +57,11 @@ def main() -> None:
     version.add_subparser(subparsers)
 
     arguments = parser.parse_args()
-    if getattr(arguments, "command", None):
-        log.setup_logging(arguments.loglevel)
-        arguments.command(arguments)
 
+    if getattr(arguments, "command", None):
+        arguments.command(arguments)
     else:
-        # Print usage
-        parser.print_help()
-        sys.exit(1)
+        parser.exit(-1, parser.format_help())
 
 
 if __name__ == "__main__":

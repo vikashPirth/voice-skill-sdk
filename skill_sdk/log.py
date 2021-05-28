@@ -15,7 +15,7 @@ import time
 import json
 import logging.config
 from traceback import format_exc
-from typing import Dict, Optional, Text
+from typing import Dict, Optional
 
 from skill_sdk import config
 

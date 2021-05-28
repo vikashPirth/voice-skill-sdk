@@ -41,9 +41,9 @@ def execute(arguments):
     """
     from skill_sdk import config, log
 
-    log.setup_logging(
-        getattr(arguments, "loglevel", logging.DEBUG), config.FormatType.HUMAN
-    )
+    # Set default log level to DEBUG, if not explicitly overridden with "--verbose"/"--quiet"
+    loglevel = getattr(arguments, "loglevel") or logging.DEBUG
+    log.setup_logging(loglevel, config.FormatType.HUMAN)
 
     config.settings.SKILL_DEBUG = True
     module, app = import_module_app(arguments.module)
