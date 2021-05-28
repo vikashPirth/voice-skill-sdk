@@ -15,7 +15,7 @@ from contextlib import closing
 
 import uvicorn
 
-from skill_sdk.cli import import_module_app
+from skill_sdk.cli import import_module_app, DEFAULT_MODULE
 
 logger = logging.getLogger(__name__)
 
@@ -63,5 +63,7 @@ def add_subparser(subparsers):
         help="Starts the skill in production mode.",
         description="Run the HTTP server as configured to handle requests.",
     )
-    run_parser.add_argument("module", help="Run module", nargs="?", default="impl")
+    run_parser.add_argument(
+        "module", help="Run module", nargs="?", default=DEFAULT_MODULE
+    )
     run_parser.set_defaults(command=execute)

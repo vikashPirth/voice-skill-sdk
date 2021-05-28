@@ -17,7 +17,7 @@ import pytest
 from pytest import CaptureFixture
 
 from skill_sdk.__main__ import main
-from skill_sdk.cli import import_module_app, develop, init, run, version
+from skill_sdk.cli import import_module_app, develop, init, run, version, DEFAULT_MODULE
 from skill_sdk.util import run_until_complete
 
 APP = "app:app"
@@ -87,6 +87,20 @@ def test_develop(debug_logging, mocker, app):
 
     develop.execute(Namespace(module=APP))
     uv.run.assert_called_once_with(app, port=4242)
+
+
+def test_develop_empty_project(tmpdir, mocker, monkeypatch):
+
+    uv = mocker.patch.object(develop, "uvicorn")
+    monkeypatch.chdir(tmpdir)
+
+    develop.execute(Namespace(module=DEFAULT_MODULE))
+
+    assert (tmpdir / DEFAULT_MODULE).exists()
+    uv.run.assert_called_once_with(mock.ANY, port=4242)
+
+    # Cleanup: remove imported module
+    del sys.modules["impl"]
 
 
 def test_init(tmpdir):
