@@ -2,6 +2,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+
+### Bugfixes
+
+- **Logging:**
+
+    - Fix uvicorn access log formatter to consistently use either human-readable or GELF format.
+
+    - Add logging helpers to possibly hide JWT-like token strings.
+
+
 ## 1.0.4 - 2021-05-26
 
 ### Bugfixes
