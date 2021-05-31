@@ -3,12 +3,12 @@
     <v-row>
     <v-col cols="4">
       <v-row>
-        <v-card v-if="this.openapi.info" flat>
+        <v-card v-if="openapi.info" flat>
           <v-card-title>
-            {{ this.openapi.info.title }} v{{ this.openapi.info.version }}
+            {{ openapi.info.title }} v{{ openapi.info.version }}
           </v-card-title>
           <v-card-text>
-            <sub>{{ this.openapi.info.description }}</sub>
+            <sub>{{ openapi.info.description }}</sub>
           </v-card-text>
         </v-card>
       </v-row>
@@ -247,7 +247,7 @@
                     <v-btn
                         color="primary"
                         text
-                        @click="dialog = error = response = null; $root.$refs.testIntentTab.getIntents();"
+                        @click="dialog = error = response = null;"
                     >
                       Close
                     </v-btn>
@@ -267,16 +267,18 @@
 
 export default {
 
+  props: {
+    openapi: Object,
+    intents: Array,
+    log: String,
+  },
+
   data: () => ({
       valid: true,
       changed: false,
-      openapi: {},
-      intents: {},
       types: [],
       request: "{}",
       response: {},
-      connection: null,
-      log: "",
       intentsPanel: null,
       rules: {
         required: value => !!value || "Name required!",
@@ -306,16 +308,10 @@ export default {
   },
 
   created: function() {
-      this.init();
+    this.getTypes();
   },
 
   methods: {
-      init() {
-          this.getAPIDescription();
-          this.getTypes();
-          this.getIntents();
-          this.connectLogs();
-      },
       freezeAccordion(state = true)  {
           this.$refs.header.filter(e => !e.isActive).forEach(e =>
               state ? e.$el.classList.add("disabled-pointer") : e.$el.classList.remove("disabled-pointer")
@@ -342,12 +338,6 @@ export default {
           this.deletedIndex = -1;
           this.dialogDelete = false;
       },
-      getIntents() {
-          const uri = 'http://localhost:4242/intents'
-          this.axios.get(uri).then(
-              r => this.intents = r.data
-          )
-      },
       postIntents() {
           const uri = 'http://localhost:4242/intents'
           this.dialogGenerate = false;
@@ -368,23 +358,6 @@ export default {
               r => this.openapi = r.data
           )
       },
-      connectLogs() {
-
-          this.connection = new WebSocket("ws://localhost:4242/logs");
-
-          const self = this
-          this.connection.onmessage = function(event) {
-            const container = document.getElementById ( "log" )
-            container.scrollTop = container.scrollHeight
-            self.log += JSON.parse(event.data).msg + "\n"
-          }
-
-          this.connection.onopen = function(event) {
-            console.log(event)
-            console.log("Successfully connected to the logs server...")
-          }
-      },
-
   }
 };
 </script>

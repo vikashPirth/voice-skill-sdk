@@ -20,6 +20,15 @@ from types import ModuleType
 from skill_sdk import skill, Skill
 
 
+#
+# Default module (folder) for handler implementations:
+#
+#   if folder is missing, it will be created if skill is in "development" mode
+#   (ran with `vs develop`)
+#
+DEFAULT_MODULE = "impl"
+
+
 def add_logging_options(parser: argparse.ArgumentParser) -> None:
     """
     Add common logging argument parameters

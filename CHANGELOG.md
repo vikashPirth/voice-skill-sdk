@@ -35,7 +35,7 @@ All notable changes to this project will be documented in this file.
 
 
 - Skill Designer UI: a tool for rapid skill prototyping.
-    Start a skill with `vs develop app.py` and hit [http://localhost:4242](http://localhost:4242) 
+    Start a skill with `vs develop [impl]` and hit [http://localhost:4242](http://localhost:4242) 
     to access the UI from a browser.
   
 
