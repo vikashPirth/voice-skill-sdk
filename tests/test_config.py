@@ -1,6 +1,16 @@
+#
+# voice-skill-sdk
+#
+# (C) 2021, Deutsche Telekom AG
+#
+# This file is distributed under the terms of the MIT license.
+# For details see the file LICENSE in the top directory.
+#
+#
+
 from unittest.mock import patch, mock_open
-import unittest.mock
 import tempfile
+import pytest
 
 from skill_sdk import config
 
@@ -16,47 +26,44 @@ subkey3 = ${ENV_VAR_WITHOUT_DEFAULT}
 """
 
 
-class TestLoadConfig(unittest.TestCase):
-    def test_get_config_file(self):
-        self.assertEqual(config.get_skill_config_file(), config.SKILL_CONFIG_FILE)
-        with patch("os.environ", new={"CONFIG_FILE": "config.file"}):
-            self.assertEqual("config.file", config.get_skill_config_file())
+def test_get_config_file(monkeypatch):
+    assert config.get_skill_config_file() == config.SKILL_CONFIG_FILE
+    monkeypatch.setenv("CONFIG_FILE", "config.file")
+    assert config.get_skill_config_file() == "config.file"
 
-    def test_init_config(self):
-        with patch("builtins.open", mock_open(read_data="[skill]\nid=skill")):
-            self.assertEqual("skill", config.init_config("some_file")["skill"]["id"])
-        with patch("builtins.open", side_effect=FileNotFoundError):
-            with self.assertRaises(RuntimeError):
-                config.get_skill_config_file("some_file")
 
-    def test_read_config(self):
-        with patch("builtins.open", mock_open(read_data=CONFIG_INI)):
-            self.assertEqual(
-                ["key", "key2", "key3"], config.read_config("path").sections()
-            )
-        with patch("builtins.open", mock_open(read_data=CONFIG_INI)), patch(
-            "os.environ", new={"ENV_VAR": "environment_variable"}
-        ):
-            self.assertEqual(
-                "environment_variable", config.read_config("path")["key2"]["subkey2"]
-            )
-        with patch("builtins.open", side_effect=FileNotFoundError):
-            self.assertEqual([], config.read_config("path").sections())
+def test_init_config():
+    with patch("builtins.open", mock_open(read_data="[skill]\nid=skill")):
+        assert config.init_config("some_file")["skill"]["id"] == "skill"
+    with patch("builtins.open", side_effect=FileNotFoundError):
+        with pytest.raises(RuntimeError):
+            config.get_skill_config_file("some_file")
 
-    def test_load_additional(self):
-        with patch("builtins.open", mock_open(read_data=CONFIG_INI)):
-            with tempfile.TemporaryDirectory() as tmp_dir, tempfile.NamedTemporaryFile(
+
+def test_read_config(monkeypatch):
+    with patch("builtins.open", mock_open(read_data=CONFIG_INI)):
+        assert config.read_config("path").sections() == ["key", "key2", "key3"]
+
+    with patch("builtins.open", mock_open(read_data=CONFIG_INI)):
+        monkeypatch.setenv("ENV_VAR", "environment_variable")
+        assert config.read_config("path")["key2"]["subkey2"] ==  "environment_variable"
+
+    with patch("builtins.open", side_effect=FileNotFoundError):
+        assert config.read_config("path").sections() == []
+
+
+def test_load_additional(monkeypatch):
+    with patch("builtins.open", mock_open(read_data=CONFIG_INI)):
+        with tempfile.TemporaryDirectory() as tmp_dir, tempfile.NamedTemporaryFile(
                 dir=tmp_dir, suffix=".conf"
-            ) as tmp_file, tempfile.NamedTemporaryFile(
-                dir=tmp_dir, suffix=".noconf"
-            ), patch(
-                "os.environ",
-                new={"CONFIG_ADDITIONAL_LOCATION": f"{tmp_dir}, path_dont_exist"},
-            ):
-                self.assertEqual([tmp_file.name], config.load_additional())
+        ) as tmp_file, tempfile.NamedTemporaryFile(
+            dir=tmp_dir, suffix=".noconf"
+        ):
+            monkeypatch.setenv("CONFIG_ADDITIONAL_LOCATION", f"{tmp_dir}, path_dont_exist")
+            assert config.load_additional() == [tmp_file.name]
 
-        with patch("os.environ", new={"CONFIG_ADDITIONAL_LOCATION": ""}):
-            self.assertFalse(config.load_additional())
+    monkeypatch.setenv("CONFIG_ADDITIONAL_LOCATION", "")
+    assert bool(config.load_additional()) is False
 
 
 def test_extra_attributes_allowed(monkeypatch):
@@ -69,5 +76,21 @@ def test_extra_attributes_allowed(monkeypatch):
     monkeypatch.setattr(
         Settings.Config, "conf_file", {"new-section": {"my-key": "value"}}
     )
-    settings = Settings()
-    assert settings.NEW_SECTION_MY_KEY == "value"  # noqa
+    s = Settings()
+    assert s.NEW_SECTION_MY_KEY == "value"  # noqa
+
+
+def test_dot_env(monkeypatch, tmp_path):
+    from skill_sdk.config import Settings
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "skill.conf").write_text("""
+    [new]
+    key = Value
+    """)
+    (tmp_path / ".env").write_text("""
+        SKILL_NAME = My Awesome Skill
+        NEW_KEY = New Value
+    """)
+    s = Settings()
+    assert s.SKILL_NAME == "My Awesome Skill"

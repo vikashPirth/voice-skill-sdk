@@ -5,13 +5,22 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 
+### Features
+
+
+- TODO: Skill configuration is fully compatible with dotenv.
+
+
 ### Bugfixes
+
+- Various UI [fixes](https://github.com/telekom/voice-skill-sdk/commit/298fe1da0c7db5515f40e6b97155e6939f401917).
+
 
 - **Logging:**
 
     - Fix uvicorn access log formatter to consistently use either human-readable or GELF format.
 
-    - Add logging helpers to possibly hide JWT-like token strings.
+    - Add logging helpers to optionally hide JWT-like token strings.
 
 
 ## 1.0.4 - 2021-05-26

@@ -26,8 +26,11 @@ logger = logging.getLogger(__name__)
 
 ENV_VAR_TEMPLATE = re.compile(r"^\${(.*)}$")
 
-# Skill default config file name
+# Skill config default file name
 SKILL_CONFIG_FILE = "skill.conf"
+
+# Dotenv variables default file name
+DOTENV_FILE = ".env"
 
 
 class EnvVarInterpolation(BasicInterpolation):
@@ -315,7 +318,8 @@ class Settings(BaseSettings):
         """Default config: read from skill.conf file"""
 
         conf_file = SKILL_CONFIG_FILE
-        case_sensitive = True
+        env_file = DOTENV_FILE
+
         extra = Extra.allow
 
         @classmethod
@@ -372,7 +376,7 @@ class Settings(BaseSettings):
             :param file_secret_settings:
             :return:
             """
-            return init_settings, cls.conf_settings, env_settings, file_secret_settings
+            return init_settings, env_settings, cls.conf_settings, file_secret_settings
 
 
 def _make_key(string: Text) -> Text:
