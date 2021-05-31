@@ -3,9 +3,9 @@
     <v-row>
     <v-col cols="4">
       <v-row>
-        <v-card v-if="this.openapi.info" flat>
+        <v-card v-if="openapi.info" flat>
           <v-card-title>
-            {{ this.openapi.info.title }} v{{ this.openapi.info.version }}
+            {{ openapi.info.title }} v{{ openapi.info.version }}
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-icon
@@ -22,7 +22,7 @@
             </v-tooltip>
           </v-card-title>
           <v-card-text>
-            <sub>{{ this.openapi.info.description }}</sub>
+            <sub>{{ openapi.info.description }}</sub>
           </v-card-text>
         </v-card>
       </v-row>
@@ -216,10 +216,13 @@
 
 export default {
 
+  props: {
+    openapi: Object,
+    intents: Array,
+  },
+
   data: () => ({
-      openapi: {},
       spiVersion: "1.4.1",
-      intents: {},
       session: {
         id: 123,
         new: true,
@@ -243,9 +246,6 @@ export default {
   }),
 
   created: function() {
-      this.$root.$refs.testIntentTab = this;
-      this.getAPIDescription();
-      this.getIntents();
       this.connectLogs();
   },
 
@@ -323,18 +323,6 @@ export default {
               this.response = JSON.stringify(r.data, null, 2);
             }
         ).catch(err => this.response = err)
-      },
-      getIntents() {
-          const uri = 'http://localhost:4242/intents'
-          this.axios.get(uri).then(
-              r => this.intents = r.data
-          )
-      },
-      getAPIDescription() {
-          const uri = 'http://localhost:4242/openapi.json'
-          this.axios.get(uri).then(
-              r => this.openapi = r.data
-          )
       },
       connectLogs() {
 
