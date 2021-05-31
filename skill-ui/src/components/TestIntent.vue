@@ -219,6 +219,7 @@ export default {
   props: {
     openapi: Object,
     intents: Array,
+    log: String,
   },
 
   data: () => ({
@@ -233,8 +234,6 @@ export default {
       },
       request: "{}",
       response: "",
-      connection: null,
-      log: "",
       intentsPanel: null,
       rules: [
           value => !!value || "Field required!",
@@ -244,10 +243,6 @@ export default {
               || "Non-blank value required!" ,
       ],
   }),
-
-  created: function() {
-      this.connectLogs();
-  },
 
   methods: {
       validate(input) {
@@ -324,23 +319,6 @@ export default {
             }
         ).catch(err => this.response = err)
       },
-      connectLogs() {
-
-          this.connection = new WebSocket("ws://localhost:4242/logs");
-
-          const self = this
-          this.connection.onmessage = function(event) {
-            const container = document.getElementById ( "log" )
-            container.scrollTop = container.scrollHeight
-            self.log += JSON.parse(event.data).msg + "\n"
-          }
-
-          this.connection.onopen = function(event) {
-            console.log(event)
-            console.log("Successfully connected to the logs server...")
-          }
-      },
-
   }
 };
 </script>

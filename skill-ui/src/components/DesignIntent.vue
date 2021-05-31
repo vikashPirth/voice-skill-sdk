@@ -270,6 +270,7 @@ export default {
   props: {
     openapi: Object,
     intents: Array,
+    log: String,
   },
 
   data: () => ({
@@ -278,8 +279,6 @@ export default {
       types: [],
       request: "{}",
       response: {},
-      connection: null,
-      log: "",
       intentsPanel: null,
       rules: {
         required: value => !!value || "Name required!",
@@ -310,7 +309,6 @@ export default {
 
   created: function() {
     this.getTypes();
-    this.connectLogs();
   },
 
   methods: {
@@ -360,23 +358,6 @@ export default {
               r => this.openapi = r.data
           )
       },
-      connectLogs() {
-
-          this.connection = new WebSocket("ws://localhost:4242/logs");
-
-          const self = this
-          this.connection.onmessage = function(event) {
-            const container = document.getElementById ( "log" )
-            container.scrollTop = container.scrollHeight
-            self.log += JSON.parse(event.data).msg + "\n"
-          }
-
-          this.connection.onopen = function(event) {
-            console.log(event)
-            console.log("Successfully connected to the logs server...")
-          }
-      },
-
   }
 };
 </script>

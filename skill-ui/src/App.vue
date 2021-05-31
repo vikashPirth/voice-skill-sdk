@@ -1,15 +1,24 @@
 <template>
   <v-app>
-      <v-tabs v-model="activeTab">
-        <v-tab>Design</v-tab>
+      <v-tabs
+          v-model="activeTab"
+          icons-and-text
+      >
+        <v-tab>
+          Design
+          <v-icon>mdi-developer-board</v-icon>
+        </v-tab>
         <v-tab
             :disabled="this.intents.length === 0"
-        >Test</v-tab>
+        >Test
+          <v-icon>mdi-view-dashboard</v-icon>
+        </v-tab>
         <v-tab-item>
           <DesignIntent
               v-bind="{
                 openapi: this.openapi,
                 intents: this.intents,
+                log: this.log,
               }"/>
         </v-tab-item>
         <v-tab-item>
@@ -17,6 +26,7 @@
               v-bind="{
                 openapi: this.openapi,
                 intents: this.intents,
+                log: this.log,
               }"/>
         </v-tab-item>
       </v-tabs>
@@ -40,17 +50,17 @@ export default {
     openapi: {},
     intents: [],
     activeTab: 0,
+    log: "",
+    connection: null,
   }),
 
   created: function() {
-    this.init();
+    this.getAPIDescription();
+    this.getIntents();
+    this.connectLogs();
   },
 
   methods: {
-    init() {
-      this.getAPIDescription();
-      this.getIntents();
-    },
     getIntents() {
       const uri = 'http://localhost:4242/intents'
       this.axios.get(uri).then(
@@ -65,6 +75,22 @@ export default {
       this.axios.get(uri).then(
           r => this.openapi = r.data
       )
+    },
+    connectLogs() {
+
+      this.connection = new WebSocket("ws://localhost:4242/logs");
+
+      const self = this
+      this.connection.onmessage = function(event) {
+        const container = document.getElementById ( "log" )
+        container.scrollTop = container.scrollHeight
+        self.log += JSON.parse(event.data).msg + "\n"
+      }
+
+      this.connection.onopen = function(event) {
+        console.log(event)
+        console.log("Successfully connected to the logs server...")
+      }
     },
   }
 };
