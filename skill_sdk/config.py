@@ -308,58 +308,18 @@ class Settings(BaseSettings):
                 value=f_value,
                 annotation=f_annotation,
                 class_validators=None,
-                config=cls.Config,
+                config=cls.__config__,
             )
 
         cls.__fields__.update(new_fields)
         cls.__annotations__.update(new_annotations)
 
-    class Config(BaseSettings.Config):
+    class Config:
         """Default config: read from skill.conf file"""
 
-        conf_file = SKILL_CONFIG_FILE
-        env_file = DOTENV_FILE
-
         extra = Extra.allow
-
-        @classmethod
-        def conf_settings(cls, *args) -> Dict[Text, Any]:
-            """
-            Read configuration setting in ConfigParser format from "skill.conf":
-
-                replace dashes with underscores in section names and configuration keys,
-                join names and keys with underscore ("_") and convert to upper case
-
-                So that a following config:
-
-                ```ini
-                [section]
-                key = Value
-                ```
-
-                will be available as:
-
-                >>> settings.SECTION_KEY
-                >>> "Value"
-
-            :param args:
-            :return:
-            """
-
-            try:
-                c: ConfigParser = init_config(cls.conf_file)
-
-                d: Dict[Text, Any] = {
-                    "_".join((_make_key(section), _make_key(field))): value
-                    for section in c.sections()
-                    for field, value in clean_section(c[section]).items()
-                }
-
-                Settings.add_fields(**d)
-                return d
-
-            except RuntimeError:
-                return {}
+        env_file = DOTENV_FILE
+        conf_file = SKILL_CONFIG_FILE
 
         @classmethod
         def customise_sources(
@@ -376,7 +336,56 @@ class Settings(BaseSettings):
             :param file_secret_settings:
             :return:
             """
-            return init_settings, env_settings, cls.conf_settings, file_secret_settings
+            conf_settings = ConfSettingsSource(conf_file=cls.conf_file)
+            return init_settings, env_settings, conf_settings, file_secret_settings
+
+
+class ConfSettingsSource:
+    __slots__ = ('conf_file',)
+
+    def __init__(self, conf_file: Text):
+        self.conf_file = conf_file
+
+    def __call__(self, settings: BaseSettings) -> Dict[str, Any]:
+        """
+        Read configuration setting in ConfigParser format from "skill.conf":
+
+            replace dashes with underscores in section names and configuration keys,
+            join names and keys with underscore ("_") and convert to upper case
+
+            So that a following config:
+
+            ```ini
+            [section]
+            key = Value
+            ```
+
+            will be available as:
+
+            >>> settings.SECTION_KEY
+            >>> "Value"
+
+        :param args:
+        :return:
+        """
+
+        try:
+            c: ConfigParser = init_config(self.conf_file)
+
+            d: Dict[Text, Any] = {
+                "_".join((_make_key(section), _make_key(field))): value
+                for section in c.sections()
+                for field, value in clean_section(c[section]).items()
+            }
+
+            settings.add_fields(**d)
+            return d
+
+        except RuntimeError:
+            return {}
+
+    def __repr__(self) -> str:
+        return f'ConfSettingsSource(init_kwargs={self.conf_file!r})'
 
 
 def _make_key(string: Text) -> Text:

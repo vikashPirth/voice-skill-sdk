@@ -10,6 +10,8 @@
 
 from unittest.mock import patch, mock_open
 import tempfile
+
+import pydantic
 import pytest
 
 from skill_sdk import config
@@ -83,14 +85,32 @@ def test_extra_attributes_allowed(monkeypatch):
 def test_dot_env(monkeypatch, tmp_path):
     from skill_sdk.config import Settings
 
+    class MySettings(Settings):
+        NEW_KEY: str
+        NEW_INT: int
+
     monkeypatch.chdir(tmp_path)
     (tmp_path / "skill.conf").write_text("""
     [new]
     key = Value
+    int = 1
     """)
+
+    # Environment vars overriding "skill.conf" values
     (tmp_path / ".env").write_text("""
         SKILL_NAME = My Awesome Skill
         NEW_KEY = New Value
+        new_int = 3
     """)
-    s = Settings()
+
+    s = MySettings()
     assert s.SKILL_NAME == "My Awesome Skill"
+    assert s.NEW_KEY == "New Value"
+    assert s.NEW_INT == 3
+
+    # ValidationError if int is not int
+    (tmp_path / ".env").write_text("""
+        new_int = not int
+    """)
+    with pytest.raises(pydantic.ValidationError):
+        MySettings()
