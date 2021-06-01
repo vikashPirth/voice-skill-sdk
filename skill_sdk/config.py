@@ -18,7 +18,7 @@ from enum import Enum
 from typing import Any, Dict, Iterator, List, Optional, Text, Tuple, Union
 from configparser import BasicInterpolation, ConfigParser, SectionProxy
 
-from pydantic import BaseSettings, fields, Extra, validator
+from pydantic import BaseSettings, Extra, fields, validator
 from pydantic.env_settings import SettingsSourceCallable
 
 
@@ -214,8 +214,10 @@ class Settings(BaseSettings):
     SKILL_NAME: Text = "skill-noname"
     SKILL_TITLE: Text = "Magenta Skill SDK Python"
     SKILL_DESCRIPTION: Text = "Magenta Voice Skill SDK for Python"
-
     SKILL_VERSION: Text = "1"
+
+    # API base, if None, will default to "/v{settings.SKILL_VERSION}/{settings.SKILL_NAME}"
+    API_BASE: Optional[Text] = None
 
     SKILL_DEBUG: bool = False
 
@@ -229,6 +231,9 @@ class Settings(BaseSettings):
     # Health endpoints for k8s
     K8S_READINESS: Text = "/k8s/readiness"
     K8S_LIVENESS: Text = "/k8s/liveness"
+
+    # Prometheus metrics scraper endpoint
+    PROMETHEUS_ENDPOINT: Text = "/prometheus"
 
     REQUESTS_TIMEOUT: float = 5
 
@@ -308,18 +313,27 @@ class Settings(BaseSettings):
                 value=f_value,
                 annotation=f_annotation,
                 class_validators=None,
-                config=cls.__config__,
+                config=cls.__config__,  # type: ignore
             )
 
         cls.__fields__.update(new_fields)
         cls.__annotations__.update(new_annotations)
 
     class Config:
-        """Default config: read from skill.conf file"""
+        """
+        Config values priority:
+
+            1. Arguments passed to the Settings class constructor.
+            2. Environment variables.
+            3. Variables loaded from a dotenv (.env) file.
+            4. Variable values from skill.conf file.
+            5. Variables loaded from the secrets directory.
+
+        """
 
         extra = Extra.allow
-        env_file = DOTENV_FILE
-        conf_file = SKILL_CONFIG_FILE
+        env_file: Union[Path, Text] = DOTENV_FILE
+        conf_file: Union[Path, Text] = SKILL_CONFIG_FILE
 
         @classmethod
         def customise_sources(
@@ -329,63 +343,60 @@ class Settings(BaseSettings):
             file_secret_settings: SettingsSourceCallable,
         ) -> Tuple[SettingsSourceCallable, ...]:
             """
-            Override the parent to insert "conf_settings" values
+            Override the parent to insert "skill_conf_settings" values
 
             :param init_settings:
             :param env_settings:
             :param file_secret_settings:
             :return:
             """
-            conf_settings = ConfSettingsSource(conf_file=cls.conf_file)
-            return init_settings, env_settings, conf_settings, file_secret_settings
+            return (
+                init_settings,
+                env_settings,
+                skill_conf_settings,
+                file_secret_settings,
+            )
 
 
-class ConfSettingsSource:
-    __slots__ = ('conf_file',)
+def skill_conf_settings(_settings: BaseSettings) -> Dict[str, Any]:
+    """
+    Read configuration setting in ConfigParser format from "skill.conf":
 
-    def __init__(self, conf_file: Text):
-        self.conf_file = conf_file
+        replace dashes with underscores in section names and configuration keys,
+        join names and keys with underscore ("_") and convert to upper case
 
-    def __call__(self, settings: BaseSettings) -> Dict[str, Any]:
-        """
-        Read configuration setting in ConfigParser format from "skill.conf":
+        So that a following config:
 
-            replace dashes with underscores in section names and configuration keys,
-            join names and keys with underscore ("_") and convert to upper case
+        ```ini
+        [section]
+        key = Value
+        ```
 
-            So that a following config:
+        will be available as:
 
-            ```ini
-            [section]
-            key = Value
-            ```
+        >>> settings.SECTION_KEY
+        >>> "Value"
 
-            will be available as:
+    :param _settings:
+    :return:
+    """
 
-            >>> settings.SECTION_KEY
-            >>> "Value"
+    try:
+        c: ConfigParser = init_config(_settings.__config__.conf_file)  # type: ignore
 
-        :param args:
-        :return:
-        """
+        d: Dict[Text, Any] = {
+            "_".join((_make_key(section), _make_key(field))): value
+            for section in c.sections()
+            for field, value in clean_section(c[section]).items()
+        }
 
-        try:
-            c: ConfigParser = init_config(self.conf_file)
+        if isinstance(_settings, Settings):
+            _settings.add_fields(**d)
 
-            d: Dict[Text, Any] = {
-                "_".join((_make_key(section), _make_key(field))): value
-                for section in c.sections()
-                for field, value in clean_section(c[section]).items()
-            }
+        return d
 
-            settings.add_fields(**d)
-            return d
-
-        except RuntimeError:
-            return {}
-
-    def __repr__(self) -> str:
-        return f'ConfSettingsSource(init_kwargs={self.conf_file!r})'
+    except RuntimeError:
+        return {}
 
 
 def _make_key(string: Text) -> Text:

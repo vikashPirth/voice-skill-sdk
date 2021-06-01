@@ -12,6 +12,7 @@
 import inspect
 import logging
 from functools import partial
+from pathlib import Path
 from types import MappingProxyType, ModuleType
 from typing import Any, Callable, Dict, Mapping, Text, Union
 from fastapi import FastAPI
@@ -251,7 +252,9 @@ class Skill(FastAPI):
 
 
 def init_app(
-    config_path: Text = None, develop: bool = None, configure_logging: bool = None
+    config_path: Union[Path, Text] = None,
+    develop: bool = None,
+    configure_logging: bool = None,
 ) -> Skill:
     """
     Create FastAPI application from configuration file
@@ -277,6 +280,7 @@ def init_app(
 
     if config_path is not None:
         config.settings.Config.conf_file = config_path
+        config.settings = config.Settings()
 
     if develop is None:
         develop = config.settings.debug()

@@ -8,6 +8,7 @@
 #
 #
 
+from contextlib import closing
 import pytest
 
 from fastapi.testclient import TestClient
@@ -90,3 +91,19 @@ def test_technical_endpoints(app):
     # Prometheus scraper
     prometheus = getattr(settings, "PROMETHEUS_ENDPOINT", "/prometheus")
     assert client.get(prometheus).status_code == 200
+
+
+def test_init_app_with_config(monkeypatch, tmp_path):
+
+    monkeypatch.chdir(tmp_path)
+    skill_conf = tmp_path / "skill.conf"
+    skill_conf.write_text("""
+    [skill]
+    name = New Skill
+    description = New Description
+    """)
+
+    app = skill.init_app(skill_conf)
+    assert app.title == "New Skill"
+    assert app.description == "New Description"
+    app.close()

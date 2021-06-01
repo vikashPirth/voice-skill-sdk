@@ -48,7 +48,7 @@ def test_read_config(monkeypatch):
 
     with patch("builtins.open", mock_open(read_data=CONFIG_INI)):
         monkeypatch.setenv("ENV_VAR", "environment_variable")
-        assert config.read_config("path")["key2"]["subkey2"] ==  "environment_variable"
+        assert config.read_config("path")["key2"]["subkey2"] == "environment_variable"
 
     with patch("builtins.open", side_effect=FileNotFoundError):
         assert config.read_config("path").sections() == []
@@ -57,11 +57,11 @@ def test_read_config(monkeypatch):
 def test_load_additional(monkeypatch):
     with patch("builtins.open", mock_open(read_data=CONFIG_INI)):
         with tempfile.TemporaryDirectory() as tmp_dir, tempfile.NamedTemporaryFile(
-                dir=tmp_dir, suffix=".conf"
-        ) as tmp_file, tempfile.NamedTemporaryFile(
-            dir=tmp_dir, suffix=".noconf"
-        ):
-            monkeypatch.setenv("CONFIG_ADDITIONAL_LOCATION", f"{tmp_dir}, path_dont_exist")
+            dir=tmp_dir, suffix=".conf"
+        ) as tmp_file, tempfile.NamedTemporaryFile(dir=tmp_dir, suffix=".noconf"):
+            monkeypatch.setenv(
+                "CONFIG_ADDITIONAL_LOCATION", f"{tmp_dir}, path_dont_exist"
+            )
             assert config.load_additional() == [tmp_file.name]
 
     monkeypatch.setenv("CONFIG_ADDITIONAL_LOCATION", "")
@@ -82,6 +82,20 @@ def test_extra_attributes_allowed(monkeypatch):
     assert s.NEW_SECTION_MY_KEY == "value"  # noqa
 
 
+def test_skill_conf(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "skill.conf").write_text(
+        """
+    [new]
+    key = Value
+    int = 1
+    """
+    )
+    settings = config.Settings()
+    assert settings.NEW_KEY == "Value"  # noqa
+    assert settings.NEW_INT == 1  # noqa
+
+
 def test_dot_env(monkeypatch, tmp_path):
     from skill_sdk.config import Settings
 
@@ -90,18 +104,22 @@ def test_dot_env(monkeypatch, tmp_path):
         NEW_INT: int
 
     monkeypatch.chdir(tmp_path)
-    (tmp_path / "skill.conf").write_text("""
+    (tmp_path / "skill.conf").write_text(
+        """
     [new]
     key = Value
     int = 1
-    """)
+    """
+    )
 
     # Environment vars overriding "skill.conf" values
-    (tmp_path / ".env").write_text("""
+    (tmp_path / ".env").write_text(
+        """
         SKILL_NAME = My Awesome Skill
         NEW_KEY = New Value
         new_int = 3
-    """)
+    """
+    )
 
     s = MySettings()
     assert s.SKILL_NAME == "My Awesome Skill"
@@ -109,8 +127,10 @@ def test_dot_env(monkeypatch, tmp_path):
     assert s.NEW_INT == 3
 
     # ValidationError if int is not int
-    (tmp_path / ".env").write_text("""
+    (tmp_path / ".env").write_text(
+        """
         new_int = not int
-    """)
+    """
+    )
     with pytest.raises(pydantic.ValidationError):
         MySettings()

@@ -137,8 +137,10 @@ def api_base():
 
     """
 
-    return getattr(
-        settings, "API_BASE", f"/v{settings.SKILL_VERSION}/{settings.SKILL_NAME}"
+    return (
+        settings.API_BASE
+        if settings.API_BASE is not None
+        else f"/v{settings.SKILL_VERSION}/{settings.SKILL_NAME}"
     )
 
 
