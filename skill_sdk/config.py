@@ -69,7 +69,7 @@ class EnvVarInterpolation(BasicInterpolation):
         return value or default
 
 
-def get_skill_config_file(config: Text = None) -> Text:
+def get_skill_config_file(config: Union[Path, Text] = None) -> Text:
     """
     Check if skill config file exists
 
@@ -89,7 +89,7 @@ def get_skill_config_file(config: Text = None) -> Text:
             raise RuntimeError from ex
         logger.error("File not found: %s", repr(config_file))
 
-    return config_file
+    return str(config_file)
 
 
 def load_additional() -> List[Text]:
@@ -136,7 +136,7 @@ def read_config(path: List[Text]) -> ConfigParser:
     return config
 
 
-def init_config(config: Union[Dict, Text]) -> ConfigParser:
+def init_config(config: Union[Dict, Path, Text, None]) -> ConfigParser:
     """
     Initialize skill configuration:
 
@@ -319,6 +319,11 @@ class Settings(BaseSettings):
         cls.__fields__.update(new_fields)
         cls.__annotations__.update(new_annotations)
 
+    @staticmethod
+    def reload(conf_file: Union[Dict, Path, Text, None] = None, **values) -> "Settings":
+        Settings.Config.conf_file = conf_file
+        return Settings(**values)
+
     class Config:
         """
         Config values priority:
@@ -332,8 +337,8 @@ class Settings(BaseSettings):
         """
 
         extra = Extra.allow
-        env_file: Union[Path, Text] = DOTENV_FILE
-        conf_file: Union[Path, Text] = SKILL_CONFIG_FILE
+        env_file = DOTENV_FILE
+        conf_file: Union[Dict, Path, Text, None] = SKILL_CONFIG_FILE
 
         @classmethod
         def customise_sources(
@@ -382,7 +387,7 @@ def skill_conf_settings(_settings: BaseSettings) -> Dict[str, Any]:
     """
 
     try:
-        c: ConfigParser = init_config(_settings.__config__.conf_file)  # type: ignore
+        c: ConfigParser = init_config(Settings.Config.conf_file)
 
         d: Dict[Text, Any] = {
             "_".join((_make_key(section), _make_key(field))): value

@@ -252,7 +252,7 @@ class Skill(FastAPI):
 
 
 def init_app(
-    config_path: Union[Path, Text] = None,
+    config_path: Union[Dict, Path, Text] = None,
     develop: bool = None,
     configure_logging: bool = None,
 ) -> Skill:
@@ -275,15 +275,14 @@ def init_app(
     """
     from skill_sdk import config, middleware, log, routes
 
-    if configure_logging:
-        log.setup_logging()
-
-    if config_path is not None:
-        config.settings.Config.conf_file = config_path
-        config.settings = config.Settings()
+    # Reload setting from new config file
+    config.settings = config.Settings.reload(conf_file=config_path)
 
     if develop is None:
         develop = config.settings.debug()
+
+    if configure_logging:
+        log.setup_logging()
 
     app_config = {**config.settings.app_config(), **dict(debug=develop)}
     logger.debug("App config: %s", app_config)
