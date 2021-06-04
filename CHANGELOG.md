@@ -8,7 +8,14 @@ All notable changes to this project will be documented in this file.
 ### Features
 
 
-- TODO: Skill configuration is fully compatible with dotenv.
+- Skill configuration is compatible with [dotenv](https://github.com/theskumar/python-dotenv).
+    Skill setting values can be overwritten with environment variables. 
+  
+    File with environment settings can be specified when running a skill with `--env-file` argument to `vs` CLI tool.
+    To start skill in _development_ mode with environment settings loaded from `.env.dev` file:
+  
+    `vs develop --env-file .env.dev`
+    
 
 
 ### Bugfixes

@@ -107,3 +107,16 @@ def test_init_app_with_config(monkeypatch, tmp_path):
     with closing(skill.init_app(skill_conf)) as app:
         assert app.title == "New Skill"
         assert app.description == "New Description"
+
+
+def test_init_app_with_dotenv(monkeypatch):
+
+    monkeypatch.setenv("SKILL_NAME", "Skill from Env")
+    monkeypatch.setenv("K8S_READINESS", "/ready")
+    monkeypatch.setenv("API_BASE", "/whateva")
+
+    with closing(skill.init_app()) as app:
+        assert app.title == "Skill from Env"
+        assert [_.path for _ in app.routes if _.name == "Readiness Probe"] == ["/ready"]    # noqa
+        assert [_.path for _ in app.routes if _.name == "Invoke Intent"] == ["/whateva"]    # noqa
+
