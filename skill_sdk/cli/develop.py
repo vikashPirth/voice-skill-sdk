@@ -23,7 +23,12 @@ from contextlib import closing
 
 import uvicorn
 
-from skill_sdk.cli import import_module_app, DEFAULT_MODULE
+from skill_sdk.cli import (
+    add_env_file_argument,
+    add_module_argument,
+    import_module_app,
+    DEFAULT_MODULE,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +48,11 @@ def execute(arguments):
     from skill_sdk import config, log
 
     config.settings.SKILL_DEBUG = True
+
+    # Location of dotenv file
+    env_file = getattr(arguments, "env_file", None)
+    if env_file is not None:
+        config.Settings.Config.env_file = getattr(arguments, "env_file")
 
     # Set default log level to DEBUG, if not explicitly overridden with "--verbose"/"--quiet"
     loglevel = getattr(arguments, "loglevel", None) or logging.DEBUG
@@ -94,7 +104,6 @@ def add_subparser(subparsers):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help="Starts the skill in development mode.",
     )
-    run_parser.add_argument(
-        "module", help="Run module", nargs="?", default=DEFAULT_MODULE
-    )
+    add_env_file_argument(run_parser)
+    add_module_argument(run_parser)
     run_parser.set_defaults(command=execute)

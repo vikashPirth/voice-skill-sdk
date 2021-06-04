@@ -70,15 +70,6 @@ def test_import_module_app():
     assert cli is test_cli
 
 
-def test_run(debug_logging, mocker, app):
-
-    uv = mocker.patch.object(run, "uvicorn")
-    assert list(app.intents.keys()) == ["SMALLTALK__GREETINGS"]
-
-    run.execute(Namespace(module=APP))
-    uv.run.assert_called_once_with(app, port=4242)
-
-
 def test_develop(debug_logging, mocker, app):
 
     uv = mocker.patch.object(develop, "uvicorn")
@@ -103,6 +94,39 @@ def test_develop_empty_project(tmpdir, mocker, monkeypatch):
     del sys.modules["impl"]
 
 
+def test_run(debug_logging, mocker, app):
+
+    uv = mocker.patch.object(run, "uvicorn")
+    assert list(app.intents.keys()) == ["SMALLTALK__GREETINGS"]
+
+    run.execute(Namespace(module=APP))
+    uv.run.assert_called_once_with(app, port=4242)
+
+
+def test_version(capsys: CaptureFixture, app):
+    version.execute(Namespace(module=APP))
+
+    out = capsys.readouterr()
+    assert "0.1" in out.out
+
+
+def test_with_env_file(capsys: CaptureFixture, change_dir, monkeypatch):
+
+    dev = pathlib.Path(".env.dev")
+    dev.write_text("SKILL_VERSION = 0.1a0")
+    version.execute(Namespace(module=DEFAULT_MODULE, env_file=".env.dev"))
+    out = capsys.readouterr()
+    assert "0.1a0" in out.out
+    dev.unlink()
+
+    prod = pathlib.Path(".env.prod")
+    prod.write_text("SKILL_VERSION = 1.0")
+    version.execute(Namespace(module=DEFAULT_MODULE, env_file=".env.prod"))
+    out = capsys.readouterr()
+    assert "1.0" in out.out
+    prod.unlink()
+
+
 def test_init(tmpdir):
 
     init.execute(Namespace(out=tmpdir))
@@ -125,19 +149,6 @@ def test_init(tmpdir):
         "skill.conf",
     ]
     assert all((pathlib.Path(tmpdir) / file).exists() for file in required_files)
-
-
-def test_version(capsys: CaptureFixture, mocker):
-    from skill_sdk import config
-
-    scaffold_path = pkg_resources.resource_filename(develop.__name__, "scaffold")
-    skill_conf = str(pathlib.Path(scaffold_path) / "skill.conf")
-    mocker.patch.object(config, "get_skill_config_file", return_value=skill_conf)
-
-    version.execute()
-
-    out = capsys.readouterr()
-    assert "0.1" in out.out
 
 
 def test_scaffold(app):

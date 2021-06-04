@@ -235,6 +235,8 @@ class Settings(BaseSettings):
     # Prometheus metrics scraper endpoint
     PROMETHEUS_ENDPOINT: Text = "/prometheus"
 
+    # Default request time-out value in seconds:
+    # used from built-in httpx client
     REQUESTS_TIMEOUT: float = 5
 
     #
@@ -305,16 +307,18 @@ class Settings(BaseSettings):
         for f_name, f_def in field_definitions.items():
             f_annotation, f_value = type(f_def), f_def
 
-            if f_annotation:
-                new_annotations[f_name] = f_annotation
+            # if field is not defined, add new field with annotation to the model
+            if f_name not in cls.__fields__:
+                if f_annotation:
+                    new_annotations[f_name] = f_annotation
 
-            new_fields[f_name] = fields.ModelField.infer(
-                name=f_name,
-                value=f_value,
-                annotation=f_annotation,
-                class_validators=None,
-                config=cls.__config__,  # type: ignore
-            )
+                new_fields[f_name] = fields.ModelField.infer(
+                    name=f_name,
+                    value=f_value,
+                    annotation=f_annotation,
+                    class_validators=None,
+                    config=cls.__config__,  # type: ignore
+                )
 
         cls.__fields__.update(new_fields)
         cls.__annotations__.update(new_annotations)
