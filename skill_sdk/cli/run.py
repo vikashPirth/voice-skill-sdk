@@ -38,7 +38,9 @@ def execute(arguments):
     if env_file is not None:
         config.Settings.Config.env_file = getattr(arguments, "env_file")
 
-    log.setup_logging()
+    # Set default log level to WARNING, if not explicitly overridden with "--verbose"/"--debug"
+    loglevel = getattr(arguments, "loglevel", None) or logging.WARNING
+    log.setup_logging(loglevel)
 
     module, app = import_module_app(arguments.module)
 

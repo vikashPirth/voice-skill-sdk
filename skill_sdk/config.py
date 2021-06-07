@@ -323,10 +323,24 @@ class Settings(BaseSettings):
         cls.__fields__.update(new_fields)
         cls.__annotations__.update(new_annotations)
 
-    @staticmethod
-    def reload(conf_file: Union[Dict, Path, Text, None] = None, **values) -> "Settings":
+    def reload(
+        self, conf_file: Union[Dict, Path, Text, None] = None, **values
+    ) -> "Settings":
+        """
+        Reload values from new config file:
+
+            creates a new Settings instance,
+            and performs in-place update of this singleton
+
+        :param conf_file:
+        :param values:
+        :return:
+        """
         Settings.Config.conf_file = conf_file
-        return Settings(**values)
+        for key, value in Settings(**values):
+            setattr(self, key, value)
+
+        return self
 
     class Config:
         """

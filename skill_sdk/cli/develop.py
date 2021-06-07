@@ -47,6 +47,7 @@ def execute(arguments):
     """
     from skill_sdk import config, log
 
+    # TODO: This things gets overwritten with .reload call in init_app
     config.settings.SKILL_DEBUG = True
 
     # Location of dotenv file
@@ -69,7 +70,7 @@ def execute(arguments):
     run_config = config.settings.http_config()
     logger.info("Starting app with config: %s", repr(run_config))
 
-    with closing(app):
+    with closing(app.develop()):
         uvicorn.run(app, **run_config)
 
 

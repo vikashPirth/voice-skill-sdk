@@ -117,6 +117,34 @@ def test_init_app_with_dotenv(monkeypatch):
 
     with closing(skill.init_app()) as app:
         assert app.title == "Skill from Env"
-        assert [_.path for _ in app.routes if _.name == "Readiness Probe"] == ["/ready"]    # noqa
-        assert [_.path for _ in app.routes if _.name == "Invoke Intent"] == ["/whateva"]    # noqa
+        assert [_.path for _ in app.routes if _.name == "Readiness Probe"] == [  # noqa
+            "/ready"
+        ]
+        assert [_.path for _ in app.routes if _.name == "Invoke Intent"] == [  # noqa
+            "/whateva"
+        ]
 
+
+def test_init_env_vars(monkeypatch, tmp_path):
+    from skill_sdk.config import settings
+
+    monkeypatch.chdir(tmp_path)
+    skill_conf = tmp_path / "skill.conf"
+    skill_conf.write_text(
+        """
+    [skill]
+    name = New Skill
+    description = New Description
+    
+    [service]
+    url = Dummy
+    """
+    )
+
+    with closing(skill.init_app(skill_conf)) as app:
+        assert settings.SERVICE_URL == "Dummy"
+
+    monkeypatch.setenv("SERVICE_URL", "https://example.com")
+
+    with closing(skill.init_app(skill_conf)) as app:
+        assert settings.SERVICE_URL == "https://example.com"

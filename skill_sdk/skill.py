@@ -275,8 +275,8 @@ def init_app(
     """
     from skill_sdk import config, middleware, log, routes
 
-    # Reload setting from new config file
-    config.settings = config.Settings.reload(conf_file=config_path)
+    # Reload setting from a config file
+    config.settings.reload(conf_file=config_path)
 
     if develop is None:
         develop = config.settings.debug()
