@@ -16,6 +16,7 @@
 #   - modifies Python sources in "Design"
 #
 
+import os
 import argparse
 import logging
 import pathlib
@@ -47,8 +48,8 @@ def execute(arguments):
     """
     from skill_sdk import config, log
 
-    # TODO: This things gets overwritten with .reload call in init_app
-    config.settings.SKILL_DEBUG = True
+    # Set "debug" mode to prevent installing check_credentials dependency
+    os.environ["SKILL_DEBUG"] = "true"
 
     # Location of dotenv file
     env_file = getattr(arguments, "env_file", None)

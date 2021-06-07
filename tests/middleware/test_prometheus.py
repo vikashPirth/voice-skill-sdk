@@ -84,12 +84,8 @@ def test_prometheus_partner():
 def test_partner_call_with_circuit_breaker():
     Prometheus.partner_requests_count().clear()
 
-    respx.get("http://httpbin.org/status/404").mock(
-        return_value=Response(404, text="")
-    )
-    respx.get("http://httpbin.org/status/500").mock(
-        return_value=Response(500, text="")
-    )
+    respx.get("http://httpbin.org/status/404").mock(return_value=Response(404, text=""))
+    respx.get("http://httpbin.org/status/500").mock(return_value=Response(500, text=""))
 
     with Client(response_hook=count_partner_calls("partner-call")) as c404:
         for _ in range(100):
@@ -104,9 +100,11 @@ def test_partner_call_with_circuit_breaker():
     metrics = handle_metrics(SimpleNamespace()).body
     assert (
         b'partner_name="partner-call",status="404"} %d.0'
-        % c404.circuit_breaker.fail_max in metrics
+        % c404.circuit_breaker.fail_max
+        in metrics
     )
     assert (
         b'partner_name="partner-call",status="500"} %d.0'
-        % c500.circuit_breaker.fail_max in metrics
+        % c500.circuit_breaker.fail_max
+        in metrics
     )

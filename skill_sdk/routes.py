@@ -208,5 +208,6 @@ def setup_routes(app: FastAPI):
         name="Liveness Probe",
     )
 
-    # Redirect root to "/redoc"
-    app.add_route("/", RedirectResponse(url=app.redoc_url or "/redoc"))
+    # Redirect root to "/redoc", if not in "debug" mode
+    if not app.debug:
+        app.add_route("/", RedirectResponse(url=app.redoc_url or "/redoc"))
