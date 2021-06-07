@@ -46,13 +46,21 @@ class TestUtils(unittest.TestCase):
 
 
 def test_server_run_in_thread():
-    app = init_app()
+    app = init_app(
+        {
+            "skill": {
+                "name": "Hello World",
+                "description": "Magenta Voice Skill SDK for Python",
+                "version": 1,
+            }
+        }
+    )
     client = TestClient(app)
 
     with Server(app).run_in_thread():
         openapi = client.get("/openapi.json").json()
         assert openapi["info"] == {
-            "title": "skill-noname",
+            "title": "Hello World",
             "description": "Magenta Voice Skill SDK for Python",
             "version": "1",
         }

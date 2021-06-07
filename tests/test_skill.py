@@ -8,6 +8,7 @@
 #
 #
 
+from contextlib import closing
 import pytest
 
 from fastapi.testclient import TestClient
@@ -16,9 +17,8 @@ from skill_sdk import skill, ResponseType
 
 @pytest.fixture
 def app():
-    app = skill.init_app()
-    yield app
-    app.close()
+    with closing(skill.init_app()) as app:
+        yield app
 
 
 def test_intent_handlers(app):
@@ -90,3 +90,61 @@ def test_technical_endpoints(app):
     # Prometheus scraper
     prometheus = getattr(settings, "PROMETHEUS_ENDPOINT", "/prometheus")
     assert client.get(prometheus).status_code == 200
+
+
+def test_init_app_with_config(monkeypatch, tmp_path):
+
+    monkeypatch.chdir(tmp_path)
+    skill_conf = tmp_path / "skill.conf"
+    skill_conf.write_text(
+        """
+    [skill]
+    name = New Skill
+    description = New Description
+    """
+    )
+
+    with closing(skill.init_app(skill_conf)) as app:
+        assert app.title == "New Skill"
+        assert app.description == "New Description"
+
+
+def test_init_app_with_dotenv(monkeypatch):
+
+    monkeypatch.setenv("SKILL_NAME", "Skill from Env")
+    monkeypatch.setenv("K8S_READINESS", "/ready")
+    monkeypatch.setenv("API_BASE", "/whateva")
+
+    with closing(skill.init_app()) as app:
+        assert app.title == "Skill from Env"
+        assert [_.path for _ in app.routes if _.name == "Readiness Probe"] == [  # noqa
+            "/ready"
+        ]
+        assert [_.path for _ in app.routes if _.name == "Invoke Intent"] == [  # noqa
+            "/whateva"
+        ]
+
+
+def test_init_env_vars(monkeypatch, tmp_path):
+    from skill_sdk.config import settings
+
+    monkeypatch.chdir(tmp_path)
+    skill_conf = tmp_path / "skill.conf"
+    skill_conf.write_text(
+        """
+    [skill]
+    name = New Skill
+    description = New Description
+    
+    [service]
+    url = Dummy
+    """
+    )
+
+    with closing(skill.init_app(skill_conf)) as app:
+        assert settings.SERVICE_URL == "Dummy"
+
+    monkeypatch.setenv("SERVICE_URL", "https://example.com")
+
+    with closing(skill.init_app(skill_conf)) as app:
+        assert settings.SERVICE_URL == "https://example.com"

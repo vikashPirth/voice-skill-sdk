@@ -501,5 +501,10 @@ def setup(app: FastAPI):
         # Start the notifier's worker
         asyncio.ensure_future(notifier.worker(queue))
 
-    # Root UI
+    # Delete root redirect
+    app.router.routes = [
+        route for route in app.router.routes if getattr(route, "path", None) != "/"
+    ]
+
+    # Mount root UI
     app.mount("/", StaticFiles(directory=str(UI_ROOT), html=True), name="Skill UI")

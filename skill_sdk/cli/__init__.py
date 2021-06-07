@@ -14,10 +14,10 @@ import argparse
 import logging
 import importlib
 import pathlib
-from typing import Text, Tuple
+from typing import Optional, Text, Tuple
 from types import ModuleType
 
-from skill_sdk import skill, Skill
+from skill_sdk import config, skill, Skill
 
 
 #
@@ -61,6 +61,32 @@ def add_logging_options(parser: argparse.ArgumentParser) -> None:
         action="store_const",
         dest="loglevel",
         const=logging.ERROR,
+    )
+
+
+def add_module_argument(
+    parser: argparse.ArgumentParser,
+    default: Optional[Text] = DEFAULT_MODULE,
+) -> None:
+    parser.add_argument("module", help="Run module", nargs="?", default=default)
+
+
+def add_env_file_argument(
+    parser: argparse.ArgumentParser,
+    default: Optional[Text] = config.DOTENV_FILE,
+) -> None:
+    """
+    Add env-file parameter argument:
+
+    :param parser:
+    :param default:
+    :return:
+    """
+    parser.add_argument(
+        "-e",
+        "--env-file",
+        default=default,
+        help="Location of dotenv file.",
     )
 
 

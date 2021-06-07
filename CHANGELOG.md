@@ -5,13 +5,29 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 
+### Features
+
+
+- Skill configuration is compatible with [dotenv](https://github.com/theskumar/python-dotenv).
+    Skill setting values can be overwritten with environment variables. 
+  
+    File with environment settings can be specified when running a skill with `--env-file` argument to `vs` CLI tool.
+    To start skill in _development_ mode with environment settings loaded from `.env.dev` file:
+  
+    `vs develop --env-file .env.dev`
+    
+
+
 ### Bugfixes
+
+- Various UI [fixes](https://github.com/telekom/voice-skill-sdk/commit/298fe1da0c7db5515f40e6b97155e6939f401917).
+
 
 - **Logging:**
 
     - Fix uvicorn access log formatter to consistently use either human-readable or GELF format.
 
-    - Add logging helpers to possibly hide JWT-like token strings.
+    - Add logging helpers to optionally hide JWT-like token strings.
 
 
 ## 1.0.4 - 2021-05-26

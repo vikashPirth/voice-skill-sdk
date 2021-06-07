@@ -19,16 +19,26 @@
 import argparse
 import logging
 
+from skill_sdk.cli import add_env_file_argument, add_module_argument, import_module_app
 
-def execute(*args):
+
+def execute(arguments):
     """Print skill version"""
 
     from skill_sdk import config, log
 
-    log.setup_logging(logging.ERROR, config.FormatType.HUMAN)
+    # Location of dotenv file
+    env_file = getattr(arguments, "env_file", None)
+    if env_file is not None:
+        config.Settings.Config.env_file = getattr(arguments, "env_file")
 
-    config = config.init_config(config.get_skill_config_file())
-    print(f"{config.get('skill', 'version')}")
+    # Set default log level to ERROR, if not explicitly overridden with "--verbose"/"--debug"
+    loglevel = getattr(arguments, "loglevel", None) or logging.ERROR
+    log.setup_logging(loglevel, config.FormatType.HUMAN)
+
+    _, app = import_module_app(arguments.module)
+
+    print(app.version)
 
 
 def add_subparser(subparsers):
@@ -44,4 +54,6 @@ def add_subparser(subparsers):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help="Print skill version and exit.",
     )
+    add_env_file_argument(version_parser)
+    add_module_argument(version_parser)
     version_parser.set_defaults(command=execute)

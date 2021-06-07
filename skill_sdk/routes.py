@@ -137,8 +137,10 @@ def api_base():
 
     """
 
-    return getattr(
-        settings, "API_BASE", f"/v{settings.SKILL_VERSION}/{settings.SKILL_NAME}"
+    return (
+        settings.API_BASE
+        if settings.API_BASE is not None
+        else f"/v{settings.SKILL_VERSION}/{settings.SKILL_NAME}"
     )
 
 
@@ -206,10 +208,6 @@ def setup_routes(app: FastAPI):
         name="Liveness Probe",
     )
 
-    # Redirect root to "/redoc" if not in debug mode
+    # Redirect root to "/redoc", if not in "debug" mode
     if not app.debug:
-
-        async def redirect(request):
-            return RedirectResponse(url=app.redoc_url)
-
-        app.add_route("/", redirect)
+        app.add_route("/", RedirectResponse(url=app.redoc_url or "/redoc"))
