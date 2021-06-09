@@ -60,7 +60,11 @@ setup(
         "dev": [
             "gunicorn",
             "starlette[full]",
-            "mypy",
+            "mypy>=0.9",
+            "types-orjson",
+            "types-python-dateutil",
+            "types-pkg_resources",
+            "types-PyYAML",
             "respx",
             "black",
             "pytest",
