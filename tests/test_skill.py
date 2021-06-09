@@ -41,6 +41,18 @@ def test_intent_handlers(app):
 
 
 @pytest.mark.asyncio
+async def test_fallback_intent(app: skill.Skill):
+    assert app.intents == {}
+
+    with pytest.raises(KeyError):
+        await app.test_intent("INTENT_NOT_HANDLED_BY_THE_SKILL")
+
+    app.include(skill.FALLBACK_INTENT, handler=lambda: "Hola")
+    result = await app.test_intent("INTENT_NOT_HANDLED_BY_THE_SKILL")
+    assert result.text == "Hola"
+
+
+@pytest.mark.asyncio
 async def test_with_error_handler(app):
     def error_handler(name, exc):
         return str(exc.__cause__)
