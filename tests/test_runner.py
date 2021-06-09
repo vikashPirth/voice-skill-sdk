@@ -56,7 +56,7 @@ def dragons(dragon_list: List[str]):
 
 @skill.intent_handler(skill.FALLBACK_INTENT)
 def fallback(ctx: intents.Context):
-    return f'Python Skill SDK v{__version__} Fallback Handler: {ctx.attributes}'
+    return f'Python Skill SDK v{__version__} Fallback Handler: {ctx.attributes} Intent: {ctx.intent_name}'
 
 
 config = Config()
@@ -154,7 +154,8 @@ class TestRunnerDev(unittest.TestCase):
         self.assertTrue(response.ok)
         self.assertEqual(response.json()['text'],
                          f"Python Skill SDK v{__version__} Fallback Handler: "
-                         f"{{'arg1': ['arg1'], 'arg2': ['arg2'], 'timezone': ['Europe/Berlin']}}")
+                         f"{{'arg1': ['arg1'], 'arg2': ['arg2'], 'timezone': ['Europe/Berlin']}} "
+                         f"Intent: UNKNOWN_INTENT")
 
 
 @unittest.skipIf(sys.platform.startswith("win"), "Windows cannot gunicorn")

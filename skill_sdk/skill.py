@@ -134,7 +134,13 @@ class Skill(bottle.Bottle):
     _intents: Dict[str, Callable] = {}
 
     def get_intent(self, name: str):
-        return self._intents.get(name, self._intents.get(FALLBACK_INTENT))
+        try:
+            handler = self._intents[name]
+        except KeyError:
+            logger.debug('Intent %s handler not found.', name)
+            handler = self._intents[FALLBACK_INTENT]
+
+        return handler
 
     def get_intents(self):
         return self._intents
