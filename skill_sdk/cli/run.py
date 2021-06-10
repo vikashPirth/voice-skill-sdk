@@ -19,6 +19,7 @@ from skill_sdk.cli import (
     add_env_file_argument,
     add_module_argument,
     import_module_app,
+    process_env_file,
     DEFAULT_MODULE,
 )
 
@@ -33,10 +34,7 @@ def execute(arguments):
     """
     from skill_sdk import config, log
 
-    # Location of dotenv file
-    env_file = getattr(arguments, "env_file", None)
-    if env_file is not None:
-        config.Settings.Config.env_file = getattr(arguments, "env_file")
+    process_env_file(arguments)
 
     # Set default log level to WARNING, if not explicitly overridden with "--verbose"/"--debug"
     loglevel = getattr(arguments, "loglevel", None) or logging.WARNING

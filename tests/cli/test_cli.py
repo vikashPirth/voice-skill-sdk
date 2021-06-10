@@ -104,7 +104,7 @@ def test_run(debug_logging, mocker, app):
 
 
 def test_version(capsys: CaptureFixture, app):
-    version.execute(Namespace(module=APP))
+    version.execute(Namespace())
 
     out = capsys.readouterr()
     assert "0.1" in out.out
