@@ -2,6 +2,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.14.4] - 2021-06-10  
+
+**Bugfixes**
+
+-   Fixed `skill.test_intent` helper FALLBACK_INTENT handling. 
+
+**Miscellaneous**
+
+-   Requirements bump:
+    - apispec from 4.4.0 to 4.5.0
+    - prometheus_client from 0.10.0 to 0.11.0
+
 ## [v0.14.3] - 2021-05-12  
 
 **Features**
