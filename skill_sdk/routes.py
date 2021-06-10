@@ -110,11 +110,11 @@ async def invoke_intent(
             return skill_sdk.i18n.Translations()
         return app.translations[locale]
 
-    if request.context.intent not in rq.app.intents:
+    try:
+        handler = rq.app.get_handler(request.context.intent)
+    except KeyError:
         logger.error("Intent not found: %s", repr(request.context.intent))
         return JSONResponse({"code": 1, "text": "Intent not found!"}, status_code=404)
-
-    handler = rq.app.intents[request.context.intent]
 
     return await invoke(
         handler,

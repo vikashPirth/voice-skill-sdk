@@ -1,0 +1,2054 @@
+{
+  "entries": [
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Card template"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 Generic View",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "The template card looks like this",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://cdn.icon-icons.com/icons2/9/PNG/256/game_playing-cards_card_cards_poker_1488.png",
+            "titleText": "Title",
+            "typeDescription": "Subtitle",
+            "imageUrl": "https://cdn.pixabay.com/photo/2014/12/15/17/16/pier-569314_960_720.jpg",
+            "prominentText": "Prominent Text",
+            "actionProminentText": "https://www.pixar.com/feature-films/the-incredibles",
+            "text": "Text with multiple lines that will take space in order to say things",
+            "subText": "Sub Text. The Sub Text field will allow to show a content larger than 4 lines and will have a toggle (Show more) to expand and collapse the text that is past the fourth line… Here the toggle has been clicked so the text box has been extended to show more lines. Clicking the toggle again will then hide the extra text, showing four lines again.",
+            "mediaUrl": "https://www.mfiles.co.uk/mp3-downloads/The-Entertainer.mp3",
+            "listSections": [
+              {
+                "title": "List title A",
+                "items": [{
+                  "itemIconUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPmPRhcoUq3o-aKD9Q9oqUIPy_fy5FNBNuZA&usqp=CAU",
+                  "itemText": "Item Text A1 (variable icon)"
+                  },
+                  {
+                  "itemIconUrl": "https://www.freeiconspng.com/thumbs/diary-icon/diary-circle-icon-png-file-1.png",
+                  "itemText": "Item Text A2 (variable icon)"
+                  }
+                ]
+              },
+              {
+                "title": "List title B",
+                "items": [{
+                  "itemText": "Item Text B1 (No icon)"
+                  },
+                  {
+                  "itemText": "Item Text B2 (No icon)"
+                  }
+                ]
+              },
+              {
+                "title": "List title C",
+                "items": [{
+                  "itemText": "Item Text C1 (Link)",
+                  "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                  "itemAction": "https://www.imdb.com/title/tt0317705/"
+                  },
+                  {
+                  "itemText": "Item Text C2 (Link)",
+                  "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                  "itemAction": "https://video-a-la-demande.orange.fr/catalog/vod/video/LESINDESTRUW0086734.html#vod/movieDescription/LESINDESTRUW0086734"
+                  }
+                ]
+              },
+              {
+                "title": "List title D",
+                "items": [{
+                  "itemText": "Item Text D1 (Link)",
+                  "itemAction": "https://www.imdb.com/title/tt0317705/"
+                  },
+                  {
+                  "itemText": "Item Text D2 (Link)",
+                  "itemAction": "https://video-a-la-demande.orange.fr/catalog/vod/video/LESINDESTRUW0086734.html#vod/movieDescription/LESINDESTRUW0086734"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 Header and prominent text",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "The card looks like this",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/2/28/Profile_-_Jack_Jack_Parr.jpeg/revision/latest?cb=20190315053420",
+            "titleText": "The Incredibles",
+            "typeDescription": "the baby",
+            "prominentText": "Jack Jack",
+            "actionProminentText": "https://disney.fandom.com/wiki/Jack-Jack_Parr",
+            "listSections": [
+              {
+                "items": [{
+                  "itemText": "The Movie",
+                  "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                  "itemAction": "https://www.pixar.com/feature-films/the-incredibles"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-01",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "simple text card with header & link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/5/5e/Profile_-_Dash_Parr.jpeg/revision/latest/scale-to-width-down/516?cb=20190313155501",
+            "titleText": "The Incredibles",
+            "typeDescription": "the son",
+            "text": "Dash",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Disney wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/Dash_Parr"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-02 & 04",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Long text card with header & link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/e/e0/Profile_-_Violet_Parr.jpeg/revision/latest/scale-to-width-down/515?cb=20190313155232",
+            "titleText": "The Incredibles",
+            "typeDescription": "the daughter",
+            "text": "Violet: is the eldest child and only daughter of Bob and Helen Parr and the older sister of Dash and Jack-Jack. As an offspring of supers, she has superhuman powers herself; she can turn herself invisible and create protective force fields of varying sizes around herself and/or others.",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Disney wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/Violet_Parr"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-06  &  M-07-ACT-07-01",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Prominent Text with Link and a list Link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/d/d2/Profile_-_Bob_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155821",
+            "titleText": "The Incredibles",
+            "typeDescription": "the father",
+            "prominentText": "Bob Parr (Mr. Incredible)",
+            "actionProminentText": "https://disney.fandom.com/wiki/Mr._Incredible",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Pixar Movie",
+                    "itemAction": "https://www.pixar.com/feature-films/the-incredibles"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-08",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Prominent Text and a Link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/3/3a/Profile_-_Helen_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20200205215542",
+            "titleText": "The Incredibles",
+            "typeDescription": "the mother",
+            "prominentText": "Helen Parr (Elastigirl)",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Disney wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/Elastigirl"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Prominent Text + Text",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Prominent Text and Text",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/5/5c/Profile_-_Frozone.jpg/revision/latest?cb=20200424233513",
+            "titleText": "The Incredibles",
+            "typeDescription": "the friend",
+            "prominentText": "Lucius Best (AKA Frozone)",
+            "text": "He is the best friend and a close ally of Mr. Incredible and the Parr family. He has the ability to create ice and freeze surfaces by manipulating moisture.",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "",
+                    "itemText": "Dysney Wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/Frozone"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Prominent text - List Link",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Prominent Text with Link and no List Link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/4/4a/Proflile_-_Mirage.png/revision/latest/top-crop/width/200/height/150?cb=20190315205428",
+            "titleText": "The Incredibles",
+            "typeDescription": "Syndrome's assistant",
+            "prominentText": "Mirage",
+            "actionProminentText": "https://disney.fandom.com/wiki/Mirage_(The_Incredibles)"
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Prominent text + Text - List Link",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Prominent Text with Link, with Text and no List Link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/f/ff/Profile_-_Edna_Mode.jpg/revision/latest/scale-to-width-down/516?cb=20190314210134",
+            "titleText": "The Incredibles",
+            "typeDescription": "fashion designer for Supers",
+            "text": "Edna is a half-Japanese, half-German, short fashion designer, and auteur. She is known for calling everyone \"Dahling\".",
+            "prominentText": "Edna Mode",
+            "actionProminentText": "https://disney.fandom.com/wiki/Edna_Mode"
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 multiple list links",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and multiple lists with links",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "All Caracters",
+            "listSections": [
+              {
+                "title": "The family",
+                "items": [
+                  {
+                    "itemText": "Bob",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/d/d2/Profile_-_Bob_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155821",
+                    "itemAction": "https://disney.fandom.com/wiki/Mr._Incredible"
+                  },
+                  {
+                    "itemText": "Helen",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/3/3a/Profile_-_Helen_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20200205215542",
+                    "itemAction": "https://disney.fandom.com/wiki/Elastigirl"
+                  },
+                  {
+                    "itemText": "Violet",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e0/Profile_-_Violet_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155232",
+                    "itemAction": "https://disney.fandom.com/wiki/Violet_Parr"
+                  },
+                  {
+                    "itemText": "Dash",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5e/Profile_-_Dash_Parr.jpeg/revision/latest?cb=20190313155501",
+                    "itemAction": "https://disney.fandom.com/wiki/Dash_Parr"
+                  },
+                  {
+                    "itemText": "Jack Jack",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/2/28/Profile_-_Jack_Jack_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190315053420",
+                    "itemAction": "https://disney.fandom.com/wiki/Jack-Jack_Parr"
+                  }
+                ]
+              },
+              {
+                "title": "The good",
+                "items": [
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5c/Profile_-_Frozone.jpg/revision/latest?cb=20200424233513",
+                    "itemText": "Frozone",
+                    "itemAction": "https://disney.fandom.com/wiki/Frozone"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/ff/Profile_-_Edna_Mode.jpg/revision/latest?cb=20190314210134",
+                    "itemText": "Edna Mode",
+                    "itemAction": "https://disney.fandom.com/wiki/Edna_Mode"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/f5/RickDicker.jpg/revision/latest?cb=20110709205517",
+                    "itemText": "Rick Dicker",
+                    "itemAction": "https://disney.fandom.com/wiki/Rick_Dicker"
+                  }
+                ]
+              },
+              {
+                "title": "The bad",
+                "items": [
+                  {
+                    "itemText": "Syndrome",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/9/96/Profile_-_Syndrome.png/revision/latest/top-crop/width/200/height/150?cb=20200926220437",
+                    "itemAction": "https://disney.fandom.com/wiki/Syndrome"
+                  },
+                  {
+                    "itemText": "Bomb Voyage",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e1/Bomb_Voyage.png/revision/latest?cb=20160313145429",
+                    "itemAction": "https://disney.fandom.com/wiki/Bomb_Voyage"
+                  },
+                  {
+                    "itemText": "The Underminer",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e3/Profile_-_Underminer.jpg/revision/latest/scale-to-width-down/516?cb=20190702052504",
+                    "itemAction": "https://disney.fandom.com/wiki/The_Underminer"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 multiple list bullets",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and multiple lists without links / with bullet point icons / with list title",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "Family & Good Caracters",
+            "listSections": [
+              {
+                "title": "Super Family",
+                "items": [
+                  {
+                    "itemText": "Bob",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/d/d2/Profile_-_Bob_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155821"
+                  },
+                  {
+                    "itemText": "Helen",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/3/3a/Profile_-_Helen_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20200205215542"
+                  },
+                  {
+                    "itemText": "Violet",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e0/Profile_-_Violet_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155232"
+                  },
+                  {
+                    "itemText": "Dash",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5e/Profile_-_Dash_Parr.jpeg/revision/latest?cb=20190313155501"
+                  },
+                  {
+                    "itemText": "Jack Jack",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/2/28/Profile_-_Jack_Jack_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190315053420"
+                  }
+                ]
+              },
+              {
+                "title": "Friends",
+                "items": [
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5c/Profile_-_Frozone.jpg/revision/latest?cb=20200424233513",
+                    "itemText": "Frozone"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/ff/Profile_-_Edna_Mode.jpg/revision/latest?cb=20190314210134",
+                    "itemText": "Edna Mode"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/f5/RickDicker.jpg/revision/latest?cb=20110709205517",
+                    "itemText": "Rick Dicker"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 multiple list bullets",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and multiple lists without links / with bullet point icons / without list title",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "Good Caracters",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemText": "Bob",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/d/d2/Profile_-_Bob_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155821"
+                  },
+                  {
+                    "itemText": "Helen",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/3/3a/Profile_-_Helen_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20200205215542"
+                  },
+                  {
+                    "itemText": "Violet",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e0/Profile_-_Violet_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155232"
+                  },
+                  {
+                    "itemText": "Dash",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5e/Profile_-_Dash_Parr.jpeg/revision/latest?cb=20190313155501"
+                  },
+                  {
+                    "itemText": "Jack Jack",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/2/28/Profile_-_Jack_Jack_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190315053420"
+                  }
+                ]
+              },
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5c/Profile_-_Frozone.jpg/revision/latest?cb=20200424233513",
+                    "itemText": "Frozone"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/ff/Profile_-_Edna_Mode.jpg/revision/latest?cb=20190314210134",
+                    "itemText": "Edna Mode"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/f5/RickDicker.jpg/revision/latest?cb=20110709205517",
+                    "itemText": "Rick Dicker"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 multiple list with titles",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and multiple lists without links / without bullet point icons / with list title",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "Family & Good Caracters List",
+            "listSections": [
+              {
+                "title": "Super Family",
+                "items": [
+                  {"itemText": "Bob"},
+                  {"itemText": "Helen"},
+                  {"itemText": "Violet"},
+                  {"itemText": "Dash"},
+                  {"itemText": "Jack Jack"}
+                ]
+              },
+              {
+                "title": "Friends",
+                "items": [
+                  {"itemText": "Frozone"},
+                  {"itemText": "Edna Mode"},
+                  {"itemText": "Rick Dicker"}
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 multiple list without titles",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and multiple lists without links / without bullet point icons / without list title",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "Good Caracters List",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {"itemText": "Bob"},
+                  {"itemText": "Helen"},
+                  {"itemText": "Violet"},
+                  {"itemText": "Dash"},
+                  {"itemText": "Jack Jack"}
+                ]
+              },
+              {
+                "title": "",
+                "items": [
+                  {"itemText": "Frozone"},
+                  {"itemText": "Edna Mode"},
+                  {"itemText": "Rick Dicker"}
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 one list with title",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and multiple lists without links / without bullet point icons / with list title",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "Family Members List",
+            "listSections": [
+              {
+                "title": "Super Family",
+                "items": [
+                  {"itemText": "Bob"},
+                  {"itemText": "Helen"},
+                  {"itemText": "Violet"},
+                  {"itemText": "Dash"},
+                  {"itemText": "Jack Jack"}
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 one list bullets",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and list bullets",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "Family Members",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemText": "Bob",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/d/d2/Profile_-_Bob_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155821"
+                  },
+                  {
+                    "itemText": "Helen",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/3/3a/Profile_-_Helen_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20200205215542"
+                  },
+                  {
+                    "itemText": "Violet",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e0/Profile_-_Violet_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155232"
+                  },
+                  {
+                    "itemText": "Dash",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5e/Profile_-_Dash_Parr.jpeg/revision/latest?cb=20190313155501"
+                  },
+                  {
+                    "itemText": "Jack Jack",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/2/28/Profile_-_Jack_Jack_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190315053420"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-10 one list with links",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header and list with links",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar",
+            "prominentText": "The family",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemText": "Bob",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/d/d2/Profile_-_Bob_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155821",
+                    "itemAction": "https://disney.fandom.com/wiki/Mr._Incredible"
+                  },
+                  {
+                    "itemText": "Helen",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/3/3a/Profile_-_Helen_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20200205215542",
+                    "itemAction": "https://disney.fandom.com/wiki/Elastigirl"
+                  },
+                  {
+                    "itemText": "Violet",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e0/Profile_-_Violet_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155232",
+                    "itemAction": "https://disney.fandom.com/wiki/Violet_Parr"
+                  },
+                  {
+                    "itemText": "Dash",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5e/Profile_-_Dash_Parr.jpeg/revision/latest?cb=20190313155501",
+                    "itemAction": "https://disney.fandom.com/wiki/Dash_Parr"
+                  },
+                  {
+                    "itemText": "Jack Jack",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/2/28/Profile_-_Jack_Jack_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190315053420",
+                    "itemAction": "https://disney.fandom.com/wiki/Jack-Jack_Parr"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Image Card",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Image card with Prominent text & link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "imageUrl": "https://static.wikia.nocookie.net/disney/images/0/03/Incredibles2-animationscreencaps.com-12451.jpg/revision/latest/scale-to-width-down/516?cb=20200201174722",
+            "prominentText": "The Incredible Supers all together",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Disney wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/The_Incredibles"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card  Audio format test mp3",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (mp3)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.pngkit.com/png/detail/20-202815_vinyl-record-png-transparent-vinyl-png.png",
+            "titleText": "Some music",
+            "mediaUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3"
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test wav",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (wav)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://pngimg.com/uploads/star_wars_logo/star_wars_logo_PNG34.png",
+            "titleText": "Star Wars",
+            "typeDescription": "Other Movie Track",
+            "mediaUrl": "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://img.icons8.com/color/2x/yoda.png",
+                    "itemText": "wookipedia",
+                    "itemAction": "https://starwars.fandom.com/"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test mp4",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (mp4)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "titleText": "Audio Card",
+            "typeDescription": "mp4",
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.mp4"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test m4a",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (m4a)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "titleText": "Audio Card m4a",
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.m4a"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test aac",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (aac)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "titleText": "Audio Card",
+            "typeDescription": "aac",
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.aac"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test ac3",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (ac3)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "titleText": "Audio Card - ac3",
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.ac3"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test aiff",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (aiff)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "titleText": "Audio Card - aiff",
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.aiff"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test flac",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (flac)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "titleText": "Audio Card - flac",
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.flac"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test ogg",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (ogg)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "titleText": "Audio Card - ogg",
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.ogg"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : M-07-ACT-XX Media Card Audio format test wma",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Audio Media card with header (wma)",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "mediaUrl": "https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.wma"
+           }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Card template"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Full subtext field",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "The fully paked card with overflowing text in all fields.",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Pixar Movie",
+            "text": "The plot",
+            "subText": "Supers, humans gifted with superpowers, were once seen as heroes, but collateral damage and injuries from their various good deeds led the government to quietly create and initiate a Supers Relocation Program, forcing the Supers to fit in among the civilians and not use their superpowers in exchange for anonymity. \n\n15 years later, Bob and Helen are supers and formerly known to the world as Mr. Incredible and Elastigirl. Mr. Incredible has super strength and Elastigirl is able to stretch such a long distance to reach places nobody else could. Mr. Incredible and Elastigirl get married and raised three children, Violet, Dash, and Jack-Jack, in the suburbs of Metroville. \n\nSince Mr. Incredible and Elastigirl have superpowers, Violet and Dash also have innate superpowers; Violet being able to create force fields and turn invisible, and Dash able to run at a very fast speed, but the baby Jack-Jack has not yet to show any. \n\nBob, stuck in a white-collar job at an insurance agency, berated unfairly daily by his boss Mr. Huph, reminisces of his former days as Mr. Incredible, and sneaks out on Wednesday nights with his Superfriend, Lucius Best, aka Frozone (having the ability to freeze the moisture in the air), to fight street crime. ",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Disney wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/The_Incredibles"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Card template"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Full subtext field",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "The fully paked card with overflowing text in all fields.",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "text": "IMDB Storyline",
+            "subText": "Bob Parr (A.K.A. Mr. Incredible), and his wife Helen (A.K.A. Elastigirl), are the world's greatest famous crime-fighting superheroes in Metroville. Always saving lives and battling evil on a daily basis. \n\nBut fifteen years later, they have been forced to adopt civilian identities and retreat to the suburbs where they have no choice but to retire as superheroes to live a \"normal life\" with their three children Violet, Dash and Jack-Jack (who were secretly born with superpowers). \n\nItching to get back into action, Bob gets his chance when a mysterious communication summons him to a remote island for a top secret assignment. He soon discovers that it will take a super family effort to rescue the world from total destruction.",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "iMDB Storyline",
+                    "itemAction": "https://www.imdb.com/title/tt0317705/plotsummary?ref_=tt_stry_pl"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Card template"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Full text in every fields",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "The fully paked card with overflowing text in all fields.",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles Animated Film from Pixar released by Disney",
+            "typeDescription": "Movie released in 2004 - the sequel follow up was released in 2018",
+            "imageUrl": "https://static.wikia.nocookie.net/disney/images/0/03/Incredibles2-animationscreencaps.com-12451.jpg/revision/latest/scale-to-width-down/516?cb=20200201174722",
+            "prominentText": "The Story of a Super Family with amaizing powers for all members of the family",
+            "actionProminentText": "https://www.pixar.com/feature-films/the-incredibles",
+            "text": "The Incredibles is a 2004 American computer-animated comedy superhero film about a family of superheroes who are forced to hide their powers after they arouse public concern. It is Pixar's sixth animated feature film. It was written and directed by Brad Bird and was produced by Pixar and distributed by Walt Disney Pictures.",
+            "subText": "Supers, humans gifted with superpowers, were once seen as heroes, but collateral damage and injuries from their various good deeds led the government to quietly create and initiate a Supers Relocation Program, forcing the Supers to fit in among the civilians and not use their superpowers in exchange for anonymity. \n\n15 years later, Bob and Helen are supers and formerly known to the world as Mr. Incredible and Elastigirl. Mr. Incredible has super strength and Elastigirl is able to stretch such a long distance to reach places nobody else could. Mr. Incredible and Elastigirl get married and raised three children, Violet, Dash, and Jack-Jack, in the suburbs of Metroville. \n\nSince Mr. Incredible and Elastigirl have superpowers, Violet and Dash also have innate superpowers; Violet being able to create force fields and turn invisible, and Dash able to run at a very fast speed, but the baby Jack-Jack has not yet to show any. \n\nBob, stuck in a white-collar job at an insurance agency, berated unfairly daily by his boss Mr. Huph, reminisces of his former days as Mr. Incredible, and sneaks out on Wednesday nights with his Superfriend, Lucius Best, aka Frozone (having the ability to freeze the moisture in the air), to fight street crime. ",
+            "mediaUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/audiopreview118/v4/d2/e6/45/d2e64510-7838-e11c-93da-071567cd12ab/mzaf_7607926965812472105.plus.aac.p.m4a",
+            "listSections": [
+              {
+                "title": "The family Members that make the Parr family aSuper Family",
+                "items": [
+                  {
+                    "itemText": "Bob Parr (also known as Mr. Incredible) was one of the most famous heroes of his era and was known for his skill at fighting crime.",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/d/d2/Profile_-_Bob_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155821",
+                    "itemAction": "https://disney.fandom.com/wiki/Mr._Incredible"
+                  },
+                  {
+                    "itemText": "Helen Parr (née Truax), also known as Elastigirl, is an elastic and dexterous superheroine who can stretch any part of her body to great lengths, and mold it into several shapes and sizes. ",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/3/3a/Profile_-_Helen_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20200205215542",
+                    "itemAction": "https://disney.fandom.com/wiki/Elastigirl"
+                  },
+                  {
+                    "itemText": "Violet Parr - as an offspring of supers, she has superhuman powers herself; she can turn herself invisible and create protective force fields.",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/e/e0/Profile_-_Violet_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190313155232",
+                    "itemAction": "https://disney.fandom.com/wiki/Violet_Parr"
+                  },
+                  {
+                    "itemText": "Dash Parr - His main superhero power is the ability to run super fast.",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5e/Profile_-_Dash_Parr.jpeg/revision/latest?cb=20190313155501",
+                    "itemAction": "https://disney.fandom.com/wiki/Dash_Parr"
+                  },
+                  {
+                    "itemText": "Jack-Jack Parr - In a surprising turn of events, the Parrs would later discover that he has at least seventeen powers.",
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/2/28/Profile_-_Jack_Jack_Parr.jpeg/revision/latest/top-crop/width/200/height/150?cb=20190315053420",
+                    "itemAction": "https://disney.fandom.com/wiki/Jack-Jack_Parr"
+                  }
+                ]
+              },
+              {
+                "title": "The Good caracters of the movie that stand out as friends of the Parr Family",
+                "items": [
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/5/5c/Profile_-_Frozone.jpg/revision/latest?cb=20200424233513",
+                    "itemText": "Frozone is the best friend and a close ally of Mr. Incredible and the Parr family. He has the ability to create ice and freeze surfaces by manipulating moisture.",
+                    "itemAction": "https://disney.fandom.com/wiki/Frozone"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/ff/Profile_-_Edna_Mode.jpg/revision/latest?cb=20190314210134",
+                    "itemText": "Edna Mode  is a fashion designer for Supers and a close friend of the Parr family.",
+                    "itemAction": "https://disney.fandom.com/wiki/Edna_Mode"
+                  },
+                  {
+                    "itemIconUrl": "https://static.wikia.nocookie.net/disney/images/f/f5/RickDicker.jpg/revision/latest?cb=20110709205517",
+                    "itemText": "Rick Dicker is a government agent of the NSA (National Supers Agency), which was meant to clean up any Super accidents.",
+                    "itemAction": "https://disney.fandom.com/wiki/Rick_Dicker"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Card template"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Full text in every fields",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "The fully paked card with overflowing text in all fields.",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles Animated Film from Brad Bird",
+            "typeDescription": "Movie released in 2004 and nominated 4 times at the Academy Awards",
+            "imageUrl": "https://www.starwarsnewsnet.com/wp-content/uploads/2014/10/brad-bird.jpeg",
+            "prominentText": "Awards",
+            "listSections": [
+              {
+                "title": "Winner Oscars 2005",
+                "items": [
+                  {
+                    "itemText": "Best Achievement in Sound Editing Michael Silvers - Randy Thom",
+                    "itemAction": "https://www.oscars.org/vef/load/cb4e6ade8725545c67c839c5ba414c87?width=640&height=365&iframe=true"
+                  },
+                  {
+                    "itemText": "Best Animated Feature Film of the Year - Brad Bird",
+                    "itemAction": "https://www.oscars.org/vef/load/2641e0fd900bfe71711ebe0cae03806e?width=640&height=365&iframe=true"
+                  }
+                ]
+              },
+              {
+                "title": "Others",
+                "items": [
+                  {
+                    "itemText": "this movie totals over 67 wins"
+                  },
+                  {
+                    "itemText": "it was also nominated 56 times"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Header missing subtitle",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "simple text card with link & missing subtitle",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles - the animated movie fro Pixar released in 2004",
+            "text": "Film Critics",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://cdn.icon-icons.com/icons2/1077/PNG/512/star_77949.png",
+                    "itemText": "IMDB reviews",
+                    "itemAction": "https://www.imdb.com/title/tt0317705/reviews?ref_=tt_urv"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Header missing Tilte",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "simple text card with link & header missing Title",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/b/ba/Kari_Mckeen.png/revision/latest/scale-to-width-down/516?cb=20200529175158",
+            "typeDescription": "Kari is a fourteen year-old babysitter. She is the best friend of Violet, who hires her to watch Jack-Jack when his siblings decide to tag along with their mother. ",
+            "text": "Kari McKeen",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Disney wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/Kari_McKeen"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Header & Link",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "simple header card with link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/f/f5/RickDicker.jpg/revision/latest/scale-to-width-down/300?cb=20110709205517",
+            "titleText": "The Incredibles",
+            "typeDescription": "Rick Dicker",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Disney wiki",
+                    "itemAction": "https://disney.fandom.com/wiki/Rick_Dicker"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Header card",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "simple header card",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "iconUrl": "https://static.wikia.nocookie.net/disney/images/f/f7/Incredibles_ver9_xlg.jpg/revision/latest/scale-to-width-down/515?cb=20140402191410",
+            "titleText": "The Incredibles",
+            "typeDescription": "Movie"
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : image card with header",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Header, Image  and list Links",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "imageUrl": "https://m.media-amazon.com/images/M/MV5BMjIxMjEyMDQ4NV5BMl5BanBnXkFtZTcwMjE1ODkyMw@@._V1_FMjpg",
+            "iconUrl": "https://www.freepnglogos.com/uploads/incredibles-png-logo/original-file-incredibles-logo-0.png",
+            "titleText": "The Incredibles",
+            "typeDescription": "Animated film",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                  "itemText": "Trailer",
+                  "itemIconUrl": "https://image.flaticon.com/icons/png/512/83/83519.png",
+                  "itemAction": "https://www.imdb.com/title/tt0317705/videoplayer/vi3934427929?ref_=tt_pv_vi_aiv_2"
+                  },
+                  {
+                  "itemText": "Orange Video on Demande",
+                  "itemIconUrl": "https://cdn.iconscout.com/icon/free/png-256/on-demand-video-1781257-1518631.png",
+                  "itemAction": "https://video-a-la-demande.orange.fr/catalog/vod/video/LESINDESTRUW0086734.html#vod/movieDescription/LESINDESTRUW0086734"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Image Card with Animated image source",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "Animated gif Image Alone",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "imageUrl": "https://media2.giphy.com/media/G2fKgPMXJ40WA/giphy.gif?cid=ecf05e47yzfqvv1a3ea0b8nh3mftj9sc0vwnaal92q5fzwhd&rid=giphy.gif"
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Image Card with vertical image source",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "png Image card with link",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "imageUrl": "https://images.squarespace-cdn.com/content/v1/51cdafc4e4b09eb676a64e68/1469829309223-AJVYGEH22ZIHJMR409RA/ke17ZwdGBToddI8pDm48kNvDpKfeAQexp0LmoqJDSgV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URKg3-oDnkLqzSoCFfn_NlbMt1q_gJcT6B0wmNFLLdcsHvVUbWmKvJ9IhRyHqQYenA/Syn6.jpg?format=500w",
+            "listSections": [
+              {
+                "title": "",
+                "items": [
+                  {
+                    "itemIconUrl": "https://www.premioscodespa.com/wp-content/uploads/2019/10/red-arrow-counseling-PNG-Cliparts.png",
+                    "itemText": "Pixar",
+                    "itemAction": "https://www.pixar.com/feature-films/the-incredibles"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    },
+
+
+    {
+      "id": "646b3bb4-a16d-48easdasda9-bb80-dbea937e6089",
+      "sessionId": "DKHWlqpXfuvdOipfMJK7KJv7",
+      "device": {
+        "serialNumber": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+        "name": "Incredible mobile"
+      },
+      "vote": "NONE",
+      "request": {
+        "text": "Card v3 : Image Card with horizontal image source",
+        "skillId": "test-moke-data-card-v3"
+      },
+      "response": {
+        "text": "jpg Image Alone",
+        "errorCode": null,
+        "card": {
+          "id": "c58c7e3a-cb8e-4bb4-8564-c8a05bf009b5",
+          "type": "GENERIC_DEFAULT",
+          "version": 3,
+          "created": "2021-07-08T17:36:01.690+02:00",
+          "device": {
+            "clientId": "HvRGBWFk1M6911u9SYqs-YOZES63E95GCt8g",
+            "deviceName": "Incredible mobile"
+          },
+          "data": {
+            "imageUrl": "https://images.squarespace-cdn.com/content/v1/51cdafc4e4b09eb676a64e68/1469828653660-JWV7R7WMFR60SA484OFH/ke17ZwdGBToddI8pDm48kGO-_t0vx50e7R8fkb9nwcYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgaQuaBGVAipAtu25RUTPrMdeTY02Da0i61zhzDPJDiWoRwB-dUGsSquCnVTFQcaRg/MrI18.jpg?format=500w"
+          }
+        }
+      },
+      "timestamp": "2021-07-08T17:26:50.669+02:00",
+      "traceId": "aa1ea24d3c57d2ae"
+    }
+ 
+
+  ]
+}

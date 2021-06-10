@@ -62,15 +62,28 @@ class Skill(FastAPI):
 
         util.populate_intent_examples(self.intents)
 
-    def get_intent(self, name: Text):
+    def get_handler(self, name: Text):
         """
-        Return intent handler by name
+        Return intent handler by intent name
             (or 'FALLBACK_INTENT' handler if not found)
 
-        :param name:
+        :param name:    intent name
         :return:
         """
-        return self.intents.get(name, self.intents.get(FALLBACK_INTENT))
+        handler = self.intents.get(name)
+
+        if handler is None:
+            logger.debug("Intent %s handler not found.", name)
+            handler = self.intents.get(FALLBACK_INTENT)
+
+            if handler is None:
+                raise KeyError(
+                    f"Intent {name} handler not found and no fallback specified."
+                )
+            else:
+                logger.debug("Using fallback intent handler %s", repr(handler))
+
+        return handler
 
     def include(
         self,
@@ -192,10 +205,7 @@ class Skill(FastAPI):
         :param kwargs:      Intent's attributes
         :return:
         """
-        try:
-            handler = self.intents[intent]
-        except KeyError:
-            raise KeyError(f"Intent {intent} not found")
+        handler = self.get_handler(intent)
 
         r = util.create_request(intent, session=session, **kwargs).with_translation(
             translation if translation else i18n.Translations()
