@@ -2,6 +2,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+
+### Bugfixes
+
+-   Fix `skill.test_intent` helper FALLBACK_INTENT handling. 
+
+
+-   Remove `skill.init_app` initialization when running `vs version` command.
+
+
 ## 1.0.5 - 2021-06-07
 
 

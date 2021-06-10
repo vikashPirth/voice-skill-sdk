@@ -90,6 +90,19 @@ def add_env_file_argument(
     )
 
 
+def process_env_file(arguments):
+    """
+    Set .dotenv file location
+
+    :param arguments:
+    :return:
+    """
+
+    env_file = getattr(arguments, "env_file", None)
+    if env_file is not None:
+        config.Settings.Config.env_file = getattr(arguments, "env_file")
+
+
 def import_module_app(import_from: Text) -> Tuple[ModuleType, Skill]:
     """
     Import application from python module or package

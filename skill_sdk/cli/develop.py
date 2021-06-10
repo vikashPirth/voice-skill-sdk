@@ -28,6 +28,7 @@ from skill_sdk.cli import (
     add_env_file_argument,
     add_module_argument,
     import_module_app,
+    process_env_file,
     DEFAULT_MODULE,
 )
 
@@ -50,11 +51,7 @@ def execute(arguments):
 
     # Set "debug" mode to prevent installing check_credentials dependency
     os.environ["SKILL_DEBUG"] = "true"
-
-    # Location of dotenv file
-    env_file = getattr(arguments, "env_file", None)
-    if env_file is not None:
-        config.Settings.Config.env_file = getattr(arguments, "env_file")
+    process_env_file(arguments)
 
     # Set default log level to DEBUG, if not explicitly overridden with "--verbose"/"--quiet"
     loglevel = getattr(arguments, "loglevel", None) or logging.DEBUG
