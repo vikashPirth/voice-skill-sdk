@@ -188,9 +188,8 @@ def invoke_intent(intent_name: str, skill=None, **kwargs):
     # If skill not supplied with arguments, get the current default app from stack
     skill = skill or app()
 
-    try:
-        intent = skill.get_intents()[intent_name]
-    except KeyError:
+    intent = skill.get_intent(intent_name)
+    if intent is None:
         raise KeyError(f"Intent {intent_name} not found")
 
     with test_context(intent_name, **kwargs) as ctx:

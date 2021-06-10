@@ -20,8 +20,10 @@ import unittest
 import datetime
 from os import PathLike
 from unittest.mock import patch, mock_open
+
+import skill_sdk.skill
 from skill_sdk.test_helpers import create_context, invoke_intent, mock_datetime_now, set_translations, test_context
-from skill_sdk.skill import intent_handler
+from skill_sdk.skill import intent_handler, FALLBACK_INTENT
 from skill_sdk import Response, l10n
 
 logger = logging.getLogger()
@@ -165,8 +167,19 @@ class TestHelpers(unittest.TestCase):
 
         self.assertEqual('Another_Test_Helper_Intent', invoke_intent('Another_Test_Helper_Intent').text)
 
+    def test_invoke_fallback_intent(self):
+        from skill_sdk.skill import app
+
         with self.assertRaises(KeyError):
             invoke_intent('Test_Blah_Intent')
+
+        @intent_handler(FALLBACK_INTENT)
+        def handle():
+            return 'Hello fallback'
+
+        response = invoke_intent('Test_Blah_Intent')
+        self.assertEqual(response.text, 'Hello fallback')
+        del app().get_intents()[FALLBACK_INTENT]
 
     def test_create_context(self):
         """ Test `create_context` helper and `test_context` manager """

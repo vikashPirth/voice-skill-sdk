@@ -12,7 +12,7 @@
 #
 
 import functools
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 import logging.config
 
 import bottle
@@ -134,7 +134,15 @@ class Skill(bottle.Bottle):
     _intents: Dict[str, Callable] = {}
 
     def get_intent(self, name: str):
-        return self._intents.get(name, self._intents.get(FALLBACK_INTENT))
+        try:
+            # routes.invoke expects handler to be Optional (L154: `if intent ...`)
+            handler: Optional[Callable] = self._intents[name]
+        except KeyError:
+            logger.debug('Intent %s handler not found.', name)
+            handler = self._intents.get(FALLBACK_INTENT)
+            logger.debug('Fallback intent handler: %s.', getattr(handler, "__name__", repr(handler)))
+
+        return handler
 
     def get_intents(self):
         return self._intents
