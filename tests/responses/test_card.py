@@ -91,12 +91,8 @@ def test_list_sections():
 
 
 def test_with_action():
-    sc = Card(
-        list_sections=[
-            ListSection().with_list_item(
-                "Call this number", CardAction.INTERNAL_CALL.format(number="1234567890")
-            )
-        ]
+    sc = Card().with_action(
+        "Call this number", CardAction.INTERNAL_CALL.format(number="1234567890")
     )
     assert sc.dict()["data"] == {
         "listSections": [

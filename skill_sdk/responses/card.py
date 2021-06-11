@@ -234,3 +234,34 @@ class Card(CamelModel):
 
     def __getattr__(self, attr):
         return getattr(self.data, attr)
+
+    def with_action(
+        self,
+        item_text: Text,
+        item_action: Union[CardAction, Text],
+        item_icon_url: Text = None,
+    ) -> "Card":
+        """
+        Add action to card. This function left for backward compatibility:
+        in v3.0 the action item has been removed from cApp card,
+        card actions must be defined as action list items within listSections
+
+        This method creates and returns new card,
+        replacing listSections field with a single section containing one list action item
+
+        **WARNING**: this will replace existing list section items!
+
+        @param item_text:
+        @param item_action:
+        @param item_icon_url:
+
+        @return:
+        """
+        data = self.data.copy(
+            update=dict(
+                list_sections=[
+                    ListSection().with_list_item(item_text, item_action, item_icon_url)
+                ],
+            )
+        )
+        return self.copy(update=dict(data=data))

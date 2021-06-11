@@ -21,6 +21,7 @@ from skill_sdk.responses import (
     Response,
     ResponseType,
 )
+from skill_sdk.responses.card import GENERIC_DEFAULT, CARD_VERSION
 from skill_sdk.util import create_context
 from skill_sdk.responses.task import ClientTask
 
@@ -29,7 +30,7 @@ class TestResponse(unittest.TestCase):
     def setUp(self):
         self.simple_response = Response("abc123", ResponseType.TELL)
         self.ask_response = Response("abc123", ResponseType.ASK)
-        c = Card("SIMPLE", title_text="cardtitle", text="cardtext")
+        c = Card(title_text="cardtitle", text="cardtext")
         self.card_response = Response(
             "abc123", ResponseType.TELL, card=c, result={"code": 22}
         )
@@ -69,27 +70,30 @@ class TestResponse(unittest.TestCase):
         self.assertEqual(response["result"]["data"]["code"], 22)
 
     def test_response_with_card(self):
-        response = (
-            tell("Hola")
-            .with_card(
-                title_text="Title",
-                text="Text",
-                action=CardAction.INTERNAL_RESPONSE_TEXT,
-            )
-            .dict()
-        )
+        card = Card(
+            text="Text",
+        ).with_action(item_text="Title", item_action=CardAction.INTERNAL_RESPONSE_TEXT)
+        response = tell("Hola").with_card(card).dict()
 
         self.assertEqual(
             {
                 "type": "TELL",
                 "text": "Hola",
                 "card": {
-                    "type": "GENERIC_DEFAULT",
-                    "version": 1,
+                    "type": GENERIC_DEFAULT,
+                    "version": CARD_VERSION,
                     "data": {
-                        "titleText": "Title",
                         "text": "Text",
-                        "action": "internal://showResponseText",
+                        "listSections": [
+                            {
+                                "items": [
+                                    {
+                                        "itemText": "Title",
+                                        "itemAction": "internal://showResponseText",
+                                    }
+                                ]
+                            }
+                        ],
                     },
                 },
             },
