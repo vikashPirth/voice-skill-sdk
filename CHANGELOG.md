@@ -2,6 +2,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased  
+
+**Features**
+
+-   Support new companion app action cards format: Action Cards v3.0.
+
+
 ## [v0.14.4] - 2021-06-10  
 
 **Bugfixes**
