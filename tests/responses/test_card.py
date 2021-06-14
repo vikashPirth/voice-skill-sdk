@@ -132,11 +132,7 @@ def test_with_action():
         ]
     }
 
-    sc = Card(
-        list_sections=[
-            ListSection().with_list_item("Click this URL", "http://example.com")
-        ]
-    )
+    sc = Card().with_action("Click this URL", "http://example.com")
     assert sc.dict()["data"] == {
         "listSections": [
             {
