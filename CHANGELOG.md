@@ -2,10 +2,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.0.6 - 2021-06-14
 
 
 ### Bugfixes
+
+-   Bump FastAPI from 0.65.1 to 0.65.2. Fixes CSRF vulnerability: [CVE-2021-32677](https://github.com/advisories/GHSA-8h2j-cgx8-6xv7).
+    
 
 -   Fix `skill.test_intent` helper FALLBACK_INTENT handling. 
 
