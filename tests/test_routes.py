@@ -61,7 +61,7 @@ class TestRoutes(unittest.TestCase):
     def test_invoke_intent_not_found(self):
         response = self.client.post(
             ENDPOINT,
-            data=create_request("Test_Intent").json(),
+            json=create_request("Test_Intent").dict(),
             headers=self.auth,
         )
         assert response.status_code == 404
@@ -71,7 +71,7 @@ class TestRoutes(unittest.TestCase):
         self.app.include(FALLBACK_INTENT, handler=lambda: "Hello fallback")
         response = self.client.post(
             ENDPOINT,
-            data=create_request("Test_Intent").json(),
+            json=create_request("Test_Intent").dict(),
             headers=self.auth,
         )
         assert response.status_code == 200
@@ -88,7 +88,7 @@ class TestRoutes(unittest.TestCase):
 
         response = self.client.post(
             ENDPOINT,
-            data=create_request("Test_Intent", session={}).json(),
+            json=create_request("Test_Intent", session={}).dict(),
             headers=self.auth,
         )
         assert response.status_code == 200
@@ -107,7 +107,7 @@ class TestRoutes(unittest.TestCase):
 
         response = self.client.post(
             ENDPOINT,
-            data=create_request("Test_Intent", session={}).json(),
+            json=create_request("Test_Intent", session={}).dict(),
             headers=self.auth,
         )
         assert response.status_code == 200
