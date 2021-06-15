@@ -81,6 +81,9 @@ class TranslationError(Exception):
     """
 
 
+MESSAGE_KEY_DEFAULT_SEPARATOR = " "
+
+
 class Message(str):
     """String object that encapsulates formatting parameters"""
 
@@ -123,6 +126,19 @@ class Message(str):
         message = Message(self.value, self.key, *args, **kwargs)
         return message
 
+    @staticmethod
+    def _adding_keys(key_first: str, key_second: str) -> str:
+        """
+        Concatenating messages keys while maintaining their readability
+        """
+        if len(key_first) == 0:
+            return key_second
+
+        if len(key_second) == 0:
+            return key_first
+
+        return key_first + MESSAGE_KEY_DEFAULT_SEPARATOR + key_second
+
     def __add__(self, other: Union["Message", Text]) -> "Message":
         """
         Concatenate messages (or Message and str)
@@ -132,13 +148,16 @@ class Message(str):
         """
         if isinstance(other, Message):
             value = self.value + other.value
+            key = self._adding_keys(self.key, other.key)
             args = self.args + other.args
             kwargs = {**self.kwargs, **other.kwargs}
         else:
             value = self.value + other
+            other_key = '"' + other + '"' if len(other) > 0 else ""
+            key = self._adding_keys(self.key, other_key)
             args, kwargs = self.args, self.kwargs
 
-        return Message(value, self.key, *args, **kwargs)
+        return Message(value, key, *args, **kwargs)
 
     def join(self, iterable: Iterable[Union["Message", Text]]):
         """
