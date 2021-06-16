@@ -173,10 +173,9 @@ class CardData(CamelModel):
         title: Text,
         items: List[ListItem] = None,
     ):
+        list_sections = self.list_sections or []
         return self.copy(
-            update=dict(
-                list_sections=self.list_sections or [] + [ListSection(title, items=items)]
-            )
+            update=dict(list_sections=list_sections + [ListSection(title, items=items)])
         )
 
     #
@@ -252,9 +251,7 @@ class Card(CamelModel):
         items: List[ListItem] = None,
     ):
         return self.copy(
-            update=dict(
-                data=self.data.with_list_section(title, items=items)
-            )
+            update=dict(data=self.data.with_list_section(title, items=items))
         )
 
     def with_action(

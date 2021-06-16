@@ -145,9 +145,7 @@ def test_with_action():
 
 
 def test_with_list_section():
-    sc = Card().with_list_section(
-        "Section Title", items=[ListItem("Item Title")]
-    )
+    sc = Card().with_list_section("Section Title", items=[ListItem("Item Title")])
     assert sc.dict()["data"]["listSections"] == [
         {
             "title": "Section Title",
@@ -155,6 +153,6 @@ def test_with_list_section():
                 {
                     "itemText": "Item Title",
                 }
-            ]
+            ],
         }
     ]
