@@ -168,6 +168,17 @@ class CardData(CamelModel):
     #
     list_sections: Optional[List[ListSection]] = None
 
+    def with_list_section(
+        self,
+        title: Text,
+        items: List[ListItem] = None,
+    ):
+        return self.copy(
+            update=dict(
+                list_sections=self.list_sections or [] + [ListSection(title, items=items)]
+            )
+        )
+
     #
     # **DEPRECATED**: Properties from Card v2.0
     #
@@ -234,6 +245,17 @@ class Card(CamelModel):
 
     def __getattr__(self, attr):
         return getattr(self.data, attr)
+
+    def with_list_section(
+        self,
+        title: Text,
+        items: List[ListItem] = None,
+    ):
+        return self.copy(
+            update=dict(
+                data=self.data.with_list_section(title, items=items)
+            )
+        )
 
     def with_action(
         self,
