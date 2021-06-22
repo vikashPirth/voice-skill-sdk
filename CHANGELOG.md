@@ -2,12 +2,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 1.0.6 - 2021-06-14
+## 1.1.0 - 2021-06-22
 
 ### Features
 
--   Support new companion app action cards format: Action Cards v3.0.
+-   Add support for the new companion app cards format: Action Cards v3.0.
 
+
+-   When joining internationalization message strings (`i18n.Message`), 
+    translation keys are joined along with their values for better readability.
+
+
+## 1.0.6 - 2021-06-14
 
 ### Bugfixes
 
