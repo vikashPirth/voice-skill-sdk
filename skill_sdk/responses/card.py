@@ -11,38 +11,15 @@
 """Companion app (cApp) cards"""
 
 from enum import Enum
+from warnings import warn
 from typing import List, Optional, Text, Union
 from skill_sdk.util import CamelModel
 
 # Supported card version
-CARD_VERSION = 1
+CARD_VERSION = 3
 
 # The only card type available: "GENERIC_DEFAULT"
 GENERIC_DEFAULT = "GENERIC_DEFAULT"
-
-
-class ListItem(CamelModel):
-    """
-    List item in Card's list sections
-    """
-
-    title: Text
-    icon_url: Optional[Text] = None
-
-    def __init__(self, title: Text, icon_url: Text = None):
-        super().__init__(title=title, icon_url=icon_url)
-
-
-class ListSection(CamelModel):
-    """
-    List section in a Card
-    """
-
-    title: Text
-    items: List[ListItem]
-
-    def __init__(self, title: Text, items: List[ListItem]):
-        super().__init__(title=title, items=items)
 
 
 class CardAction(Text, Enum):
@@ -82,8 +59,82 @@ class CardAction(Text, Enum):
     )
 
 
+class ListItem(CamelModel):
+    """
+    List item in Card's list sections
+    """
+
+    # List item text
+    item_text: Text
+
+    # List item action
+    item_action: Optional[Union[CardAction, Text]] = None
+
+    # List item bullet point replacement
+    item_icon_url: Optional[Text] = None
+
+    def __init__(
+        self, item_text: Text, item_action: Text = None, item_icon_url: Text = None
+    ):
+        super().__init__(
+            item_text=item_text, item_action=item_action, item_icon_url=item_icon_url
+        )
+
+    @property
+    def title(self):
+        """**DEPRECATED**: Item title"""
+        warn(
+            f"ListItem.title is deprecated. Use ListItem.item_text instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return None
+
+    @property
+    def icon_url(self):
+        """**DEPRECATED**: Item icon URL"""
+        warn(
+            f"ListItem.icon_url is deprecated. Use ListItem.item_icon_url instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return None
+
+
+class ListSection(CamelModel):
+    """
+    List section in a Card
+    """
+
+    title: Optional[Text] = None
+    items: List[ListItem] = []
+
+    def __init__(self, title: Text = None, *, items: List[ListItem] = None):
+        super().__init__(title=title, items=items or [])
+
+    def with_list_item(
+        self,
+        item_text: Union[ListItem, Text],
+        item_action: Text = None,
+        item_icon_url: Text = None,
+    ):
+        list_item: ListItem = (
+            item_text
+            if isinstance(item_text, ListItem)
+            else ListItem(
+                item_text=item_text,
+                item_action=item_action,
+                item_icon_url=item_icon_url,
+            )
+        )
+        return self.copy(update=dict(items=self.items + [list_item]))
+
+
 class CardData(CamelModel):
     """Companion app card data"""
+
+    # Card's icon URL
+    icon_url: Optional[Text] = None
 
     # Card title
     title_text: Optional[Text] = None
@@ -91,26 +142,24 @@ class CardData(CamelModel):
     # Card subtitle
     type_description: Optional[Text] = None
 
-    # Prominent text: increased font size, displayed below the subtitle
+    # Card's image URL
+    image_url: Optional[Text] = None
+
+    # Prominent text: increased font size, displayed below the image (1 line maximum)
     prominent_text: Optional[Text] = None
+
+    # Prominent text action: uri/url action, triggered when tapping prominent text
+    action_prominent_text: Optional[Text] = None
 
     # Actual card text
     text: Optional[Text] = None
 
     # Sub-text: decreased font size, displayed below the card text
+    # the first 4 lines displayed, the rest is hidden under "Show More"
     sub_text: Optional[Text] = None
 
-    #
-    # You can attach an action to a Card:
-    #   an action is a URL linked to action text or action prominent text
-    #   can be one of the internal deep links (CardAction) or an external url to a website
-    #
-    action: Optional[Union[CardAction, Text]] = None
-    action_text: Optional[Text] = None
-    action_prominent_text: Optional[Text] = None
-
-    # URL of the card's icon
-    icon_url: Optional[Text] = None
+    # Optional audio media URL, displayed as media player progress bar
+    media_url: Optional[Text] = None
 
     #
     # Card can have a bullet-like list:
@@ -119,9 +168,43 @@ class CardData(CamelModel):
     #
     list_sections: Optional[List[ListSection]] = None
 
+    def with_list_section(
+        self,
+        title: Text,
+        items: List[ListItem] = None,
+    ):
+        list_sections = self.list_sections or []
+        return self.copy(
+            update=dict(list_sections=list_sections + [ListSection(title, items=items)])
+        )
+
+    #
+    # **DEPRECATED**: Properties from Card v2.0
+    #
+
+    @property
+    def action(self):
+        """**DEPRECATED**: Action URL linked to the action text"""
+        warn(
+            f"Card.action is deprecated: use ListItem.item_action",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return None
+
+    @property
+    def action_text(self):
+        """**DEPRECATED**: Action text"""
+        warn(
+            f"Card.action_text is deprecated: use ListItem.item_action",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return None
+
 
 class Card(CamelModel):
-    """Card to be sent to the companion app"""
+    """Card for the companion app"""
 
     type: Text = GENERIC_DEFAULT
     version: int = CARD_VERSION
@@ -130,77 +213,74 @@ class Card(CamelModel):
 
     def __init__(
         self,
-        type_=None,
-        type: Text = None,
-        version: Text = None,
         data: CardData = None,
+        *,
+        icon_url: Text = None,
         title_text: Text = None,
         type_description: Text = None,
+        image_url: Text = None,
         prominent_text: Text = None,
+        action_prominent_text: Text = None,
         text: Text = None,
         sub_text: Text = None,
-        action: Text = None,
-        action_text: Text = None,
-        action_prominent_text: Text = None,
-        icon_url: Text = None,
+        media_url: Text = None,
         list_sections: List[ListSection] = None,
     ) -> None:
-        """
-        Accept and ignore `type_` as positional argument for backward compatibility
-
-        :param type_:
-        :param type:
-        :param version:
-        :param data:
-        :param title_text:
-        :param type_description:
-        :param prominent_text:
-        :param text:
-        :param sub_text:
-        :param action:
-        :param action_text:
-        :param action_prominent_text:
-        :param icon_url:
-        :param list_sections:
-        """
-        data = data or CardData(
-            title_text=title_text,
-            type_description=type_description,
-            prominent_text=prominent_text,
-            text=text,
-            sub_text=sub_text,
-            action=action,
-            action_text=action_text,
-            action_prominent_text=action_prominent_text,
-            icon_url=icon_url,
-            list_sections=list_sections,
+        super().__init__(
+            data=data
+            or CardData(
+                icon_url=icon_url,
+                title_text=title_text,
+                type_description=type_description,
+                image_url=image_url,
+                prominent_text=prominent_text,
+                action_prominent_text=action_prominent_text,
+                text=text,
+                sub_text=sub_text,
+                media_url=media_url,
+                list_sections=list_sections,
+            )
         )
-        super().__init__(data=data)
 
     def __getattr__(self, attr):
         return getattr(self.data, attr)
 
+    def with_list_section(
+        self,
+        title: Text,
+        items: List[ListItem] = None,
+    ):
+        return self.copy(
+            update=dict(data=self.data.with_list_section(title, items=items))
+        )
+
     def with_action(
         self,
-        action_text: Text,
-        action: Union[CardAction, Text],
-        action_prominent_text: Text = None,
-        **kwargs
+        item_text: Text,
+        item_action: Union[CardAction, Text],
+        item_icon_url: Text = None,
     ) -> "Card":
         """
-        Add action to card
+        Add action to card. This function left for backward compatibility:
+        in v3.0 the action item has been removed from cApp card,
+        card actions must be defined as action list items within listSections
 
-        :param action_text:
-        :param action:
-        :param action_prominent_text:
-        :param kwargs:
-        :return:
+        This method creates and returns new card,
+        replacing listSections field with a single section containing one list action item
+
+        **WARNING**: this will replace existing list section items!
+
+        @param item_text:
+        @param item_action:
+        @param item_icon_url:
+
+        @return:
         """
         data = self.data.copy(
             update=dict(
-                action_text=action_text,
-                action_prominent_text=action_prominent_text,
-                action=action.format(**kwargs),
+                list_sections=[
+                    ListSection().with_list_item(item_text, item_action, item_icon_url)
+                ],
             )
         )
         return self.copy(update=dict(data=data))

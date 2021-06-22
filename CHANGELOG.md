@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## 1.0.6 - 2021-06-14
 
+### Features
+
+-   Support new companion app action cards format: Action Cards v3.0.
+
 
 ### Bugfixes
 

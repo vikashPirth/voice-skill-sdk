@@ -104,46 +104,51 @@ class SkillInvokeResponse(CamelModel):
     def with_card(
         self,
         card: Card = None,
+        *,
+        icon_url: Text = None,
         title_text: Text = None,
         type_description: Text = None,
+        image_url: Text = None,
         prominent_text: Text = None,
+        action_prominent_text: Text = None,
         text: Text = None,
         sub_text: Text = None,
-        action: Text = None,
-        action_text: Text = None,
-        action_prominent_text: Text = None,
-        icon_url: Text = None,
+        media_url: Text = None,
         list_sections: List[ListSection] = None,
     ) -> "SkillInvokeResponse":
         """
         Attach Card to a response
 
         :param card:
+        :param icon_url:
         :param title_text:
         :param type_description:
+        :param image_url:
         :param prominent_text:
+        :param action_prominent_text:
         :param text:
         :param sub_text:
-        :param action:
-        :param action_text:
-        :param action_prominent_text:
-        :param icon_url:
+        :param media_url:
         :param list_sections:
         :return:
         """
-        card = card or Card(
-            title_text=title_text,
-            type_description=type_description,
-            prominent_text=prominent_text,
-            text=text,
-            sub_text=sub_text,
-            action=action,
-            action_text=action_text,
-            action_prominent_text=action_prominent_text,
-            icon_url=icon_url,
-            list_sections=list_sections,
+        return self.copy(
+            update=dict(
+                card=card
+                or Card(
+                    icon_url=icon_url,
+                    title_text=title_text,
+                    type_description=type_description,
+                    image_url=image_url,
+                    prominent_text=prominent_text,
+                    action_prominent_text=action_prominent_text,
+                    text=text,
+                    sub_text=sub_text,
+                    media_url=media_url,
+                    list_sections=list_sections,
+                )
+            )
         )
-        return self.copy(update=dict(card=card))
 
     def with_command(self, command: Command) -> "SkillInvokeResponse":
         """
