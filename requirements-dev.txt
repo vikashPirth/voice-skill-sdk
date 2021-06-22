@@ -1,8 +1,8 @@
 # Optional dev/test requirements:
 arrow==1.1.0              # [Better dates & times for Python](https://arrow.readthedocs.org)
 coverage==5.5             # [Code coverage measurement for Python](https://github.com/nedbat/coveragepy)
-requests-mock==1.9.2      # [Mocked responses for the requests library](https://requests-mock.readthedocs.io)
-jaeger-client==4.4.0      # [Native Jaeger client instrumentation library](https://github.com/jaegertracing/jaeger-client-python)
+requests-mock==1.9.3      # [Mocked responses for the requests library](https://requests-mock.readthedocs.io)
+jaeger-client==4.5.0      # [Native Jaeger client instrumentation library](https://github.com/jaegertracing/jaeger-client-python)
 types-python-dateutil
 types-pkg_resources
 types-requests

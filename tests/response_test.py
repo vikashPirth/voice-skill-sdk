@@ -21,6 +21,7 @@ from skill_sdk.test_helpers import create_context
 from skill_sdk.intents import Context
 from skill_sdk.responses import (
     Card,
+    CARD_VERSION,
     GENERIC_DEFAULT,
     ListItem,
     ListSection,
@@ -45,21 +46,21 @@ from skill_sdk.responses import (
 
 class TestCard(unittest.TestCase):
     def test_init(self):
-        sc = Card("DEMOTYPE", title_text="Title", text="Text")
+        sc = Card(title_text="Title", text="Text")
         self.assertEqual(sc.title_text, "Title")
         self.assertEqual(sc.text, "Text")
 
     def test_dict(self):
-        sc = Card("DEMOTYPE")
+        sc = Card()
         self.assertDictEqual(
-            sc.dict(), {"type": GENERIC_DEFAULT, "version": 1, "data": {}}
+            sc.dict(), {"type": GENERIC_DEFAULT, "version": CARD_VERSION, "data": {}}
         )
-        sc = Card("DEMOTYPE", title_text="Title", text="Text")
+        sc = Card(title_text="Title", text="Text")
         self.assertDictEqual(
             sc.dict(),
             {
                 "type": GENERIC_DEFAULT,
-                "version": 1,
+                "version": CARD_VERSION,
                 "data": {"titleText": "Title", "text": "Text"},
             },
         )
@@ -80,15 +81,15 @@ class TestCard(unittest.TestCase):
         ).dict()
         self.assertEqual(
             {
-                "type": "GENERIC_DEFAULT",
-                "version": 1,
+                "type": GENERIC_DEFAULT,
+                "version": CARD_VERSION,
                 "data": {
                     "listSections": tuple(
                         [
                             {
                                 "title": "Section Title",
                                 "items": tuple(
-                                    [{"title": "Item 1"}, {"title": "Item 2"}]
+                                    [{"itemText": "Item 1"}, {"itemText": "Item 2"}]
                                 ),
                             }
                         ]
@@ -100,50 +101,60 @@ class TestCard(unittest.TestCase):
 
     def test_with_action(self):
         sc = Card().with_action(
-            "Call this number", CardAction.INTERNAL_CALL, number="1234567890"
+            "Call this number", CardAction.INTERNAL_CALL.format(number="1234567890")
         )
         self.assertEqual(
             {
-                "type": "GENERIC_DEFAULT",
-                "version": 1,
-                "data": {
-                    "action": "internal://deeplink/call/1234567890",
-                    "actionText": "Call this number",
-                },
+                "listSections": tuple([
+                    {
+                        "items": tuple([
+                            {
+                                "itemText": "Call this number",
+                                "itemAction": "internal://deeplink/call/1234567890",
+                            }
+                        ])
+                    }
+                ])
             },
-            sc.dict(),
+            sc.dict()["data"],
         )
 
         sc = sc.with_action(
             "Open App",
-            CardAction.INTERNAL_OPEN_APP,
-            aos_package_name="package",
-            ios_url_scheme="urlScheme",
-            ios_app_store_id="appStoreId",
+            CardAction.INTERNAL_OPEN_APP.format(
+                aos_package_name="package",
+                ios_url_scheme="urlScheme",
+                ios_app_store_id="appStoreId",
+            )
         )
         self.assertEqual(
             {
-                "type": "GENERIC_DEFAULT",
-                "version": 1,
-                "data": {
-                    "action": "internal://deeplink/openapp?aos=package&iosScheme=urlScheme&iosAppStoreId=appStoreId",
-                    "actionText": "Open App",
-                },
+                "listSections": tuple([
+                    {
+                        "items": tuple([
+                            {
+                                "itemText": "Open App",
+                                "itemAction": "internal://deeplink/openapp?aos=package&iosScheme=urlScheme&iosAppStoreId=appStoreId",
+                            }
+                        ])
+                    }
+                ])
             },
-            sc.dict(),
+            sc.dict()["data"],
         )
 
         sc = Card().with_action("Click this URL", "http://example.com")
         self.assertEqual(
             {
-                "type": "GENERIC_DEFAULT",
-                "version": 1,
-                "data": {
-                    "action": "http://example.com",
-                    "actionText": "Click this URL",
-                },
+                "listSections": tuple([
+                    {
+                        "items": tuple([
+                            {"itemText": "Click this URL", "itemAction": "http://example.com"}
+                        ])
+                    }
+                ])
             },
-            sc.dict(),
+            sc.dict()["data"],
         )
 
 
@@ -345,27 +356,30 @@ class TestResponse(unittest.TestCase):
         )
 
     def test_response_with_card(self):
-        response = (
-            tell("Hola")
-            .with_card(
-                title_text="Title",
-                text="Text",
-                action=CardAction.INTERNAL_RESPONSE_TEXT,
-            )
-            .dict(self.ctx)
-        )
+        card = Card(
+            text="Text",
+        ).with_action(item_text="Title", item_action=CardAction.INTERNAL_RESPONSE_TEXT)
+        response = tell("Hola").with_card(card).dict(self.ctx)
 
         self.assertEqual(
             {
                 "type": "TELL",
                 "text": "Hola",
                 "card": {
-                    "type": "GENERIC_DEFAULT",
-                    "version": 1,
+                    "type": GENERIC_DEFAULT,
+                    "version": CARD_VERSION,
                     "data": {
-                        "titleText": "Title",
                         "text": "Text",
-                        "action": "internal://showResponseText",
+                        "listSections": tuple([
+                            {
+                                "items": tuple([
+                                    {
+                                        "itemText": "Title",
+                                        "itemAction": "internal://showResponseText",
+                                    }
+                                ])
+                            }
+                        ]),
                     },
                 },
                 "session": {"attributes": {"key-1": "value-1", "key-2": "value-2"}},

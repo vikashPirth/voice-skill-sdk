@@ -34,31 +34,13 @@ RESPONSE_TYPE_TELL = "TELL"
 RESPONSE_TYPE_ASK_FREETEXT = "ASK_FREETEXT"
 
 # Supported card version
-CARD_VERSION = 1
+CARD_VERSION = 3
 
 # The only card type available: "GENERIC_DEFAULT"
 GENERIC_DEFAULT = "GENERIC_DEFAULT"
 
 
-class ListItem(NamedTuple):
-    """
-    List item in Card"s list sections
-    """
-
-    title: str
-    icon_url: Optional[str] = None
-
-
-class ListSection(NamedTuple):
-    """
-    List section in a Card
-    """
-
-    title: str
-    items: List[ListItem]
-
-
-class CardAction(str, Enum):
+class CardAction(Text, Enum):
     """
     Card action link can be either one of internal "deep links" (enumerated below)
         or any external "http/https" URL
@@ -95,7 +77,31 @@ class CardAction(str, Enum):
     )
 
 
-class KitType(str, Enum):
+class ListItem(NamedTuple):
+    """
+    List item in Card"s list sections
+    """
+
+    # List item text
+    item_text: Text
+
+    # List item action
+    item_action: Optional[Union[CardAction, Text]] = None
+
+    # List item bullet point replacement
+    item_icon_url: Optional[Text] = None
+
+
+class ListSection(NamedTuple):
+    """
+    List section in a Card
+    """
+
+    title: Optional[Text] = None
+    items: List[ListItem] = []
+
+
+class KitType(Text, Enum):
     """
     Client kits available for cloud skills
 
@@ -114,11 +120,11 @@ class Kit(NamedTuple):
     """
 
     kit_name: KitType
-    action: str
+    action: Text
     parameters: Optional[Dict]
 
 
-class ReferenceType(str, Enum):
+class ReferenceType(Text, Enum):
     SPEECH_END = "SPEECH_END"
     THIS_RESPONSE = "THIS_RESPONSE"
 
@@ -128,7 +134,7 @@ class ExecuteAfter(NamedTuple):
     reference: ReferenceType = ReferenceType.SPEECH_END
 
     # Positive offset relative to reference given as duration
-    offset: Optional[str] = None
+    offset: Optional[Text] = None
 
 
 class ExecutionTime(NamedTuple):
@@ -140,7 +146,7 @@ class ExecutionTime(NamedTuple):
     execute_after: Optional[ExecuteAfter] = None
 
     # Absolute execution time
-    execute_at: Optional[str] = None
+    execute_at: Optional[Text] = None
 
     @staticmethod
     def at(time: datetime.datetime) -> "ExecutionTime":
@@ -160,13 +166,13 @@ class InvokeData(NamedTuple):
     """Intent invoke data: name, skill and parameters"""
 
     # Intent name
-    intent: str
+    intent: Text
 
     # Skill Id
-    skill_id: Optional[str] = None
+    skill_id: Optional[Text] = None
 
     # Parameters (will be converted to intent invoke attributes)
-    parameters: Dict[str, Any] = {}
+    parameters: Dict[Text, Any] = {}
 
 
 class DelayedClientTask(NamedTuple):
@@ -183,7 +189,7 @@ class DelayedClientTask(NamedTuple):
     execution_time: ExecutionTime
 
     @staticmethod
-    def invoke(intent: str, skill_id: str = None, **kwargs) -> "DelayedClientTask":
+    def invoke(intent: Text, skill_id: Text = None, **kwargs) -> "DelayedClientTask":
         """
         Create a task to invoke intent
 
@@ -261,14 +267,14 @@ class AudioPlayer(Command):
 
     """
 
-    class Action(str, Enum):
+    class Action(Text, Enum):
         PLAY_STREAM = "play_stream"
         PLAY_STREAM_BEFORE_TEXT = "play_stream_before_text"
         STOP = "stop"
         PAUSE = "pause"
         RESUME = "resume"
 
-    class ContentType(str, Enum):
+    class ContentType(Text, Enum):
         RADIO = "radio"
         VOICEMAIL = "voicemail"
 
@@ -276,7 +282,7 @@ class AudioPlayer(Command):
         super().__init__(KitType.AUDIO_PLAYER, action, **kwargs)
 
     @staticmethod
-    def play_stream(url: str) -> "AudioPlayer":
+    def play_stream(url: Text) -> "AudioPlayer":
         """
         Start playing a generic internet stream, specified by "url" parameter
 
@@ -286,7 +292,7 @@ class AudioPlayer(Command):
         return AudioPlayer(AudioPlayer.Action.PLAY_STREAM, url=url)
 
     @staticmethod
-    def play_stream_before_text(url: str) -> "AudioPlayer":
+    def play_stream_before_text(url: Text) -> "AudioPlayer":
         """
         Start playing a stream, before pronouncing the response
 
@@ -296,7 +302,7 @@ class AudioPlayer(Command):
         return AudioPlayer(AudioPlayer.Action.PLAY_STREAM_BEFORE_TEXT, url=url)
 
     @staticmethod
-    def stop(content_type: ContentType = None, text: str = None) -> "AudioPlayer":
+    def stop(content_type: ContentType = None, text: Text = None) -> "AudioPlayer":
         """
         Stop currently playing media (voicemail, radio, content tts),
             optionally say text BEFORE stopping
@@ -315,7 +321,7 @@ class AudioPlayer(Command):
         )
 
     @staticmethod
-    def pause(content_type: ContentType = None, text: str = None) -> "AudioPlayer":
+    def pause(content_type: ContentType = None, text: Text = None) -> "AudioPlayer":
         """
         Pause playback, optionally say text AFTER playback paused
 
@@ -351,7 +357,7 @@ class Calendar(Command):
 
     """
 
-    class Action(str, Enum):
+    class Action(Text, Enum):
         SNOOZE_START = "snooze_start"
         SNOOZE_CANCEL = "snooze_cancel"
 
@@ -384,7 +390,7 @@ class System(Command):
 
     """
 
-    class Action(str, Enum):
+    class Action(Text, Enum):
         STOP = "stop"
         PAUSE = "pause"
         RESUME = "resume"
@@ -395,7 +401,7 @@ class System(Command):
         VOLUME_DOWN = "volume_down"
         VOLUME_TO = "volume_to"
 
-    class SkillType(str, Enum):
+    class SkillType(Text, Enum):
         TIMER = "Timer"
         CONVERSATION = "Conversation"
         MEDIA = "Media"
@@ -498,7 +504,7 @@ class Timer(Command):
 
     """
 
-    class Action(str, Enum):
+    class Action(Text, Enum):
         SET_TIMER = "set_timer"
         CANCEL_TIMER = "cancel_timer"
 
@@ -530,41 +536,67 @@ class Card(NamedTuple):
 
     """
 
-    # Type of action cards, only supported right now is GENERIC_DEFAULT
-    #   NOTE: this parameter is left for backward compatibility and IS IGNORED
-    type_: Optional[str] = GENERIC_DEFAULT
+    # Card's icon URL
+    icon_url: Optional[Text] = None
 
-    title_text: Optional[str] = None
-    type_description: Optional[str] = None
-    prominent_text: Optional[str] = None
-    text: Optional[str] = None
-    sub_text: Optional[str] = None
-    action: Optional[str] = None
-    action_text: Optional[str] = None
-    action_prominent_text: Optional[str] = None
-    icon_url: Optional[str] = None
+    # Card title
+    title_text: Optional[Text] = None
+
+    # Card subtitle
+    type_description: Optional[Text] = None
+
+    # Card's image URL
+    image_url: Optional[Text] = None
+
+    # Prominent text: increased font size, displayed below the image (1 line maximum)
+    prominent_text: Optional[Text] = None
+
+    # Prominent text action: uri/url action, triggered when tapping prominent text
+    action_prominent_text: Optional[Text] = None
+
+    # Actual card text
+    text: Optional[Text] = None
+
+    # Sub-text: decreased font size, displayed below the card text
+    # the first 4 lines displayed, the rest is hidden under "Show More"
+    sub_text: Optional[Text] = None
+
+    # Optional audio media URL, displayed as media player progress bar
+    media_url: Optional[Text] = None
+
+    # Card list section contains items and an optional title
     list_sections: Optional[List[ListSection]] = None
 
     def with_action(
         self,
-        action_text: str,
-        action: Union[CardAction, str],
-        action_prominent_text: str = None,
-        **kwargs,
+        item_text: Text,
+        item_action: Union[CardAction, Text],
+        item_icon_url: Text = None,
     ) -> "Card":
         """
-        Add action to card
+        Add action to card. This function left for backward compatibility:
+        in v3.0 the action item has been removed from cApp card,
+        card actions must be defined as action list items within listSections
 
-        @param action_text:
-        @param action:
-        @param action_prominent_text:
-        @param kwargs:
+        This method creates and returns new card,
+        replacing listSections field with a single section containing one list action item
+
+        **WARNING**: this will replace existing list section items!
+
+        @param item_text:
+        @param item_action:
+        @param item_icon_url:
+
         @return:
         """
         return self._replace(
-            action_text=action_text,
-            action_prominent_text=action_prominent_text,
-            action=action.format(**kwargs),
+            list_sections=[
+                ListSection(items=[ListItem(
+                    item_text=item_text,
+                    item_action=item_action,
+                    item_icon_url=item_icon_url,
+                )])
+            ],
         )
 
     def dict(self):
@@ -578,7 +610,7 @@ class Card(NamedTuple):
             "type": GENERIC_DEFAULT,
             "version": CARD_VERSION,
             # Optional properties
-            "data": _serialize(self._replace(type_=None), use_camel_case=True),
+            "data": _serialize(self, use_camel_case=True),
         }
 
         return card
@@ -634,13 +666,13 @@ class Result:
 
         return result
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> Text:
         """
         String representation
 
         :return:
         """
-        return str(self.dict())
+        return Text(self.dict())
 
 
 class Response:
@@ -716,45 +748,45 @@ class Response:
     def with_card(
         self,
         card: Card = None,
-        title_text: str = None,
-        type_description: str = None,
-        prominent_text: str = None,
-        text: str = None,
-        sub_text: str = None,
-        action: str = None,
-        action_text: str = None,
-        action_prominent_text: str = None,
-        icon_url: str = None,
+        icon_url: Text = None,
+        title_text: Text = None,
+        type_description: Text = None,
+        image_url: Text = None,
+        prominent_text: Text = None,
+        action_prominent_text: Text = None,
+        text: Text = None,
+        sub_text: Text = None,
+        media_url: Text = None,
         list_sections: List[ListSection] = None,
     ) -> "Response":
         """
         Attach Card to a response
 
-        @param card:
-        @param title_text:
-        @param type_description:
-        @param prominent_text:
-        @param text:
-        @param sub_text:
-        @param action:
-        @param action_text:
-        @param action_prominent_text:
-        @param icon_url:
-        @param list_sections:
+        :param card:
+        :param icon_url:
+        :param title_text:
+        :param type_description:
+        :param image_url:
+        :param prominent_text:
+        :param action_prominent_text:
+        :param text:
+        :param sub_text:
+        :param media_url:
+        :param list_sections:
         @return:
         """
         self.card = card or Card(
-            title_text=title_text,
-            type_description=type_description,
-            prominent_text=prominent_text,
-            text=text,
-            sub_text=sub_text,
-            action=action,
-            action_text=action_text,
-            action_prominent_text=action_prominent_text,
-            icon_url=icon_url,
-            list_sections=list_sections,
-        )
+                icon_url=icon_url,
+                title_text=title_text,
+                type_description=type_description,
+                image_url=image_url,
+                prominent_text=prominent_text,
+                action_prominent_text=action_prominent_text,
+                text=text,
+                sub_text=sub_text,
+                media_url=media_url,
+                list_sections=list_sections,
+            )
         return self
 
     def with_command(self, command: Command):
@@ -787,13 +819,13 @@ class Response:
             self.dict(context), 200, {"Content-type": "application/json"}
         )
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> Text:
         """
         String representation
 
         :return:
         """
-        return str(self.__dict__)
+        return Text(self.__dict__)
 
 
 def tell(*args, **kwargs):
@@ -840,10 +872,10 @@ class Reprompt(Response):
 
     def __init__(
         self,
-        text: str,
-        stop_text: str = None,
+        text: Text,
+        stop_text: Text = None,
         max_reprompts: int = 0,
-        entity: str = None,
+        entity: Text = None,
         **kwargs,
     ):
         """
@@ -953,7 +985,7 @@ def _serialize(d, use_camel_case: bool = False):
         # We don"t want enum._EnumDict here (neither we want l10n.Message):
         or (
             not isinstance(type(d), EnumMeta)
-            and not isinstance(d, str)
+            and not isinstance(d, Text)
             and getattr(d, "__dict__", None)
         )
         or isinstance(d, dict)
@@ -977,4 +1009,4 @@ def _serialize(d, use_camel_case: bool = False):
         json.dumps(d)
         return d
     except (TypeError, OverflowError):
-        return str(d)
+        return Text(d)
