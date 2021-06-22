@@ -81,6 +81,9 @@ class TranslationError(Exception):
     """
 
 
+MESSAGE_KEY_DEFAULT_SEPARATOR = " "
+
+
 class Message(str):
     """String object that encapsulates formatting parameters"""
 
@@ -132,13 +135,20 @@ class Message(str):
         """
         if isinstance(other, Message):
             value = self.value + other.value
+            key = MESSAGE_KEY_DEFAULT_SEPARATOR.join((self.key, other.key)).strip()
             args = self.args + other.args
             kwargs = {**self.kwargs, **other.kwargs}
         else:
             value = self.value + other
+            key = (
+                # Enclose string in quotes for readability
+                MESSAGE_KEY_DEFAULT_SEPARATOR.join((self.key, f'"{other}"')).strip()
+                if other
+                else self.key
+            )
             args, kwargs = self.args, self.kwargs
 
-        return Message(value, self.key, *args, **kwargs)
+        return Message(value, key, *args, **kwargs)
 
     def join(self, iterable: Iterable[Union["Message", Text]]):
         """
