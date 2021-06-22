@@ -10,5 +10,5 @@ python-dateutil==2.8.1    # [dateutil - powerful extensions to datetime](https:/
 pyyaml==5.4.1             # [PyYAML is a YAML parser and emitter for Python.](https://pyyaml.org/)
 requests==2.25.1          # [Python HTTP Requests for Humans](http://python-requests.org)
 timezonefinder==5.2.0     # [a lightweight python library for finding the timezone of any point on earth (coordinates), but fast!](https://github.com/MrMinimal64/timezonefinder)
-apispec==4.5.0            # [A pluggable API specification generator](https://apispec.readthedocs.io/en/stable/)
+apispec==4.6.0            # [A pluggable API specification generator](https://apispec.readthedocs.io/en/stable/)
 py-zipkin==0.20.2         # [Provides utilities to facilitate the usage of Zipkin in Python](https://github.com/Yelp/py_zipkin)
