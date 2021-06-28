@@ -8,7 +8,6 @@
 #
 #
 
-from collections import namedtuple
 import unittest
 
 from skill_sdk.responses import (
@@ -17,7 +16,6 @@ from skill_sdk.responses import (
     System,
     Timer,
 )
-from skill_sdk.responses.command import KitType
 
 
 class TestKits(unittest.TestCase):
