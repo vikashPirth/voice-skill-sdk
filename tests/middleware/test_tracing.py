@@ -64,13 +64,14 @@ def test_with_jaeger_client():
 
     client = TestClient(app)
     with patch.object(jaeger_client.reporter.Reporter, "report_span") as reporter_mock:
+        trace_id = "430ee1c3e2deccfa"
         client.post(
             "/v1/skill-noname",
             json=util.create_request("Trace_Intent").dict(),
             headers={
-                'X-B3-TraceId': '430ee1c3e2deccfa',
-                'X-B3-SpanId': 'd4aeec01e3c43faa',
-                'X-B3-Sampled': '1',
+                "X-B3-TraceId": trace_id,
+                "X-B3-SpanId": "d4aeec01e3c43faa",
+                "X-B3-Sampled": "1",
             },
         )
 
@@ -79,5 +80,10 @@ def test_with_jaeger_client():
         assert len(reporter_mock.call_args_list) == 2
         span = reporter_mock.call_args_list[1][0][0]
         sub_span = reporter_mock.call_args_list[0][0][0]
-        assert '{:x}'.format(span.trace_id) == '{:x}'.format(sub_span.trace_id) == "430ee1c3e2deccfa"
+        assert (
+            "{:x}".format(span.trace_id) == "{:x}".format(sub_span.trace_id) == trace_id
+        )
         assert span.span_id == sub_span.parent_id
+
+    # Cleanup
+    app.close()
