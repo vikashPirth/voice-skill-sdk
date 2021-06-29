@@ -97,7 +97,7 @@ class SkillInvokeResponse(CamelModel):
             params.update(type=type_)
 
         if result and isinstance(result, Dict):
-            params.update(result=Result(result))
+            params.update(result=Result(result["data"] if "data" in result else result))
 
         super().__init__(**{**data, **params})
 
@@ -157,7 +157,7 @@ class SkillInvokeResponse(CamelModel):
         :param command:
         :return:
         """
-        result = Result(command.dict())
+        result = Result(data=command.dict())
         return self.copy(update=dict(result=result))
 
     def with_notification(

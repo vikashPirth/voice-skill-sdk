@@ -2,6 +2,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Bugfixes
+
+-   Fixed `ValidationError` when response contains a client kit command.
+    
+
 ## 1.1.0 - 2021-06-22
 
 ### Features

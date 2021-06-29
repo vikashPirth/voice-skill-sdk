@@ -14,6 +14,7 @@ import unittest
 from fastapi.testclient import TestClient
 
 from skill_sdk.config import settings
+from skill_sdk.responses import command, ask, tell
 from skill_sdk.util import create_request
 from skill_sdk.skill import init_app, FALLBACK_INTENT
 from skill_sdk.__version__ import __version__, __spi_version__
@@ -95,8 +96,6 @@ class TestRoutes(unittest.TestCase):
         assert response.json() == {"text": "Hola", "type": "TELL"}
 
     def test_invoke_response_ask(self):
-        from skill_sdk import ask
-
         def handler():
             from skill_sdk.intents.request import r
 
@@ -121,3 +120,39 @@ class TestRoutes(unittest.TestCase):
         response = self.client.get("/", allow_redirects=False)
         assert response.status_code == 307
         assert response.headers["location"] == "/redoc"
+
+    def test_response_with_card_and_command(self):
+        self.app.include(
+            "Test_Intent",
+            handler=lambda: (
+                tell("Hola")
+                .with_card(title_text="Test")
+                .with_command(command.AudioPlayer.play_stream("kool url"))
+            ),
+        )
+
+        response = self.client.post(
+            ENDPOINT,
+            json=create_request("Test_Intent", session={}).dict(),
+            headers=self.auth,
+        )
+        assert response.status_code == 200
+        assert response.json() == {
+            "text": "Hola",
+            "type": "TELL",
+            "card": {
+                "type": "GENERIC_DEFAULT",
+                "version": 3,
+                "data": {"titleText": "Test"},
+            },
+            "result": {
+                "data": {
+                    "use_kit": {
+                        "kit_name": "audio_player",
+                        "action": "play_stream",
+                        "parameters": {"url": "kool url"},
+                    }
+                },
+                "local": True,
+            },
+        }

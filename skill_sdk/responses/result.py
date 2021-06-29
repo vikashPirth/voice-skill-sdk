@@ -36,7 +36,12 @@ class Result(CamelModel):
     delayed_client_task: Optional[DelayedClientTask]
 
     def __init__(
-        self, data: Dict, local: bool = True, target_device_id: Text = None
+        self,
+        data: Dict,
+        *,
+        local: bool = True,
+        target_device_id: Text = None,
+        delayed_client_task: DelayedClientTask = None,
     ) -> None:
         """
         Rewrite positional arguments to keyword ones for backward compatibility
@@ -44,14 +49,20 @@ class Result(CamelModel):
         :param data:
         :param local:
         :param target_device_id:
+        :param delayed_client_task:
         """
-        super().__init__(data=data, local=local, target_device_id=target_device_id)
+        super().__init__(
+            data=data,
+            local=local,
+            target_device_id=target_device_id,
+            delayed_client_task=delayed_client_task,
+        )
 
     def __getitem__(self, *args):
         return self.data.__getitem__(*args)
 
     def __bool__(self):
-        return any((self.data, self.target_device_id))
+        return any((self.data, self.target_device_id, self.delayed_client_task))
 
     def update(self, *args, **kwargs):
         """
@@ -68,5 +79,4 @@ class Result(CamelModel):
         :param task:
         :return:
         """
-        self.delayed_client_task = task
-        return self
+        return self.copy(update=dict(delayed_client_task=task))

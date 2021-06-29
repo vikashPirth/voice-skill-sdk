@@ -225,6 +225,7 @@ class Card(CamelModel):
         sub_text: Text = None,
         media_url: Text = None,
         list_sections: List[ListSection] = None,
+        **kwargs,
     ) -> None:
         super().__init__(
             data=data
