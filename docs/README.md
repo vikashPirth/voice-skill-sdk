@@ -28,5 +28,6 @@ This folder contains Magenta voice skill SDK for Python documentation.
 - [Simple Intent Examples](howtos/intent_example.md)
 - [Using Persistence Service](howtos/persistence_service.md)
 - [Using Web Services](howtos/web_services.md)
-- [Skill Manifest](howtos/skill_manifest.md)
 - [Testing a skill](howtos/testing.md)
+- [Distributed Tracing](howtos/tracing.md)
+- [Skill Manifest](howtos/skill_manifest.md)
