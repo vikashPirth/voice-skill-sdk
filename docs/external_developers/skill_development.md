@@ -74,17 +74,3 @@ If there are multiple skills implemented for the same set of intents, one needs 
 * You can download a template (JSON) for the Catalog [here](config_jsons/crypto_catalog_de.json). You can change the display name & description before uploading it as per your skill.
 
 ![SDP Catalog](images/catalog.png)
-
-## Further Information
-
-Here is further information on different helpers functions provided by SDK for the development of your skill.
-
-* [Kubernetes Integration](../k8s.md)
-
-* [Making HTTP requests to third party services](../howtos/make_http_requests.md)
-
-* [Circuit Breakers and Tracing](../tracing.md)
-
-* [Caching for improved performance](../howtos/cache_stuff.md)
-
-* [Using Docker Compose to run the skill locally](../howtos/local_services.md)

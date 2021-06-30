@@ -15,7 +15,7 @@ and in case of a failure, open the circuit breaker, so that all consequential co
 without even trying to access the service. After a timeout period (default to 60 seconds), 
 the circuit breaker gets closed and connection attempts re-tried.
 
-Additional feature of the client is that if a service is flagged as _internal_, 
+Additional feature of the client is that if a service flagged as _internal_, 
 distributed tracing headers (if present) are extracted from the parent request and propagated to the service request.
 
 ### Sync Client
