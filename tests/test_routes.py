@@ -122,11 +122,17 @@ class TestRoutes(unittest.TestCase):
         assert response.headers["location"] == "/redoc"
 
     def test_response_with_card_and_command(self):
+        from skill_sdk.responses.card import Card
+
         self.app.include(
             "Test_Intent",
             handler=lambda: (
                 tell("Hola")
-                .with_card(title_text="Test")
+                .with_card(
+                    Card(title_text="Test").with_action(
+                        item_text="Text", item_action="action"
+                    )
+                )
                 .with_command(command.AudioPlayer.play_stream("kool url"))
             ),
         )
@@ -143,7 +149,12 @@ class TestRoutes(unittest.TestCase):
             "card": {
                 "type": "GENERIC_DEFAULT",
                 "version": 3,
-                "data": {"titleText": "Test"},
+                "data": {
+                    "titleText": "Test",
+                    "listSections": [
+                        {"items": [{"itemText": "Text", "itemAction": "action"}]}
+                    ],
+                },
             },
             "result": {
                 "data": {

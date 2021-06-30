@@ -2,7 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.1.1 - 2021-06-30
+
+### Features
+
+-   Added [HOWTO](docs/howtos/tracing.md): using opentracing adapter in SDK.
+
 
 ### Bugfixes
 

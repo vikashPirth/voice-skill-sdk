@@ -73,13 +73,6 @@ class ListItem(CamelModel):
     # List item bullet point replacement
     item_icon_url: Optional[Text] = None
 
-    def __init__(
-        self, item_text: Text, item_action: Text = None, item_icon_url: Text = None
-    ):
-        super().__init__(
-            item_text=item_text, item_action=item_action, item_icon_url=item_icon_url
-        )
-
     @property
     def title(self):
         """**DEPRECATED**: Item title"""
@@ -280,7 +273,11 @@ class Card(CamelModel):
         data = self.data.copy(
             update=dict(
                 list_sections=[
-                    ListSection().with_list_item(item_text, item_action, item_icon_url)
+                    ListSection().with_list_item(
+                        item_text=item_text,
+                        item_action=item_action,
+                        item_icon_url=item_icon_url,
+                    )
                 ],
             )
         )

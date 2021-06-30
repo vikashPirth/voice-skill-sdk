@@ -47,7 +47,8 @@ def test_l10n_message():
 
 def test_list_sections():
     section = ListSection(
-        "Section Title", items=[ListItem("Item 1"), ListItem("Item 2")]
+        "Section Title",
+        items=[ListItem(item_text="Item 1"), ListItem(item_text="Item 2")],
     )
 
     card = Card(list_sections=[section])
@@ -63,7 +64,9 @@ def test_list_sections():
             ]
         },
     }
-    card = Card(list_sections=[ListSection().with_list_item(ListItem("Lonely item"))])
+    card = Card(
+        list_sections=[ListSection().with_list_item(ListItem(item_text="Lonely item"))]
+    )
     assert card.dict()["data"] == {
         "listSections": [
             {
@@ -145,7 +148,9 @@ def test_with_action():
 
 
 def test_with_list_section():
-    sc = Card().with_list_section("Section Title", items=[ListItem("Item Title")])
+    sc = Card().with_list_section(
+        "Section Title", items=[ListItem(item_text="Item Title")]
+    )
     assert sc.dict()["data"]["listSections"] == [
         {
             "title": "Section Title",
