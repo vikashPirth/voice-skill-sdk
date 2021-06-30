@@ -2,6 +2,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Bugfixes
+
+-   Fixed `vs run [module]` command that ignored the _module_ parameter.
+    
+
 ## 1.1.1 - 2021-06-30
 
 ### Features

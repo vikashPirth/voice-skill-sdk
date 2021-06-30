@@ -73,9 +73,6 @@ def add_subparser(subparsers):
         help="Starts the skill in production mode.",
         description="Run the HTTP server as configured to handle requests.",
     )
-    run_parser.add_argument(
-        "module", help="Run module", nargs="?", default=DEFAULT_MODULE
-    )
     add_env_file_argument(run_parser)
     add_module_argument(run_parser)
     run_parser.set_defaults(command=execute)
