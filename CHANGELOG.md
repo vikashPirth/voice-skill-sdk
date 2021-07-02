@@ -2,11 +2,19 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased  
+
+**Features**
+
+-   Support "Baggage-X-Magenta-Transaction-Id" tracing header propagation. 
+>   **Note:** this header is not supported by [B3-codec](https://github.com/openzipkin/b3-propagation), 
+>   and will be dropped, if zipkin tracer client activated.
+
 ## [v0.15.0] - 2021-06-22    
 
 **Features**
 
--   Add support for the new companion app cards format: Action Cards v3.0.
+-   Added support for a new companion app cards format: Action Cards v3.0.
 
 
 **Miscellaneous**

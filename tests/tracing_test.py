@@ -63,12 +63,13 @@ class TestNoopCodec(unittest.TestCase):
         # Implicit case insensitivity testing
         carrier = {'X-b3-SpanId': 'a2fb4a1d1a96d312',
                    'X-B3-traceId': '463ac35c9f6413ad48485a3953bb6124',
+                   'baggage-x-magenta-transaction-id': '42',
                    'X-Testing': '1'}
 
         span_context = codec.extract(carrier)
         assert span_context.span_id == 'a2fb4a1d1a96d312'
         assert span_context.trace_id == '463ac35c9f6413ad48485a3953bb6124'
-        assert span_context.baggage == {'testing': True}
+        assert span_context.baggage == {'testing': True, 'transaction_id': '42'}
 
     def test_b3_inject(self):
         codec = Codec()
@@ -78,11 +79,19 @@ class TestNoopCodec(unittest.TestCase):
 
         ctx = SpanContext(trace_id='463ac35c9f6413ad48485a3953bb6124',
                           span_id='a2fb4a1d1a96d312',
-                          baggage=dict(testing='1'))
+                          baggage={
+                              'testing': '1',
+                              'X-Magenta-Transaction-Id': '42'}
+                          )
         carrier = {}
         codec.inject(ctx, carrier)
-        self.assertEqual({'X-B3-SpanId': 'a2fb4a1d1a96d312',
-                          'X-B3-TraceId': '463ac35c9f6413ad48485a3953bb6124', 'X-Testing': '1', 'Testing': 'true'}, carrier)
+        self.assertEqual({
+            'X-B3-SpanId': 'a2fb4a1d1a96d312',
+            'X-B3-TraceId': '463ac35c9f6413ad48485a3953bb6124',
+            'X-Testing': '1',
+            'Testing': 'true',
+            'Baggage-X-Magenta-Transaction-Id': '42',
+        }, carrier)
 
     def test_extract_inject_exceptions(self):
         tracer = global_tracer()
