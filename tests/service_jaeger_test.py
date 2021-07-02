@@ -7,31 +7,28 @@
 # For details see the file LICENSE in the top directory.
 #
 #
-import gc
-import gevent
 import unittest
-from configparser import ConfigParser
 from unittest.mock import patch, Mock
 
 from skill_sdk import tracing
-from skill_sdk.services.jaeger import setup_service
+from skill_sdk.config import Config
 from jaeger_client.tracer import Tracer
 from jaeger_client.span import Span
+from jaeger_client.sampler import ConstSampler
 
-test_config = ConfigParser()
-test_config['jaeger'] = {}
+test_config = Config()
+test_config['jaeger.config'] = {
+    'propagation': 'b3',
+}
 
 
 class TestJaeger(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        with patch('skill_sdk.services.jaeger.config', new=test_config):
+        from skill_sdk.services.jaeger import setup_service
+        with patch('skill_sdk.config.config', new=test_config):
             setup_service()
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        [obj.kill() for obj in gc.get_objects() if isinstance(obj, gevent.Greenlet)]
 
     def setUp(self):
         self.request = Mock()
@@ -74,3 +71,16 @@ class TestJaeger(unittest.TestCase):
                                                                        vBinary=None))
         # Ensure both spans are finished when out of scope
         self.assertEqual(stop_span.call_count, 2)
+
+    def test_baggage(self, *a):
+        tracer = Tracer(
+            service_name='my-service',
+            reporter=Mock(),
+            sampler=ConstSampler(True),
+            baggage_header_prefix="baggage-"
+        )
+        with patch('skill_sdk.tracing.global_tracer', return_value=tracer):
+            request = Mock()
+            request.headers = {"baggage-x-magenta-transaction-id": "42"}
+            with tracing.start_active_span('span', request) as scope:
+                assert scope.span.context.baggage["x-magenta-transaction-id"] == '42'

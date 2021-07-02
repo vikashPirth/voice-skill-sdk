@@ -36,7 +36,9 @@ class Codec:
     trace_header = "X-B3-TraceId"
     span_header = "X-B3-SpanId"
     testing_header = "X-Testing"
-    simple_testing = 'Testing'
+    simple_testing = "Testing"
+    transaction_id = "X-Magenta-Transaction-Id"
+    transaction_id_header = f"Baggage-{transaction_id}"
 
     def inject(self, span_context, carrier):
         """
@@ -53,7 +55,10 @@ class Codec:
 
         if span_context.baggage.get("testing"):
             carrier[self.testing_header] = "1"
-            carrier[self.simple_testing] = 'true'
+            carrier[self.simple_testing] = "true"
+
+        if span_context.baggage.get(self.transaction_id):
+            carrier[self.transaction_id_header] = span_context.baggage.get(self.transaction_id)
 
     def extract(self, carrier):
         """
@@ -68,7 +73,15 @@ class Codec:
         trace_id = carrier.get(lowercase_keys.get(self.trace_header.lower()))
         span_id = carrier.get(lowercase_keys.get(self.span_header.lower()))
         testing = carrier.get(lowercase_keys.get(self.testing_header.lower()))
-        return SpanContext(trace_id=trace_id, span_id=span_id, baggage=dict(testing=bool(testing)))
+        transaction_id = carrier.get(lowercase_keys.get(self.transaction_id_header.lower()))
+        return SpanContext(
+            trace_id=trace_id,
+            span_id=span_id,
+            baggage=dict(
+                testing=bool(testing),
+                transaction_id=transaction_id
+            )
+        )
 
 
 class Tracer(MockTracer):
