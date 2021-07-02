@@ -39,6 +39,7 @@ def setup_middleware(app):
             log.TenantIdIdPlugin(),
             log.TestingFlagPlugin(),
             log.UserDebugLogPlugin(),
+            log.MagentaTransactionId(),
         ),
     )
 

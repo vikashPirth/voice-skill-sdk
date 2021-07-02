@@ -19,6 +19,8 @@ from fastapi.testclient import TestClient
 
 import pytest
 from skill_sdk import config, log, init_app
+from skill_sdk.log import tracing_headers
+from skill_sdk.middleware.log import HeaderKeys
 
 
 @pytest.fixture
@@ -57,12 +59,15 @@ def test_log_record(client):
             "x-b3-traceid": "trace-id",
             "X-B3-SpanId": "span-id",
             "X-TenantId": "tenant-id",
+            "x-testing": "1",
         },
     )
 
-    expected = ["trace-id", "span-id", "tenant-id"]
+    expected = ["trace-id", "span-id", True, "tenant-id"]
     assert [
-        v for k, v in resp.json().items() if k in ("traceId", "spanId", "tenant")
+        v
+        for k, v in resp.json().items()
+        if k in ("traceId", "spanId", "tenant", "testing")
     ] == expected
 
 
@@ -81,6 +86,24 @@ def test_user_log(client):
             },
         )
         mock_debug.assert_called_once_with(10, "Debug message", ())
+
+
+def test_transaction_id(app):
+    @app.route("/transaction")
+    async def index(*a):
+        return JSONResponse(tracing_headers())
+
+    assert (
+        TestClient(app)
+        .get(
+            "/transaction",
+            headers={
+                HeaderKeys.magenta_transaction_id: "my-id",
+            },
+        )
+        .json()
+        == {"Baggage-X-Magenta-Transaction-Id": "my-id"}
+    )
 
 
 def test_uvicorn_patched():

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Features
+
+-   Added "Baggage-X-Magenta-Transaction-Id" header propagation. The header is also available for logging as:
+
+```python
+from skill_sdk.log import tracing_headers
+
+``` 
+
+
 ### Bugfixes
 
 -   Fixed `vs run [module]` command that ignored the _module_ parameter.
