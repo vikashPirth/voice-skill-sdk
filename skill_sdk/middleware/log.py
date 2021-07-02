@@ -22,6 +22,7 @@ class HeaderKeys(str, Enum):
     tenant_id = "X-TenantId"
     testing_flag = "X-Testing"
     user_debug_log = "X-User-Debug-Log"
+    magenta_transaction_id = "Baggage-X-Magenta-Transaction-Id"
 
 
 class TraceIdPlugin(Plugin):
@@ -61,3 +62,11 @@ class UserDebugLogPlugin(Plugin):
     """
 
     key = HeaderKeys.user_debug_log
+
+
+class MagentaTransactionId(Plugin):
+    """
+    Extracts Magenta transaction ID
+    """
+
+    key = HeaderKeys.magenta_transaction_id
