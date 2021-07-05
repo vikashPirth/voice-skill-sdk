@@ -11,10 +11,13 @@ All notable changes to this project will be documented in this file.
 ```python
 from skill_sdk.log import tracing_headers
 
+>>> tracing_headers()
+{<HeaderKeys.trace_id: 'X-B3-TraceId'>: 'trace-id', <HeaderKeys.span_id: 'X-B3-SpanId'>: 'span-id', <HeaderKeys.tenant_id: 'X-TenantId'>: 'tenant-id', <HeaderKeys.testing_flag: 'X-Testing'>: '1', <HeaderKeys.magenta_transaction_id: 'Baggage-X-Magenta-Transaction-Id'>: 'my-id'}
 ``` 
 
-
 ### Bugfixes
+
+-   Bump FastAPI from 0.65.2 to 0.66.0. [Release notes](https://github.com/tiangolo/fastapi/releases/tag/0.66.0).
 
 -   Fixed `vs run [module]` command that ignored the _module_ parameter.
     
