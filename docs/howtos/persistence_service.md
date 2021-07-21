@@ -46,7 +46,7 @@ The persistence service may be configured in `[service-persistence]` section of 
 
 ```ini
 [service-persistence]
-url = https://api.voiceui.telekom.net/svh/services/persistence/
+url = https://api.voiceui.telekom.net/svh/services/persistence/v1
 ```
 
 ## Examples
@@ -62,7 +62,7 @@ from skill_sdk import ask_freetext, skill
 from skill_sdk.config import settings
 from skill_sdk.services.persistence import PersistenceService
 
-SERVICE_URL = settings.SERVICE_PERSISTENCE_URL or "https://api.voiceui.telekom.net/svh/services/persistence/" 
+SERVICE_URL = settings.SERVICE_PERSISTENCE_URL or "https://api.voiceui.telekom.net/svh/services/persistence/v1"
 
 @skill.intent_handler('HELLO_INTENT')
 async def hello():
