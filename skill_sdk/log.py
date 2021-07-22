@@ -62,7 +62,9 @@ class SmartHubGELFFormatter(logging.Formatter):
             # Testing flag
             "testing": getattr(context, 'baggage', {}).get('testing'),
             # Tenant: a skill is not aware of tenant, so we report a service name instead
-            "tenant": getattr(tracer, 'service_name', tracing.get_service_name())
+            "tenant": getattr(tracer, 'service_name', tracing.get_service_name()),
+            # Magenta Transaction Id
+            "magentaTransactionId": getattr(context, 'baggage', {}).get('transaction_id'),
         }
         if record.exc_info:
             line['_traceback'] = format_exc()
