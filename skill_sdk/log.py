@@ -103,6 +103,10 @@ class CloudGELFFormatter(logging.Formatter):
             in ("true", "1"),
             # Tenant: a skill is not aware of tenant
             "tenant": headers.get(HeaderKeys.tenant_id, None),
+            # Magenta Transaction Id
+            "magentaTransactionId": headers.get(
+                HeaderKeys.magenta_transaction_id, None
+            ),
         }
 
         if record.exc_info:

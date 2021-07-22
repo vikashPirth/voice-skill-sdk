@@ -60,14 +60,15 @@ def test_log_record(client):
             "X-B3-SpanId": "span-id",
             "X-TenantId": "tenant-id",
             "x-testing": "1",
+            "Baggage-X-Magenta-Transaction-Id": "transaction-id",
         },
     )
 
-    expected = ["trace-id", "span-id", True, "tenant-id"]
+    expected = ["trace-id", "span-id", True, "tenant-id", "transaction-id"]
     assert [
         v
         for k, v in resp.json().items()
-        if k in ("traceId", "spanId", "tenant", "testing")
+        if k in ("traceId", "spanId", "tenant", "testing", "magentaTransactionId")
     ] == expected
 
 

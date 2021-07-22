@@ -2,6 +2,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Bugfixes
+
+-   Bump FastAPI from 0.66.0 to 0.67.0.
+    
+### Features
+
+-   "Magenta transaction ID" value added to logging record.
+
+
 ## 1.1.2 - 2021-07-12
 
 ### Features
