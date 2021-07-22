@@ -20,13 +20,11 @@ from dateutil import tz
 from pydantic import Field
 
 from skill_sdk.__version__ import __spi_version__
-from skill_sdk.util import CamelModel
+from skill_sdk.util import CamelModel, DEFAULT_LOCALE
 from skill_sdk.intents import AttributeV2
 from skill_sdk.i18n import _, _n, _a, Translations
 
 logger = logging.getLogger(__name__)
-
-SAMPLE_LOCALE = "de"
 
 
 class Context(CamelModel):
@@ -45,7 +43,7 @@ class Context(CamelModel):
     intent: Text
 
     # Request locale
-    locale: Text = Field(example=SAMPLE_LOCALE)
+    locale: Text = Field(example=DEFAULT_LOCALE)
 
     # Skill id
     skill_id: Optional[Text]

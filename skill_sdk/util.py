@@ -31,7 +31,6 @@ from typing import (
     Dict,
     List,
     Mapping,
-    Set,
     Text,
     TypeVar,
     Union,
@@ -46,6 +45,7 @@ import uvicorn
 
 
 T = TypeVar("T")
+DEFAULT_LOCALE = "de"
 
 
 def camel_to_snake(name):
@@ -307,7 +307,7 @@ def intent_examples(intents: Mapping[Text, Callable]) -> Dict[str, Dict]:
                     "intent": name,
                     "attributesV2": attrs_examples(intent),
                     "configuration": {},
-                    "locale": "de",
+                    "locale": DEFAULT_LOCALE,
                     "tokens": {},
                 },
                 "session": {
@@ -452,20 +452,27 @@ def test_request(
 
 def create_context(
     intent: Text,
-    locale: Text = None,
-    tokens: Dict[Text, Text] = None,
+    *,
     configuration: Dict[Text, Dict] = None,
+    locale: Text = DEFAULT_LOCALE,
+    skill_id: Text = None,
+    tokens: Dict[Text, Text] = None,
+    client_type_name: Text = None,
+    user_profile_config: Text = None,
     **kwargs,
 ):
     """
     Intent invoke context factory:
     Creates skill invocation context with attributes supplied as keyword arguments.
 
-    :param intent:  Intent name
-    :param locale:  Request locale
-    :param tokens:  Intent tokens (if requires)
-    :param configuration:  Skill configuration
-    :param kwargs:  Attributes(V2)
+    :param intent:      Intent name
+    :param configuration:       Skill configuration
+    :param locale:      Request locale
+    :param skill_id:    Optional skill ID
+    :param tokens:      Intent tokens (if requires)
+    :param client_type_name:    Client type (mini/premium/etc)
+    :param user_profile_config: User profile configuration
+    :param kwargs:      Attributes(V2)
     :return:
     """
 
@@ -502,6 +509,9 @@ def create_context(
         attributes_v2=attributes_v2 or {},
         configuration=configuration or {},
         intent=intent,
-        locale=locale or "de",
+        locale=locale,
+        skill_id=skill_id,
         tokens=tokens or {},
+        client_type_name=client_type_name,
+        user_profile_config=user_profile_config,
     )
