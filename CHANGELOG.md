@@ -6,11 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Bugfixes
 
--   Bump FastAPI from 0.66.0 to 0.67.0.
-    
-### Features
+-   Fixed persistent service URL in [howto](docs/howtos/persistence_service.md). 
+
+-   Added "skill_id"/"client_type_name"/"user_profile_config" arguments to `create_context` helper. 
 
 -   "Magenta transaction ID" value added to logging record.
+
+-   Bump FastAPI from 0.66.0 to 0.67.0.
 
 
 ## 1.1.2 - 2021-07-12
