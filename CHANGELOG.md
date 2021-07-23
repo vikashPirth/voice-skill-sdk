@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 **Features**
 
 -   Magenta transaction Id value added to logging record.
+-   "Tenant" logging value is read from "X-TenantId" header.
 
 
 **Miscellaneous**

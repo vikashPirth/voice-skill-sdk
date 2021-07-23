@@ -64,12 +64,13 @@ class TestNoopCodec(unittest.TestCase):
         carrier = {'X-b3-SpanId': 'a2fb4a1d1a96d312',
                    'X-B3-traceId': '463ac35c9f6413ad48485a3953bb6124',
                    'baggage-x-magenta-transaction-id': '42',
+                   'X-tenantid': 'tenant-id',
                    'X-Testing': '1'}
 
         span_context = codec.extract(carrier)
         assert span_context.span_id == 'a2fb4a1d1a96d312'
         assert span_context.trace_id == '463ac35c9f6413ad48485a3953bb6124'
-        assert span_context.baggage == {'testing': True, 'transaction_id': '42'}
+        assert span_context.baggage == {'testing': True, 'transaction_id': '42', 'tenant_id': 'tenant-id'}
 
     def test_b3_inject(self):
         codec = Codec()

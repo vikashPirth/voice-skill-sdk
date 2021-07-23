@@ -61,8 +61,8 @@ class SmartHubGELFFormatter(logging.Formatter):
             "spanId": getattr(context, 'span_id', None),
             # Testing flag
             "testing": getattr(context, 'baggage', {}).get('testing'),
-            # Tenant: a skill is not aware of tenant, so we report a service name instead
-            "tenant": getattr(tracer, 'service_name', tracing.get_service_name()),
+            # Tenant is read from the incoming headers
+            "tenant": getattr(context, 'baggage', {}).get('tenant_id'),
             # Magenta Transaction Id
             "magentaTransactionId": getattr(context, 'baggage', {}).get('transaction_id'),
         }

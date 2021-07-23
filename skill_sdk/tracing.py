@@ -39,6 +39,7 @@ class Codec:
     simple_testing = "Testing"
     transaction_id = "X-Magenta-Transaction-Id"
     transaction_id_header = f"Baggage-{transaction_id}"
+    tenant_id_header = "X-TenantId"
 
     def inject(self, span_context, carrier):
         """
@@ -74,12 +75,14 @@ class Codec:
         span_id = carrier.get(lowercase_keys.get(self.span_header.lower()))
         testing = carrier.get(lowercase_keys.get(self.testing_header.lower()))
         transaction_id = carrier.get(lowercase_keys.get(self.transaction_id_header.lower()))
+        tenant_id = carrier.get(lowercase_keys.get(self.tenant_id_header.lower()))
         return SpanContext(
             trace_id=trace_id,
             span_id=span_id,
             baggage=dict(
                 testing=bool(testing),
-                transaction_id=transaction_id
+                transaction_id=transaction_id,
+                tenant_id=tenant_id
             )
         )
 
