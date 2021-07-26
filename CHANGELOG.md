@@ -2,6 +2,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+**Features**
+
+-   Magenta transaction Id value added to logging record.
+
+
+**Miscellaneous**
+
+-   Requirements bump:
+    - apispec from 4.6.0 to 4.7.1
+    - python-dateutil from 2.8.1 to 2.8.2
+    - requests from 2.25.1 to 2.26.0
+
+
 ## [v0.15.1] - 2021-07-12    
 
 **Features**

@@ -65,10 +65,12 @@ class TestSmartHubGELFFormatter(unittest.TestCase):
         r['HTTP_X_B3_TRACEID'] = 'abcd'
         r['HTTP_X_B3_SPANID'] = '1234'
         r['HTTP_X_TESTING'] = '1'
+        r['HTTP_BAGGAGE_X_MAGENTA_TRANSACTION_ID'] = '42'
         with tracing.start_active_span("operation", r):
             data = loads(log.SmartHubGELFFormatter().format(self.record))
             self.assertEqual('abcd', data['traceId'])
             self.assertTrue(data['testing'])
+            self.assertEqual('42', data['magentaTransactionId'])
 
 
 class TestLogLevels(unittest.TestCase):
