@@ -38,7 +38,6 @@ class TestSmartHubGELFFormatter(unittest.TestCase):
         data = loads(log.SmartHubGELFFormatter().format(self.record))
         self.assertGreater(data['@timestamp'], 1490000000000)
         self.assertIn('process', data)
-        self.assertEqual(data['tenant'], 'unnamed-skill')
         self.assertEqual(data['thread'], '123456')
         self.assertEqual(data['message'], 'testmessage')
         self.assertEqual(data['level'], "INFO")
@@ -66,11 +65,13 @@ class TestSmartHubGELFFormatter(unittest.TestCase):
         r['HTTP_X_B3_SPANID'] = '1234'
         r['HTTP_X_TESTING'] = '1'
         r['HTTP_BAGGAGE_X_MAGENTA_TRANSACTION_ID'] = '42'
+        r['HTTP_X_TENANTID'] = 'tenant-id'
         with tracing.start_active_span("operation", r):
             data = loads(log.SmartHubGELFFormatter().format(self.record))
             self.assertEqual('abcd', data['traceId'])
             self.assertTrue(data['testing'])
             self.assertEqual('42', data['magentaTransactionId'])
+            self.assertEqual('tenant-id', data['tenant'])
 
 
 class TestLogLevels(unittest.TestCase):
