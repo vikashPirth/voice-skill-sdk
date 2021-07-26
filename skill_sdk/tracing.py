@@ -146,17 +146,6 @@ class start_span:
         return self.span.finish()
 
 
-def get_service_name():
-    """
-    Returns the service name, try to get from config or fallback to skill name.
-
-    :return:
-    """
-    from .config import config
-
-    return config.get("skill", "name", fallback="unnamed_service")
-
-
 def start_active_span(operation_name, request, **kwargs):
     """Start a new span and return activated scope"""
 
