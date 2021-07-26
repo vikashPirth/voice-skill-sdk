@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 -   Magenta transaction Id value added to logging record.
 -   "Tenant" logging value is read from "X-TenantId" header.
+    >**IMPORTANT**: for logging purpose only, do not use this header to build tenant-specific logic.    
 
 
 **Miscellaneous**

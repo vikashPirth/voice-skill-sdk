@@ -61,7 +61,7 @@ class SmartHubGELFFormatter(logging.Formatter):
             "spanId": getattr(context, 'span_id', None),
             # Testing flag
             "testing": getattr(context, 'baggage', {}).get('testing'),
-            # Tenant is read from the incoming headers
+            # Tenant id
             "tenant": getattr(context, 'baggage', {}).get('tenant_id'),
             # Magenta Transaction Id
             "magentaTransactionId": getattr(context, 'baggage', {}).get('transaction_id'),
