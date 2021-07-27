@@ -159,10 +159,14 @@ class Intent(CamelModel):
         :return:
         """
 
-        __params = inspect.signature(func).parameters
+        params = inspect.signature(func).parameters
         parameters = [
-            Parameter.from_signature(p_name, param.annotation.__name__, param.default)
-            for p_name, param in __params.items()
+            Parameter.from_signature(
+                p_name,
+                getattr(param.annotation, "__name__", repr(param.annotation)),
+                param.default,
+            )
+            for p_name, param in params.items()
         ]
 
         return Intent(

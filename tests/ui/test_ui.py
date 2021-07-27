@@ -191,3 +191,27 @@ def test_spi_version():
         for js in (ui_root / "js").glob("app.*.js")
         if f'spiVersion:"{__spi_version__}"' in js.read_text()
     ] != []
+
+
+def test_from_callable_with_list():
+    from typing import List
+
+    def handle_string(s: str):
+        ...
+
+    intent = ui.Intent.from_callable("Test_Intent", handle_string)
+    assert (
+        repr(intent) == "Intent(name='Test_Intent', "
+        "implementation=('test_ui', 'handle_string'), "
+        "parameters=[Parameter(name='s', type='str', required=True, sample='string value', values=[])])"
+    )
+
+    def handle_list(s: List[str]):
+        ...
+
+    intent = ui.Intent.from_callable("Test_Intent", handle_list)
+    assert (
+        repr(intent) == "Intent(name='Test_Intent', "
+        "implementation=('test_ui', 'handle_list'), "
+        "parameters=[Parameter(name='s', type='typing.List[str]', required=True, sample=['string value'], values=[])])"
+    )

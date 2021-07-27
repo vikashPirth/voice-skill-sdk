@@ -4,9 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Features
+
+-   Logging configuration section added to [Deployment guide](docs/deploy.md#deploying-with-gunicorn).    
+
 ### Bugfixes
 
 -   Corrected "X-Tenant-Id" tracing header propagation and logging. 
+
+-   Fixed "typing.List" annotation handling in UI.
 
 ## 1.1.3 - 2021-07-26
 
