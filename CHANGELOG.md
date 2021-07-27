@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Bugfixes
+
+-   Corrected "X-Tenant-Id" tracing header propagation and logging. 
+
 ## 1.1.3 - 2021-07-26
 
 ### Bugfixes
@@ -25,7 +31,7 @@ All notable changes to this project will be documented in this file.
 from skill_sdk.log import tracing_headers
 
 >>> tracing_headers()
-{<HeaderKeys.trace_id: 'X-B3-TraceId'>: 'trace-id', <HeaderKeys.span_id: 'X-B3-SpanId'>: 'span-id', <HeaderKeys.tenant_id: 'X-TenantId'>: 'tenant-id', <HeaderKeys.testing_flag: 'X-Testing'>: '1', <HeaderKeys.magenta_transaction_id: 'Baggage-X-Magenta-Transaction-Id'>: 'my-id'}
+{<HeaderKeys.trace_id: 'X-B3-TraceId'>: 'trace-id', <HeaderKeys.span_id: 'X-B3-SpanId'>: 'span-id', <HeaderKeys.tenant_id: 'X-Tenant-Id'>: 'tenant-id', <HeaderKeys.testing_flag: 'X-Testing'>: '1', <HeaderKeys.magenta_transaction_id: 'Baggage-X-Magenta-Transaction-Id'>: 'my-id'}
 ``` 
 
 ### Bugfixes

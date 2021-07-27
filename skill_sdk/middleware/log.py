@@ -19,7 +19,7 @@ class HeaderKeys(str, Enum):
 
     trace_id = "X-B3-TraceId"
     span_id = "X-B3-SpanId"
-    tenant_id = "X-TenantId"
+    tenant_id = "X-Tenant-Id"
     testing_flag = "X-Testing"
     user_debug_log = "X-User-Debug-Log"
     magenta_transaction_id = "Baggage-X-Magenta-Transaction-Id"

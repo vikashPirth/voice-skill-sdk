@@ -77,7 +77,7 @@ Skill logging middleware also extracts the following headers, that are used for 
 
 - `X-B3-TraceId` - distributed trace ID
 - `X-B3-SpanId` - distributed span ID
-- `X-TenantId` - tenant originating the request
+- `X-Tenant-Id` - tenant originating the request
 - `X-Testing` - used to separate the real and testing traffic
 - `X-User-Debug-Log` - used to temporarily set the logging to DEBUG level  
 

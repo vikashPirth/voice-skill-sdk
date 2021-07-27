@@ -58,7 +58,7 @@ def test_log_record(client):
         headers={
             "x-b3-traceid": "trace-id",
             "X-B3-SpanId": "span-id",
-            "X-TenantId": "tenant-id",
+            "X-Tenant-Id": "tenant-id",
             "x-testing": "1",
             "Baggage-X-Magenta-Transaction-Id": "transaction-id",
         },
