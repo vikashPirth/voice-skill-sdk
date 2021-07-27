@@ -53,8 +53,35 @@ The sample startup log, notifying about successful startup:
 
 ## Logging 
 
-To output the logs in JSON GrayLog-compatible form, skill SDK has implemented a log formatter in 
-`skill_sdk.log.GunicornLogger` class. This formatter can be specified in `--logger-class` parameter:
+### Configure Logging 
+
+When deploying with Gunicorn server, logging must be explicitly configured, 
+either by calling `skill_sdk.log.setup_logging()` helper **before** initializing your skill application:
+
+```python
+import logging
+from skill_sdk import log, skill 
+from skill_sdk.config import FormatType  
+
+log.setup_logging(logging.DEBUG, FormatType.GELF)
+app = skill.init_app()
+```
+
+OR, setting `configure_logging=True` when initializing the skill:
+
+```python
+from skill_sdk import skill
+
+app = skill.init_app(configure_logging=True)
+```
+
+in the latter case, logging level and format will be read from the environment.
+
+
+### Gunicorn Logging 
+
+To output the Gunicorn logs in JSON GrayLog-compatible form, skill SDK implements a log formatter in 
+`skill_sdk.log.GunicornLogger` class. This formatter can be specified with `--logger-class` parameter:
 
 
 `gunicorn -b :4242 -w 2 -k uvicorn.workers.UvicornWorker --logger-class=skill_sdk.log.GunicornLogger app:app`
