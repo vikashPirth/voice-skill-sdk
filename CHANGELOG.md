@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Bugfixes
+
+-   Fixed "X-Tenant-Id" tracing header propagation and logging. 
+
 ## [v0.15.2] - 2021-07-26    
 
 **Features**

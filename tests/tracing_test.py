@@ -64,7 +64,7 @@ class TestNoopCodec(unittest.TestCase):
         carrier = {'X-b3-SpanId': 'a2fb4a1d1a96d312',
                    'X-B3-traceId': '463ac35c9f6413ad48485a3953bb6124',
                    'baggage-x-magenta-transaction-id': '42',
-                   'X-tenantid': 'tenant-id',
+                   'X-tenant-id': 'tenant-id',
                    'X-Testing': '1'}
 
         span_context = codec.extract(carrier)
@@ -82,7 +82,8 @@ class TestNoopCodec(unittest.TestCase):
                           span_id='a2fb4a1d1a96d312',
                           baggage={
                               'testing': '1',
-                              'X-Magenta-Transaction-Id': '42'}
+                              'transaction_id': '42',
+                              'tenant_id': 'tenant'}
                           )
         carrier = {}
         codec.inject(ctx, carrier)
@@ -92,6 +93,7 @@ class TestNoopCodec(unittest.TestCase):
             'X-Testing': '1',
             'Testing': 'true',
             'Baggage-X-Magenta-Transaction-Id': '42',
+            'X-Tenant-Id': 'tenant',
         }, carrier)
 
     def test_extract_inject_exceptions(self):

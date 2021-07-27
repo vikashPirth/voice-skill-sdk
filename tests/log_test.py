@@ -65,7 +65,7 @@ class TestSmartHubGELFFormatter(unittest.TestCase):
         r['HTTP_X_B3_SPANID'] = '1234'
         r['HTTP_X_TESTING'] = '1'
         r['HTTP_BAGGAGE_X_MAGENTA_TRANSACTION_ID'] = '42'
-        r['HTTP_X_TENANTID'] = 'tenant-id'
+        r['HTTP_X_TENANT_ID'] = 'tenant-id'
         with tracing.start_active_span("operation", r):
             data = loads(log.SmartHubGELFFormatter().format(self.record))
             self.assertEqual('abcd', data['traceId'])

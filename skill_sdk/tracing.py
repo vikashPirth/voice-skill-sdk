@@ -39,7 +39,7 @@ class Codec:
     simple_testing = "Testing"
     transaction_id = "X-Magenta-Transaction-Id"
     transaction_id_header = f"Baggage-{transaction_id}"
-    tenant_id_header = "X-TenantId"
+    tenant_id_header = "X-Tenant-Id"
 
     def inject(self, span_context, carrier):
         """
@@ -58,8 +58,11 @@ class Codec:
             carrier[self.testing_header] = "1"
             carrier[self.simple_testing] = "true"
 
-        if span_context.baggage.get(self.transaction_id):
-            carrier[self.transaction_id_header] = span_context.baggage.get(self.transaction_id)
+        if span_context.baggage.get("transaction_id"):
+            carrier[self.transaction_id_header] = span_context.baggage.get("transaction_id")
+
+        if span_context.baggage.get("tenant_id"):
+            carrier[self.tenant_id_header] = span_context.baggage.get("tenant_id")
 
     def extract(self, carrier):
         """
