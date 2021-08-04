@@ -10,11 +10,13 @@
 
 import unittest
 from unittest.mock import patch
+from requests.sessions import Session
 from skill_sdk.tracing import (
     global_tracer,
     initialize_tracer,
     set_global_tracer,
     start_span,
+    start_active_span,
     Codec,
     Format,
     InvalidCarrierException,
@@ -103,3 +105,26 @@ class TestNoopCodec(unittest.TestCase):
         ctx = SpanContext(None, None, None)
         with self.assertRaises(UnsupportedFormatException):
             tracer.inject(ctx, 'Unknown', {})
+
+    @patch.object(Session, 'request')
+    def test_baggage_propagation(self, req_mock):
+        tracer = initialize_tracer()
+        with patch('skill_sdk.tracing.global_tracer', return_value=tracer):
+            request = unittest.mock.Mock()
+            request.headers = {
+                "X-B3-SpanId": "a2fb4a1d1a96d312",
+                "X-B3-TraceId": "463ac35c9f6413ad48485a3953bb6124",
+                "X-Testing": "1",
+                "Baggage-X-Magenta-Transaction-Id": "42",
+                "X-Tenant-Id": "tenant",
+            }
+            with start_active_span('span', request) as scope:
+                assert scope.span.context.baggage["transaction_id"] == '42'
+
+                from skill_sdk.requests import CircuitBreakerSession
+                with CircuitBreakerSession(internal=True) as session:
+                    session.get("http://localhost")
+                    self.assertEqual(req_mock.call_args_list[0][1].get("headers"), {
+                        **request.headers,
+                        **{"Testing": "true", "X-B3-SpanId": "2"}
+                    })

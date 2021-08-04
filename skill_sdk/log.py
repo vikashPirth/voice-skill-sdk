@@ -41,14 +41,16 @@ class SmartHubGELFFormatter(logging.Formatter):
 
         tracer: tracing.Tracer = tracing.global_tracer()
         context = tracer.active_span and tracer.active_span.context
+        trace_id = getattr(context, 'trace_id', None)
+        span_id = getattr(context, 'span_id', None)
 
         line = {
             # Timestamp in milliseconds
-            "@timestamp": int(round(time.time() * 1000)),
+            "@timestamp": int(record.created * 1000),
             # Log message level
             "level": record.levelname,
             # Process id
-            "process": os.getpid(),
+            "process": str(record.process),
             # Thread id
             "thread": str(record.thread),
             # Logger name
@@ -56,9 +58,9 @@ class SmartHubGELFFormatter(logging.Formatter):
             # Log message
             "message": record.getMessage(),
             # Trace id
-            "traceId": getattr(context, 'trace_id', None),
+            "traceId": f"{trace_id:x}" if isinstance(trace_id, int) else trace_id,
             # Span id
-            "spanId": getattr(context, 'span_id', None),
+            "spanId": f"{span_id:x}" if isinstance(span_id, int) else span_id,
             # Testing flag
             "testing": getattr(context, 'baggage', {}).get('testing'),
             # Tenant id

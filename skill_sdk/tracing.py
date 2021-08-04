@@ -176,3 +176,4 @@ def initialize_tracer(tracer=None):
     """
     tracer = tracer or Tracer()
     set_global_tracer(tracer)
+    return tracer
