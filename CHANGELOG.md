@@ -2,11 +2,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [v0.15.3] - 2021-08-05    
 
 ### Bugfixes
 
--   Fixed "X-Tenant-Id" tracing header propagation and logging. 
+-   Fixed "X-Tenant-Id"/"Baggage-X-Magenta-Transaction-Id" tracing headers propagation and logging. 
 
 ## [v0.15.2] - 2021-07-26    
 
