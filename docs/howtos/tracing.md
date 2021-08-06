@@ -80,6 +80,7 @@ Skill logging middleware also extracts the following headers, that are used for 
 - `X-Tenant-Id` - tenant originating the request
 - `X-Testing` - used to separate the real and testing traffic
 - `X-User-Debug-Log` - used to temporarily set the logging to DEBUG level  
+- `Baggage-X-Magenta-Transaction-Id` - unique Voice Platform transaction identifier   
 
 The headers extracted from skill invoke request, even with no external tracer activated, 
 and are propagated to all outgoing skill requests, when using `skill_sdk.requests.Client/AsyncClient` 
