@@ -14,6 +14,8 @@ All notable changes to this project will be documented in this file.
 
 -   Fixed "typing.List" annotation handling in UI.
 
+-   Fixed cutting DelayedClientTask from skill response.
+
 ## 1.1.3 - 2021-07-26
 
 ### Bugfixes

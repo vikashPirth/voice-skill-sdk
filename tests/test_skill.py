@@ -15,12 +15,6 @@ from fastapi.testclient import TestClient
 from skill_sdk import skill, ResponseType
 
 
-@pytest.fixture
-def app():
-    with closing(skill.init_app()) as app:
-        yield app
-
-
 def test_intent_handlers(app):
     assert app.intents == {}
     app.include("Test_Intent", handler=lambda: "Hola")

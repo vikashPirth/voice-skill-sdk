@@ -10,8 +10,13 @@
 
 import datetime
 import unittest
+import pytest
 
+from fastapi.testclient import TestClient
+from skill_sdk import Response
+from skill_sdk.util import Server, create_request
 from skill_sdk.responses.task import ClientTask
+from skill_sdk.skill import intent_handler, Skill
 
 
 class TestTasks(unittest.TestCase):
@@ -56,3 +61,41 @@ class TestTasks(unittest.TestCase):
             },
             task.dict(),
         )
+
+
+def test_response_with_delayed_task(app: Skill):
+    @intent_handler
+    def response_with_task():
+        from skill_sdk.i18n import _
+
+        return Response(_("Hola")).with_task(
+            ClientTask.invoke("HOLA_INTENT", skill_id="skill-id").after(
+                offset=datetime.timedelta(seconds=10)
+            )
+        )
+
+    app.include("TEST_HOLA", handler=response_with_task)
+    client = TestClient(app)
+
+    with Server(app).run_in_thread():
+        result = client.post(
+            "/v1/skill-noname", data=create_request("TEST_HOLA").json()
+        )
+        assert result.json() == {
+            "text": "Hola",
+            "type": "TELL",
+            "result": {
+                "data": {},
+                "local": True,
+                "delayedClientTask": {
+                    "invokeData": {
+                        "intent": "HOLA_INTENT",
+                        "skillId": "skill-id",
+                        "parameters": {},
+                    },
+                    "executionTime": {
+                        "executeAfter": {"reference": "SPEECH_END", "offset": "PT10S"}
+                    },
+                },
+            },
+        }

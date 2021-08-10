@@ -78,10 +78,12 @@ async def handle_info_request(request: Request):
 
     logger.debug("Handling info request.")
 
-    return SkillInfoResponse(
-        skill_id=settings.SKILL_NAME,
-        skill_version=f"{settings.SKILL_VERSION} {__version__}",
-        supported_locales=tuple(request.app.translations.keys()),
+    return JSONResponse(
+        SkillInfoResponse(
+            skill_id=settings.SKILL_NAME,
+            skill_version=f"{settings.SKILL_VERSION} {__version__}",
+            supported_locales=tuple(request.app.translations.keys()),
+        ).dict()
     )
 
 
@@ -116,10 +118,11 @@ async def invoke_intent(
         logger.error("Intent not found: %s", repr(request.context.intent))
         return JSONResponse({"code": 1, "text": "Intent not found!"}, status_code=404)
 
-    return await invoke(
+    response = await invoke(
         handler,
         request.with_translation(_get_translation(rq.app, request.context.locale)),
     )
+    return JSONResponse(response.dict())
 
 
 def api_base():
@@ -178,6 +181,15 @@ def setup_routes(app: FastAPI):
     )
 
     app.add_api_route(
+        f"{api_base()}/info",
+        handle_info_request,
+        dependencies=authentication,
+        response_model=SkillInfoResponse,
+        name="Get Skill Info",
+        tags=["Skill endpoints"],
+    )
+
+    app.add_api_route(
         f"{api_base()}",
         invoke_intent,
         dependencies=authentication,
@@ -185,15 +197,6 @@ def setup_routes(app: FastAPI):
         response_model=SkillInvokeResponse,
         response_model_exclude_none=True,
         name="Invoke Intent",
-        tags=["Skill endpoints"],
-    )
-
-    app.add_api_route(
-        f"{api_base()}/info",
-        handle_info_request,
-        dependencies=authentication,
-        response_model=SkillInfoResponse,
-        name="Get Skill Info",
         tags=["Skill endpoints"],
     )
 
