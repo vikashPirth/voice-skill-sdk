@@ -139,7 +139,7 @@ def _converters(annotation) -> Tuple:
         converter = list_functor(annotation.__args__)
     elif _is_subtype(annotation, entities.AttributeV2):
         converter = entities.get_entity, attr_v2_functor(annotation.__args__)
-    elif lenient_issubclass(annotation, Context):
+    elif lenient_issubclass(annotation, (Request, Context, Session)):
         converter = (lambda c: c,)  # No-op
     else:
         # Get a single attribute and convert to type

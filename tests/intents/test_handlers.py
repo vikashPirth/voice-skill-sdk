@@ -16,11 +16,12 @@ from contextvars import ContextVar
 from typing import List
 import pytest
 
-from skill_sdk import Response
+from skill_sdk import Request, Response
 from skill_sdk.intents import (
     intent_handler,
     AttributeV2,
     Context,
+    Session,
     EntityValueException,
 )
 from skill_sdk import util
@@ -44,7 +45,7 @@ class TestHandlerDecorator(unittest.TestCase):
             def decorated_test(param):
                 return None
 
-    def test_handler_context(self):
+    def test_handler_param_context(self):
         @intent_handler
         def decorated_test(context: Context, timezone: str):
             return context, timezone
@@ -52,6 +53,24 @@ class TestHandlerDecorator(unittest.TestCase):
         r = create_request("TEST_CONTEXT")
         result = decorated_test(r)
         self.assertEqual(result, (r.context, "Europe/Berlin"))
+
+    def test_handler_param_request(self):
+        @intent_handler
+        def decorated_test(request: Request):
+            return request
+
+        r = create_request("TEST_CONTEXT")
+        result = decorated_test(r)
+        self.assertEqual(result, r)
+
+    def test_handler_param_session(self):
+        @intent_handler
+        def decorated_test(session: Session):
+            return session
+
+        r = create_request("TEST_CONTEXT")
+        result = decorated_test(r)
+        self.assertEqual(result, r.session)
 
     def test_handler_array(self):
         """Check simple usage with no conversion"""
