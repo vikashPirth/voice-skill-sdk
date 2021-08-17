@@ -2,7 +2,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.1.4 - 2021-08-17
 
 ### Features
 
@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 
 -   Fixed cutting DelayedClientTask from skill response.
 
--   Fixed `EntityValueException` if intent handler parameter annotated as `skill_sdk.intents.Request`.
+-   Fixed `EntityValueException` if an intent handler parameter annotated as `skill_sdk.intents.Request`.
 
 -   Bump FastAPI from 0.67.0 to 0.68.0.
 
