@@ -10,13 +10,13 @@
 
 import datetime
 import unittest
-import pytest
+import asyncio  # noqa
 
 from fastapi.testclient import TestClient
 from skill_sdk import Response
 from skill_sdk.util import Server, create_request
 from skill_sdk.responses.task import ClientTask
-from skill_sdk.skill import intent_handler, Skill
+from skill_sdk.skill import Skill
 
 
 class TestTasks(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestTasks(unittest.TestCase):
             {
                 "invokeData": {
                     "intent": "WEATHER__INTENT",
-                    "parameters": {"location": "Berlin"},
+                    "parameters": {"location": ["Berlin"]},
                 },
                 "executionTime": {
                     "executeAfter": {"reference": "SPEECH_END", "offset": "P0D"}
@@ -41,7 +41,7 @@ class TestTasks(unittest.TestCase):
             {
                 "invokeData": {
                     "intent": "WEATHER__INTENT",
-                    "parameters": {"location": "Berlin"},
+                    "parameters": {"location": ["Berlin"]},
                 },
                 "executionTime": {
                     "executeAfter": {"reference": "SPEECH_END", "offset": "PT10S"}
@@ -55,7 +55,7 @@ class TestTasks(unittest.TestCase):
             {
                 "invokeData": {
                     "intent": "WEATHER__INTENT",
-                    "parameters": {"location": "Berlin"},
+                    "parameters": {"location": ["Berlin"]},
                 },
                 "executionTime": {"executeAt": "2120-12-31T00:00:00"},
             },
@@ -64,14 +64,14 @@ class TestTasks(unittest.TestCase):
 
 
 def test_response_with_delayed_task(app: Skill):
-    @intent_handler
     def response_with_task():
-        from skill_sdk.i18n import _
-
-        return Response(_("Hola")).with_task(
-            ClientTask.invoke("HOLA_INTENT", skill_id="skill-id").after(
-                offset=datetime.timedelta(seconds=10)
-            )
+        return Response("Hola").with_task(
+            ClientTask.invoke(
+                "HOLA_INTENT",
+                skill_id="skill-id",
+                single="single",
+                multiple=["multiple"],
+            ).after(offset=datetime.timedelta(seconds=10))
         )
 
     app.include("TEST_HOLA", handler=response_with_task)
@@ -91,7 +91,7 @@ def test_response_with_delayed_task(app: Skill):
                     "invokeData": {
                         "intent": "HOLA_INTENT",
                         "skillId": "skill-id",
-                        "parameters": {},
+                        "parameters": {"single": ["single"], "multiple": ["multiple"]},
                     },
                     "executionTime": {
                         "executeAfter": {"reference": "SPEECH_END", "offset": "PT10S"}

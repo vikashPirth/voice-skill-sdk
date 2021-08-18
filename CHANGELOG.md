@@ -2,7 +2,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 1.1.4 - 2021-08-17
+## 1.1.4 - 2021-08-18
 
 ### Features
 
@@ -14,9 +14,14 @@ All notable changes to this project will be documented in this file.
 
 -   Fixed "typing.List" annotation handling in UI.
 
--   Fixed cutting DelayedClientTask from skill response.
+-   Fixed cutting `DelayedClientTask` from skill response. 
+    Added type annotation to `DelayedClientTask.invoke` keyword arguments.
 
 -   Fixed `EntityValueException` if an intent handler parameter annotated as `skill_sdk.intents.Request`.
+
+-   Fixed `ValidationError` when loading skill settings caused by not set API_KEY environment variable.
+    
+-   Fixed `asyncio - Task exception was never retrieved` error message in debug log UI display.
 
 -   Bump FastAPI from 0.67.0 to 0.68.0.
 

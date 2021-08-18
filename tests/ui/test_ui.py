@@ -13,10 +13,8 @@ import pathlib
 import datetime
 from datetime import date
 
-import pytest
 from fastapi.testclient import TestClient
 
-from skill_sdk.skill import init_app
 from skill_sdk import ui, util
 from skill_sdk.__version__ import __spi_version__
 
@@ -24,14 +22,8 @@ from skill_sdk.__version__ import __spi_version__
 LOCALHOST = "http://localhost"
 
 
-@pytest.fixture
-def client():
-    app = init_app(develop=True)
-    return TestClient(app)
-
-
-def test_list_intents_empty(client):
-    r = client.get("/intents")
+def test_list_intents_empty(app):
+    r = TestClient(app).get("/intents")
     assert r.status_code == 200
     assert r.json() == []
 
@@ -88,12 +80,12 @@ def test_models(monkeypatch):
     }
 
 
-def test_list_intents(client):
-    @client.app.intent_handler("Test_Intent")
+def test_list_intents(app):
+    @app.intent_handler("Test_Intent")
     def handle(i: int, t: str, f: float, dt: date):
         ...
 
-    r = client.get("/intents")
+    r = TestClient(app).get("/intents")
     assert r.status_code == 200
     assert r.json() == [
         {
@@ -133,9 +125,9 @@ def test_list_intents(client):
     ]
 
 
-def test_list_types(client):
+def test_list_types(app):
 
-    assert client.get("/types").json() == [
+    assert TestClient(app).get("/types").json() == [
         "bool",
         "int",
         "float",
@@ -152,12 +144,13 @@ def test_list_types(client):
     ]
 
 
-def test_worker_attach(mocker, client):
+def test_worker_attach(mocker, app):
 
     # Workaround for Python 3.7 that has no AsyncMock
     worker_mock = mocker.patch.object(
         ui.notifier, "worker", return_value=asyncio.Future()
     )
+    client = TestClient(app)
     with client:
         worker_mock.assert_called_once()
 

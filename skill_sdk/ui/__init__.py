@@ -220,7 +220,10 @@ class Notifier:
             await self._notify(message)
 
     async def push(self, msg: Text):
-        await self.generator.asend(msg)
+        try:
+            await self.generator.asend(msg)
+        except RuntimeError:
+            pass
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -486,7 +489,10 @@ def setup(app: FastAPI):
         """Initializes websocket listener"""
 
         # Prime the push notification generator
-        await notifier.generator.asend(None)
+        try:
+            await notifier.generator.asend(None)
+        except StopAsyncIteration:
+            pass
 
         # Silence the websocket.protocol logger
         logging.getLogger("websockets").setLevel(logging.CRITICAL)
