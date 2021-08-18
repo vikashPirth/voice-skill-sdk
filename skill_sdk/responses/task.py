@@ -12,7 +12,7 @@
 
 import datetime
 from enum import Enum
-from typing import Any, Dict, Optional, Text
+from typing import Dict, List, Optional, Text, Union
 
 import isodate
 from skill_sdk.util import CamelModel
@@ -71,7 +71,7 @@ class InvokeData(CamelModel):
     skill_id: Optional[Text] = None
 
     # Parameters (will be converted to intent invoke attributes)
-    parameters: Dict[Text, Any] = {}
+    parameters: Dict[Text, List[Text]] = {}
 
 
 class DelayedClientTask(CamelModel):
@@ -88,23 +88,30 @@ class DelayedClientTask(CamelModel):
     execution_time: ExecutionTime
 
     @staticmethod
-    def invoke(intent: Text, skill_id: Text = None, **kwargs) -> "DelayedClientTask":
+    def invoke(
+        intent: Text, skill_id: Text = None, **kwargs: Union[Text, List[Text]]
+    ) -> "DelayedClientTask":
         """
         Create a task to invoke intent
 
             Execute "WEATHER__INTENT" in 10 seconds after speech end:
-            >>>         response = Response("Weather forecast in 10 seconds.").with_task(
-            >>>             ClientTask.invoke("WEATHER__INTENT")
+            >>>         response = Response("Weather forecast for Bonn in 10 seconds.").with_task(
+            >>>             ClientTask.invoke("WEATHER__INTENT", location=["Bonn"])
             >>>                 .after(offset=datetime.timedelta(seconds=10))
             >>>         )
 
 
         :param intent:      Intent name to invoke
         :param skill_id:    Optional skill Id
-        :param kwargs:      Key/values map converted into attributes for skill invocation
+        :param kwargs:      Parameters: wey/values map converted into attributes for skill invocation
         :return:
         """
-        invoke_data = InvokeData(intent=intent, skill_id=skill_id, parameters=kwargs)
+        parameters: Dict[Text, List[Text]] = {
+            k: [v] if isinstance(v, Text) else v for k, v in kwargs.items()
+        }
+        invoke_data = InvokeData(
+            intent=intent, skill_id=skill_id, parameters=parameters
+        )
         execution_time = ExecutionTime.after(ReferenceType.SPEECH_END)
 
         return DelayedClientTask(invoke_data=invoke_data, execution_time=execution_time)

@@ -225,6 +225,10 @@ class Settings(BaseSettings):
     SKILL_API_USER: Text = "cvi"
     SKILL_API_KEY: Text = uuid.uuid1().__str__()
 
+    @validator("SKILL_API_KEY", pre=True, always=True)
+    def generate(cls, v):  # pylint: disable=E0213
+        return v or uuid.uuid1().__str__()
+
     # Default HTTP port
     HTTP_PORT: int = 4242
 
