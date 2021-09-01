@@ -31,7 +31,7 @@ INFO:     Uvicorn running on http://127.0.0.1:4242 (Press CTRL+C to quit)
 [Gunicorn](https://gunicorn.org/) is the simplest way to deploy the skill in a production setting. 
 Uvicorn includes a gunicorn worker class that means you can get set up with very little configuration.
 
-Deploy the skill with Gunicorn on port 4242 using two workers:
+For example, to deploy the skill with Gunicorn on port 4242 using two workers:
 
 `gunicorn -b :4242 -w 2 -k uvicorn.workers.UvicornWorker app:app`
 
@@ -84,7 +84,7 @@ To output the Gunicorn logs in JSON GrayLog-compatible form, skill SDK implement
 `skill_sdk.log.GunicornLogger` class. This formatter can be specified with `--logger-class` parameter:
 
 
-`gunicorn -b :4242 -w 2 -k uvicorn.workers.UvicornWorker --logger-class=skill_sdk.log.GunicornLogger app:app`
+`gunicorn -b :4242 -k uvicorn.workers.UvicornWorker --logger-class=skill_sdk.log.GunicornLogger app:app`
 
 
 # Development Mode

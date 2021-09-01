@@ -10,6 +10,7 @@
 
 import os
 import time
+import asyncio
 import logging
 import datetime
 import threading
@@ -23,7 +24,6 @@ from skill_sdk.util import (
     create_context,
     create_request,
     mock_datetime_now,
-    run_in_executor,
 )
 from skill_sdk.i18n import Translations
 
@@ -132,7 +132,7 @@ class TestContextLocal(unittest.TestCase):
 
 @pytest.mark.asyncio
 async def test_context_local_session():
-    def one(_):
+    async def one(_):
         with RequestContextVar(request=_):
             del request.session["key-1"]
             del request.session["key-2"]
@@ -142,7 +142,7 @@ async def test_context_local_session():
                 "new": True,
             }
 
-    def init(_):
+    async def init(_):
         with RequestContextVar(request=_):
             with pytest.raises(TypeError):
                 request.context.locale = "de"  # noqa: attempt to modify "read-only" context (to raise TypeError)
@@ -153,7 +153,7 @@ async def test_context_local_session():
                 "new": True,
             }
 
-    def two(_):
+    async def two(_):
         with RequestContextVar(request=_):
             request.session["key-1"] = "value-12"
             request.session["key-2"] = "value-22"
@@ -167,7 +167,17 @@ async def test_context_local_session():
         "TELEKOM_Demo_Intent", session={"key-1": "value-1", "key-2": "value-2"}
     )
 
-    await run_in_executor(init, req)
-    await run_in_executor(one, req)
-    await run_in_executor(init, req)
-    await run_in_executor(two, req)
+    await asyncio.gather(
+        init(req),
+        one(req),
+        two(req),
+        init(req),
+        one(req),
+        two(req),
+        init(req),
+        one(req),
+        two(req),
+        init(req),
+        one(req),
+        two(req),
+    )
