@@ -2,7 +2,7 @@
 
 set -e
 
-# For production development:
-# gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app
+# For production deployment:
+# gunicorn -k uvicorn.workers.UvicornWorker app:app
 
 vs run app:app
