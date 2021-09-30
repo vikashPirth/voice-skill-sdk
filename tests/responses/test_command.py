@@ -8,7 +8,7 @@
 #
 #
 
-import unittest
+import pytest
 
 from skill_sdk.responses import (
     AudioPlayer,
@@ -18,133 +18,104 @@ from skill_sdk.responses import (
 )
 
 
-class TestKits(unittest.TestCase):
-    def test_audio_player(self):
-        command = AudioPlayer.play_stream("URL").dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "audio_player",
-                    "action": "play_stream",
-                    "parameters": {"url": "URL"},
-                }
-            },
-            command,
-        )
+def test_audio_player():
+    command = AudioPlayer.play_stream("URL").dict()
+    assert command == {
+            "use_kit": {
+                "kit_name": "audio_player",
+                "action": "play_stream",
+                "parameters": {"url": "URL"},
+            }
+        }
 
-        command = AudioPlayer.play_stream_before_text("URL").dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "audio_player",
-                    "action": "play_stream_before_text",
-                    "parameters": {"url": "URL"},
-                }
-            },
-            command,
-        )
+    command = AudioPlayer.play_stream_before_text("URL").dict()
+    assert command == {
+            "use_kit": {
+                "kit_name": "audio_player",
+                "action": "play_stream_before_text",
+                "parameters": {"url": "URL"},
+            }
+        }
 
-        command = AudioPlayer.stop(text="We're getting STOPPED!").dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "audio_player",
-                    "action": "stop",
-                    "parameters": {
-                        "content_type": "radio",
-                        "notify": {"not_playing": "We're getting STOPPED!"},
-                    },
-                }
-            },
-            command,
-        )
 
-        command = AudioPlayer.pause(text="We're PAUSED!").dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "audio_player",
-                    "action": "pause",
-                    "parameters": {
-                        "content_type": "radio",
-                        "notify": {"not_playing": "We're PAUSED!"},
-                    },
-                }
-            },
-            command,
-        )
+    command = AudioPlayer.stop(text="We're getting STOPPED!").dict()
+    assert command == {
+            "use_kit": {
+                "kit_name": "audio_player",
+                "action": "stop",
+                "parameters": {
+                    "content_type": "radio",
+                    "notify": {"not_playing": "We're getting STOPPED!"},
+                },
+            }
+        }
 
-        command = AudioPlayer.resume("voicemail").dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "audio_player",
-                    "action": "resume",
-                    "parameters": {"content_type": "voicemail"},
-                }
-            },
-            command,
-        )
+    command = AudioPlayer.pause(text="We're PAUSED!").dict()
+    assert command =={
+            "use_kit": {
+                "kit_name": "audio_player",
+                "action": "pause",
+                "parameters": {
+                    "content_type": "radio",
+                    "notify": {"not_playing": "We're PAUSED!"},
+                },
+            }
+        }
 
-    def test_calendar(self):
-        command = Calendar.snooze_start(5).dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "calendar",
-                    "action": "snooze_start",
-                    "parameters": {"snooze_seconds": 5},
-                }
-            },
-            command,
-        )
+    command = AudioPlayer.resume("voicemail").dict()
+    assert command == {
+            "use_kit": {
+                "kit_name": "audio_player",
+                "action": "resume",
+                "parameters": {"content_type": "voicemail"},
+            }
+        }
 
-        command = Calendar.snooze_cancel().dict()
-        self.assertEqual(
-            {"use_kit": {"kit_name": "calendar", "action": "snooze_cancel"}}, command
-        )
 
-    def test_timer(self):
-        command = Timer.set_timer().dict()
-        self.assertEqual(
-            {"use_kit": {"kit_name": "timer", "action": "set_timer"}}, command
-        )
+def test_calendar():
+    command = Calendar.snooze_start(5).dict()
+    assert command == {
+            "use_kit": {
+                "kit_name": "calendar",
+                "action": "snooze_start",
+                "parameters": {"snooze_seconds": 5},
+            }
+        }
 
-        command = Timer.cancel_timer().dict()
-        self.assertEqual(
-            {"use_kit": {"kit_name": "timer", "action": "cancel_timer"}}, command
-        )
+    command = Calendar.snooze_cancel().dict()
+    assert command == {"use_kit": {"kit_name": "calendar", "action": "snooze_cancel"}}
 
-    def test_system(self):
-        command = System.stop("Media").dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "system",
-                    "action": "stop",
-                    "parameters": {"skill": "Media"},
-                }
-            },
-            command,
-        )
 
-        for action in System.Action:
-            if action not in ("stop", "volume_to"):
-                command = getattr(System, action)().dict()
-                self.assertEqual(
-                    {"use_kit": {"kit_name": "system", "action": action}}, command
-                )
+def test_timer():
+    command = Timer.set_timer().dict()
+    assert command == {"use_kit": {"kit_name": "timer", "action": "set_timer"}}
 
-        command = System.volume_to(5).dict()
-        self.assertEqual(
-            {
-                "use_kit": {
-                    "kit_name": "system",
-                    "action": "volume_to",
-                    "parameters": {"value": 5},
-                }
-            },
-            command,
-        )
-        with self.assertRaises(ValueError):
-            System.volume_to(12)
+    command = Timer.cancel_timer().dict()
+    assert command == {"use_kit": {"kit_name": "timer", "action": "cancel_timer"}}
+
+
+def test_system():
+    command = System.stop("Media").dict()
+    assert command == {
+            "use_kit": {
+                "kit_name": "system",
+                "action": "stop",
+                "parameters": {"skill": "Media"},
+            }
+        }
+
+    for action in System.Action:
+        if action not in ("stop", "volume_to"):
+            command = getattr(System, action)().dict()
+            assert command == {"use_kit": {"kit_name": "system", "action": action}}
+
+    command = System.volume_to(5).dict()
+    assert command == {
+            "use_kit": {
+                "kit_name": "system",
+                "action": "volume_to",
+                "parameters": {"value": 5},
+            }
+        }
+    with pytest.raises(ValueError):
+        System.volume_to(12)

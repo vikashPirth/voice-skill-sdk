@@ -30,42 +30,43 @@ from skill_sdk.i18n import Translations
 logger = logging.getLogger(__name__)
 
 
-class TestContext(unittest.TestCase):
-    def setUp(self):
-        self.ctx = create_context("Testing__Intent")
+class TestContext:
+    @pytest.fixture
+    def context(self):
+        return create_context("Testing__Intent")
 
-    def test_tz_functions(self):
+    def test_tz_functions(self, context):
         now = datetime.datetime(
             year=2100, month=12, day=19, hour=23, minute=42, tzinfo=tz.tzutc()
         )
 
-        self.assertEqual("CET", self.ctx.gettz().tzname(now))
+        assert "CET" == context.gettz().tzname(now)
         ctx = create_context("Testing__Intent", timezone="Mars")
         with patch.object(logging.Logger, "error") as log:
-            self.assertEqual("UTC", ctx.gettz().tzname(now))
-            self.assertEqual(log.call_count, 1)
+            assert "UTC" == ctx.gettz().tzname(now)
+            assert log.call_count == 1
 
         with mock_datetime_now(now, datetime):
             # Make sure timezone is set to "Europe/Berlin"
-            self.assertEqual(self.ctx.attributes.get("timezone"), ["Europe/Berlin"])
-            self.assertEqual(self.ctx.gettz().tzname(now), "CET")
+            assert context.attributes.get("timezone") == ["Europe/Berlin"]
+            assert context.gettz().tzname(now) == "CET"
             ctx = create_context("Testing__Intent", timezone="Europe/Athens")
-            self.assertIsInstance(ctx.gettz(), datetime.tzinfo)
+            assert isinstance(ctx.gettz(), datetime.tzinfo)
 
             with patch.dict(os.environ, {"TZ": "UTC"}):
                 time.tzset()
                 local_now = ctx.now()
-                self.assertEqual(local_now, now)
-                self.assertEqual(local_now.day, 20)
-                self.assertEqual(local_now.hour, 1)
+                assert local_now == now
+                assert local_now.day == 20
+                assert local_now.hour == 1
 
                 local_today = ctx.today()
-                self.assertEqual(local_today.day, 20)
-                self.assertEqual(local_today.hour, 0)
-                self.assertEqual(local_today.minute, 0)
+                assert local_today.day == 20
+                assert local_today.hour == 0
+                assert local_today.minute == 0
 
-    def test_missing_attribute(self):
-        self.assertEqual("Value", self.ctx._get_attr_value("Non-existing", "Value"))
+    def test_missing_attribute(self, context):
+        assert "Value" == context._get_attr_value("Non-existing", "Value")
 
 
 def run_thread(func):
