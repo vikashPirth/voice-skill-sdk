@@ -41,20 +41,24 @@ def setup_logging(
 
     try:
         logging.config.dictConfig(get_config_dict(log_level, log_format))
-
-        # Patch Uvicorn logger default formats and level
-        LOGGING_CONFIG["formatters"]["access"]["()"] = (
-            "skill_sdk.log.CloudGELFFormatter"
-            if log_format == config.FormatType.GELF
-            else "uvicorn.logging.AccessFormatter"
-        )
-
-        LOGGING_CONFIG["loggers"]["uvicorn"]["level"] = log_level
-        LOGGING_CONFIG["loggers"]["uvicorn.error"]["level"] = log_level
-        LOGGING_CONFIG["loggers"]["uvicorn.access"]["level"] = log_level
-
     except KeyError:
         raise RuntimeError("Invalid log format: %s", repr(log_format))
+
+    # Patch Uvicorn logger default formats and level
+    if isinstance(log_level, str):
+        log_level = logging.getLevelName(log_level)
+    for _ in ("uvicorn", "uvicorn.error", "uvicorn.access", "uvicorn.asgi"):
+        logger = logging.getLogger(_)
+        #
+        # Change loggers level to target,
+        # unless the target level is DEBUG and Uvicorn loggers level is TRACE:
+        # we don't have TRACE logging level
+        #
+        if not(log_level == logging.DEBUG and logger.level < logging.DEBUG):
+            logger.setLevel(log_level)
+        if log_format == config.FormatType.GELF:
+            for handler in logger.handlers:
+                handler.setFormatter(CloudGELFFormatter())
 
 
 def tracing_headers() -> Dict:
