@@ -8,26 +8,25 @@
 #
 #
 
-import unittest
-
 from skill_sdk.responses import (
     ErrorCode,
     ErrorResponse,
 )
 
 
-class TestErrorResponse(unittest.TestCase):
-    def test_init(self):
-        er = ErrorResponse(code=999, text="internal error")
-        self.assertEqual(er.code, 999)
-        self.assertEqual(er.text, "internal error")
+def test_init():
+    er = ErrorResponse(code=999, text="internal error")
+    assert er.code == 999
+    assert er.text == "internal error"
 
-    def test_as_response_400(self):
-        er = ErrorResponse(code=ErrorCode.INVALID_TOKEN, text="invalid token")
-        self.assertEqual(er.code, 2)
-        self.assertEqual(er.text, "invalid token")
 
-    def test_as_response_500(self):
-        er = ErrorResponse(code=ErrorCode.INTERNAL_ERROR, text="unhandled exception")
-        self.assertEqual(er.code, 999)
-        self.assertEqual(er.text, "unhandled exception")
+def test_as_response_400():
+    er = ErrorResponse(code=ErrorCode.INVALID_TOKEN, text="invalid token")
+    assert er.code == 2
+    assert er.text == "invalid token"
+
+
+def test_as_response_500():
+    er = ErrorResponse(code=ErrorCode.INTERNAL_ERROR, text="unhandled exception")
+    assert er.code == 999
+    assert er.text == "unhandled exception"

@@ -9,7 +9,7 @@
 #
 
 from base64 import b64encode
-import unittest
+import pytest
 
 from fastapi.testclient import TestClient
 
@@ -29,141 +29,155 @@ SKILL_INFO = {
 }
 
 
-class TestRoutes(unittest.TestCase):
-    def setUp(self) -> None:
-        credentials = b64encode(
-            ":".join((settings.SKILL_API_USER, settings.SKILL_API_KEY)).encode()
-        ).decode("ascii")
-        self.auth = {"Authorization": f"Basic {credentials}"}
-        self.app = init_app()
-        self.client = TestClient(self.app)
+@pytest.fixture
+def app():
+    app = init_app()
+    yield app
+    app.close()
 
-    def tearDown(self) -> None:
-        self.app.close()
 
-    def test_health(self):
-        response = self.client.get(settings.K8S_READINESS)
-        assert response.status_code == 418
-        assert response.json() == {"text": "No intent handlers loaded!"}
+@pytest.fixture
+def client(app):
+    return TestClient(app)
 
-        self.app.include("Test_Intent", handler=lambda: "Hola")
 
-        response = self.client.get(settings.K8S_READINESS)
-        assert response.status_code == 200
+@pytest.fixture
+def auth_header():
+    credentials = b64encode(
+        ":".join((settings.SKILL_API_USER, settings.SKILL_API_KEY)).encode()
+    ).decode("ascii")
+    return {"Authorization": f"Basic {credentials}"}
 
-    def test_info_response(self):
-        response = self.client.get(
-            "/v1/skill-noname/info",
-            headers=self.auth,
-        )
-        assert response.status_code == 200
-        assert response.json() == SKILL_INFO
 
-    def test_invoke_intent_not_found(self):
-        response = self.client.post(
-            ENDPOINT,
-            json=create_request("Test_Intent").dict(),
-            headers=self.auth,
-        )
-        assert response.status_code == 404
-        assert response.json() == {"code": 1, "text": "Intent not found!"}
+def test_health(app, client):
+    response = client.get(settings.K8S_READINESS)
+    assert response.status_code == 418
+    assert response.json() == {"text": "No intent handlers loaded!"}
 
-    def test_invoke_fallback_intent(self):
-        self.app.include(FALLBACK_INTENT, handler=lambda: "Hello fallback")
-        response = self.client.post(
-            ENDPOINT,
-            json=create_request("Test_Intent").dict(),
-            headers=self.auth,
-        )
-        assert response.status_code == 200
-        assert response.json() == {"text": "Hello fallback", "type": "TELL"}
+    app.include("Test_Intent", handler=lambda: "Hola")
+    response = client.get(settings.K8S_READINESS)
+    assert response.status_code == 200
 
-    def test_invoke_response_tell(self):
-        def handler():
-            from skill_sdk.intents.request import r
 
-            r.session["Session Key"] = "Hola"
-            return "Hola"
+def test_info_response(client, auth_header):
+    response = client.get(
+        "/v1/skill-noname/info",
+        headers=auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() == SKILL_INFO
 
-        self.app.include("Test_Intent", handler=handler)
 
-        response = self.client.post(
-            ENDPOINT,
-            json=create_request("Test_Intent", session={}).dict(),
-            headers=self.auth,
-        )
-        assert response.status_code == 200
-        assert response.json() == {"text": "Hola", "type": "TELL"}
+def test_invoke_intent_not_found(client, auth_header):
+    response = client.post(
+        ENDPOINT,
+        json=create_request("Test_Intent").dict(),
+        headers=auth_header,
+    )
+    assert response.status_code == 404
+    assert response.json() == {"code": 1, "text": "Intent not found!"}
 
-    def test_invoke_response_ask(self):
-        def handler():
-            from skill_sdk.intents.request import r
 
-            r.session["Session Key"] = "Hello"
-            return ask("Hello?")
+def test_invoke_fallback_intent(app, client, auth_header):
+    app.include(FALLBACK_INTENT, handler=lambda: "Hello fallback")
+    response = client.post(
+        ENDPOINT,
+        json=create_request("Test_Intent").dict(),
+        headers=auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() == {"text": "Hello fallback", "type": "TELL"}
 
-        self.app.include("Test_Intent", handler=handler)
 
-        response = self.client.post(
-            ENDPOINT,
-            json=create_request("Test_Intent", session={}).dict(),
-            headers=self.auth,
-        )
-        assert response.status_code == 200
-        assert response.json() == {
-            "text": "Hello?",
-            "type": "ASK",
-            "session": {"attributes": {"Session Key": "Hello"}},
-        }
+def test_invoke_response_tell(app, client, auth_header):
+    def handler():
+        from skill_sdk.intents.request import r
 
-    def test_root_redirect(self):
-        response = self.client.get("/", allow_redirects=False)
-        assert response.status_code == 307
-        assert response.headers["location"] == "/redoc"
+        r.session["Session Key"] = "Hola"
+        return "Hola"
 
-    def test_response_with_card_and_command(self):
-        from skill_sdk.responses.card import Card
+    app.include("Test_Intent", handler=handler)
 
-        self.app.include(
-            "Test_Intent",
-            handler=lambda: (
-                tell("Hola")
-                .with_card(
-                    Card(title_text="Test").with_action(
-                        item_text="Text", item_action="action"
-                    )
+    response = client.post(
+        ENDPOINT,
+        json=create_request("Test_Intent", session={}).dict(),
+        headers=auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() == {"text": "Hola", "type": "TELL"}
+
+
+def test_invoke_response_ask(app, client, auth_header):
+    def handler():
+        from skill_sdk.intents.request import r
+
+        r.session["Session Key"] = "Hello"
+        return ask("Hello?")
+
+    app.include("Test_Intent", handler=handler)
+
+    response = client.post(
+        ENDPOINT,
+        json=create_request("Test_Intent", session={}).dict(),
+        headers=auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "text": "Hello?",
+        "type": "ASK",
+        "session": {"attributes": {"Session Key": "Hello"}},
+    }
+
+
+def test_root_redirect(client):
+    response = client.get("/", allow_redirects=False)
+    assert response.status_code == 307
+    assert response.headers["location"] == "/redoc"
+
+
+def test_response_with_card_and_command(app, client, auth_header):
+    from skill_sdk.responses.card import Card
+
+    app.include(
+        "Test_Intent",
+        handler=lambda: (
+            tell("Hola")
+            .with_card(
+                Card(title_text="Test").with_action(
+                    item_text="Text", item_action="action"
                 )
-                .with_command(command.AudioPlayer.play_stream("kool url"))
-            ),
-        )
+            )
+            .with_command(command.AudioPlayer.play_stream("kool url"))
+        ),
+    )
 
-        response = self.client.post(
-            ENDPOINT,
-            json=create_request("Test_Intent", session={}).dict(),
-            headers=self.auth,
-        )
-        assert response.status_code == 200
-        assert response.json() == {
-            "text": "Hola",
-            "type": "TELL",
-            "card": {
-                "type": "GENERIC_DEFAULT",
-                "version": 3,
-                "data": {
-                    "titleText": "Test",
-                    "listSections": [
-                        {"items": [{"itemText": "Text", "itemAction": "action"}]}
-                    ],
-                },
+    response = client.post(
+        ENDPOINT,
+        json=create_request("Test_Intent", session={}).dict(),
+        headers=auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "text": "Hola",
+        "type": "TELL",
+        "card": {
+            "type": "GENERIC_DEFAULT",
+            "version": 3,
+            "data": {
+                "titleText": "Test",
+                "listSections": [
+                    {"items": [{"itemText": "Text", "itemAction": "action"}]}
+                ],
             },
-            "result": {
-                "data": {
-                    "use_kit": {
-                        "kit_name": "audio_player",
-                        "action": "play_stream",
-                        "parameters": {"url": "kool url"},
-                    }
-                },
-                "local": True,
+        },
+        "result": {
+            "data": {
+                "use_kit": {
+                    "kit_name": "audio_player",
+                    "action": "play_stream",
+                    "parameters": {"url": "kool url"},
+                }
             },
-        }
+            "local": True,
+        },
+    }
