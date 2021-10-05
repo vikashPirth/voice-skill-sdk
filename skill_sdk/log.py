@@ -31,7 +31,6 @@ def setup_logging(
     :param log_format:
     :return:
     """
-    from uvicorn.config import LOGGING_CONFIG
 
     log_level = log_level or config.settings.LOG_LEVEL
     log_format = log_format or config.settings.LOG_FORMAT
@@ -54,7 +53,7 @@ def setup_logging(
         # unless the target level is DEBUG and Uvicorn loggers level is TRACE:
         # we don't have TRACE logging level
         #
-        if not(log_level == logging.DEBUG and logger.level < logging.DEBUG):
+        if not (log_level == logging.DEBUG and logger.level < logging.DEBUG):
             logger.setLevel(log_level)
         if log_format == config.FormatType.GELF:
             for handler in logger.handlers:

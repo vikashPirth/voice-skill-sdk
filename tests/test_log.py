@@ -114,14 +114,18 @@ def test_uvicorn_patched(app):
     Config(app).configure_logging()
     log.setup_logging(logging.DEBUG, config.FormatType.GELF)
 
-    assert isinstance(logging.getLogger("uvicorn.access").handlers[0].formatter, CloudGELFFormatter)
+    assert isinstance(
+        logging.getLogger("uvicorn.access").handlers[0].formatter, CloudGELFFormatter
+    )
     assert logging.getLogger("uvicorn").level == logging.DEBUG
     assert logging.getLogger("uvicorn.error").level == logging.DEBUG
     assert logging.getLogger("uvicorn.access").level == logging.DEBUG
 
     Config(app).configure_logging()
     log.setup_logging(logging.ERROR, config.FormatType.HUMAN)
-    assert not isinstance(logging.getLogger("uvicorn.access").handlers[0].formatter, CloudGELFFormatter)
+    assert not isinstance(
+        logging.getLogger("uvicorn.access").handlers[0].formatter, CloudGELFFormatter
+    )
     assert logging.getLogger("uvicorn").level == logging.ERROR
     assert logging.getLogger("uvicorn.error").level == logging.ERROR
     assert logging.getLogger("uvicorn.access").level == logging.ERROR

@@ -22,7 +22,6 @@ import logging
 from skill_sdk.cli import (
     add_env_file_argument,
     add_module_argument,
-    import_module_app,
     process_env_file,
 )
 

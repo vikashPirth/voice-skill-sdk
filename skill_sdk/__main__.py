@@ -9,7 +9,6 @@
 
 """Command line interface"""
 
-import sys
 import argparse
 
 from skill_sdk.cli import (
@@ -28,7 +27,6 @@ def main() -> None:
 
     :return:
     """
-    from skill_sdk import log
 
     parser = argparse.ArgumentParser(
         prog="vs",

@@ -77,7 +77,7 @@ class ListItem(CamelModel):
     def title(self):
         """**DEPRECATED**: Item title"""
         warn(
-            f"ListItem.title is deprecated. Use ListItem.item_text instead.",
+            "ListItem.title is deprecated. Use ListItem.item_text instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -87,7 +87,7 @@ class ListItem(CamelModel):
     def icon_url(self):
         """**DEPRECATED**: Item icon URL"""
         warn(
-            f"ListItem.icon_url is deprecated. Use ListItem.item_icon_url instead.",
+            "ListItem.icon_url is deprecated. Use ListItem.item_icon_url instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -179,7 +179,7 @@ class CardData(CamelModel):
     def action(self):
         """**DEPRECATED**: Action URL linked to the action text"""
         warn(
-            f"Card.action is deprecated: use ListItem.item_action",
+            "Card.action is deprecated: use ListItem.item_action",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -189,7 +189,7 @@ class CardData(CamelModel):
     def action_text(self):
         """**DEPRECATED**: Action text"""
         warn(
-            f"Card.action_text is deprecated: use ListItem.item_action",
+            "Card.action_text is deprecated: use ListItem.item_action",
             DeprecationWarning,
             stacklevel=2,
         )

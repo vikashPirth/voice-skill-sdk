@@ -11,7 +11,6 @@
 """Geolocation service"""
 
 import logging
-from json import JSONDecodeError
 from typing import Dict, List, Optional, Text
 
 import httpx
