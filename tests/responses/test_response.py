@@ -32,9 +32,7 @@ def test_init_text():
 
 def test_init_full():
     c = Card(title_text="cardtitle", text="cardtext")
-    card_response = Response(
-        "abc123", ResponseType.TELL, card=c, result={"code": 22}
-    )
+    card_response = Response("abc123", ResponseType.TELL, card=c, result={"code": 22})
     assert card_response.text == "abc123"
     assert card_response.type == "TELL"
     assert card_response.card.title_text == "cardtitle"
@@ -78,44 +76,44 @@ def test_response_with_card():
     response = tell("Hola").with_card(card).dict()
 
     assert response == {
-            "type": "TELL",
-            "text": "Hola",
-            "card": {
-                "type": GENERIC_DEFAULT,
-                "version": CARD_VERSION,
-                "data": {
-                    "text": "Text",
-                    "listSections": [
-                        {
-                            "items": [
-                                {
-                                    "itemText": "Title",
-                                    "itemAction": "internal://showResponseText",
-                                }
-                            ]
-                        }
-                    ],
-                },
+        "type": "TELL",
+        "text": "Hola",
+        "card": {
+            "type": GENERIC_DEFAULT,
+            "version": CARD_VERSION,
+            "data": {
+                "text": "Text",
+                "listSections": [
+                    {
+                        "items": [
+                            {
+                                "itemText": "Title",
+                                "itemAction": "internal://showResponseText",
+                            }
+                        ]
+                    }
+                ],
             },
-        }
+        },
+    }
 
 
 def test_response_with_command():
     response = tell("Hola").with_command(AudioPlayer.play_stream("URL")).dict()
     assert response == {
-            "text": "Hola",
-            "type": "TELL",
-            "result": {
-                "data": {
-                    "use_kit": {
-                        "kit_name": "audio_player",
-                        "action": "play_stream",
-                        "parameters": {"url": "URL"},
-                    }
-                },
-                "local": True,
+        "text": "Hola",
+        "type": "TELL",
+        "result": {
+            "data": {
+                "use_kit": {
+                    "kit_name": "audio_player",
+                    "action": "play_stream",
+                    "parameters": {"url": "URL"},
+                }
             },
-        }
+            "local": True,
+        },
+    }
 
 
 def test_response_with_session():
@@ -124,10 +122,10 @@ def test_response_with_session():
         attr2="attr-2",
     )
     assert response.dict() == {
-            "text": "Hola?",
-            "type": "ASK",
-            "session": {"attributes": {"attr1": "attr-1", "attr2": "attr-2"}},
-        }
+        "text": "Hola?",
+        "type": "ASK",
+        "session": {"attributes": {"attr1": "attr-1", "attr2": "attr-2"}},
+    }
     with pytest.raises(ValueError):
         tell("Hola").with_session(
             attr1="attr-1",
@@ -138,22 +136,22 @@ def test_response_with_session():
 def test_response_with_task():
     response = tell("Hola").with_task(ClientTask.invoke("WEATHER__INTENT"))
     assert response.dict() == {
-            "type": "TELL",
-            "text": "Hola",
-            "result": {
-                "data": {},
-                "local": True,
-                "delayedClientTask": {
-                    "invokeData": {"intent": "WEATHER__INTENT", "parameters": {}},
-                    "executionTime": {
-                        "executeAfter": {
-                            "reference": "SPEECH_END",
-                            "offset": "P0D",
-                        }
-                    },
+        "type": "TELL",
+        "text": "Hola",
+        "result": {
+            "data": {},
+            "local": True,
+            "delayedClientTask": {
+                "invokeData": {"intent": "WEATHER__INTENT", "parameters": {}},
+                "executionTime": {
+                    "executeAfter": {
+                        "reference": "SPEECH_END",
+                        "offset": "P0D",
+                    }
                 },
             },
-        }
+        },
+    }
 
 
 def test_tell():
@@ -181,7 +179,9 @@ def test_init_push_notification():
     ).dict()
     assert "abc123" == response["text"]
     assert "TELL" == response["type"]
-    assert {"messagePayload": "payload", "targetName": "device"} == response["pushNotification"]
+    assert {"messagePayload": "payload", "targetName": "device"} == response[
+        "pushNotification"
+    ]
 
 
 #

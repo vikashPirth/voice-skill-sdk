@@ -14,7 +14,6 @@ import asyncio
 import logging
 import datetime
 import threading
-import unittest
 from unittest.mock import patch
 from dateutil import tz
 import pytest
@@ -75,25 +74,23 @@ def run_thread(func):
     t.join()
 
 
-class TestContextLocal(unittest.TestCase):
+class TestContextLocal:
     now = datetime.datetime(
         year=2100, month=12, day=19, hour=23, minute=42, tzinfo=datetime.timezone.utc
     )
 
-    def setUp(self):
+    def setup_method(self):
         req = create_request("TELEKOM_Demo_Intent", timezone=["Europe/Berlin"])
 
         @mock_datetime_now(self.now, datetime)
         def run():
             now = self.now.astimezone(datetime.timezone(datetime.timedelta(hours=1)))
             with RequestContextVar(request=req):
-                self.assertEqual(
-                    request.context.today().timestamp(),
-                    now.replace(hour=0, minute=0, tzinfo=None).timestamp(),
+                assert (
+                    request.context.today().timestamp()
+                    == now.replace(hour=0, minute=0, tzinfo=None).timestamp()
                 )
-                self.assertEqual(
-                    request.context.now().timestamp(), self.now.timestamp()
-                )
+                assert request.context.now().timestamp() == self.now.timestamp()
 
         run_thread(run)
 
@@ -102,12 +99,12 @@ class TestContextLocal(unittest.TestCase):
         req = create_request("TELEKOM_Demo_Intent", timezone=["Europe/Athens"])
         next_day = datetime.datetime(year=2100, month=12, day=20, hour=0, minute=0)
         with RequestContextVar(request=req):
-            self.assertEqual(request.context.today().timestamp(), next_day.timestamp())
-            self.assertEqual(request.context.now().timestamp(), self.now.timestamp())
+            assert request.context.today().timestamp() == next_day.timestamp()
+            assert request.context.now().timestamp(), self.now.timestamp()
 
     @patch.object(logging.Logger, "error")
     def test_context_local_context(self, err_mock):
-        self.assertIsNone(request.context)
+        assert request.context is None
         err_mock.assert_called_with(
             "Accessing request local object outside of the request-response cycle."
         )
@@ -115,20 +112,17 @@ class TestContextLocal(unittest.TestCase):
             "TELEKOM_Demo_Intent", session={"key-1": "value-1", "key-2": "value-2"}
         )
         with RequestContextVar(request=req):
-            self.assertEqual(request.context.intent, "TELEKOM_Demo_Intent")
-            self.assertEqual(
-                {
-                    "id": "123",
-                    "attributes": {"key-1": "value-1", "key-2": "value-2"},
-                    "new": True,
-                },
-                request.session.dict(),
-            )
+            assert request.context.intent == "TELEKOM_Demo_Intent"
+            assert {
+                "id": "123",
+                "attributes": {"key-1": "value-1", "key-2": "value-2"},
+                "new": True,
+            } == request.session.dict()
 
         with RequestContextVar(request=req.with_translation(Translations())):
-            self.assertEqual("HELLO", request.context._("HELLO"))
-            self.assertEqual("HELLO", request.context._n("HELLO", "HOLA", 1))
-            self.assertEqual(["HELLO"], request.context._a("HELLO"))
+            assert "HELLO" == request.context._("HELLO")
+            assert "HELLO" == request.context._n("HELLO", "HOLA", 1)
+            assert ["HELLO"] == request.context._a("HELLO")
 
 
 @pytest.mark.asyncio
