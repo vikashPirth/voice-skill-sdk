@@ -14,6 +14,7 @@ import pathlib
 import subprocess
 from unittest.mock import patch, mock_open, MagicMock
 import yaml
+import pytest
 
 from skill_sdk import i18n, util
 from skill_sdk.i18n import (
@@ -63,7 +64,7 @@ bb:
 """
 
 
-class TestI18n(unittest.TestCase):
+class TestI18n:
     @patch("subprocess.check_output")
     @patch("skill_sdk.i18n._load_all", return_value={})
     @patch("skill_sdk.i18n._load_yaml", return_value={})
@@ -72,25 +73,24 @@ class TestI18n(unittest.TestCase):
         mock = MagicMock()
         mock.glob.return_value = [pathlib.Path("zh.mo")]
         with patch("skill_sdk.i18n.get_locale_dir", return_value=mock):
-            self.assertEqual(
-                {"": "Content-Type: text/plain; charset=UTF-8\n"},
-                i18n.load_translations()["zh"]._catalog,
-            )
+            assert {
+                "": "Content-Type: text/plain; charset=UTF-8\n"
+            } == i18n.load_translations()["zh"]._catalog
             mock.glob.return_value = [pathlib.Path("bad_lang_code.mo")]
-            self.assertEqual(i18n.load_translations(), {})
+            assert i18n.load_translations() == {}
 
     def test_load_all_translations(self):
         with patch("pathlib.io.open", mock_open(read_data=TEST_ALL_DATA), create=True):
             tr = i18n.load_translations()
-        self.assertEqual(tr["bb"].gettext("KEY1"), "VALUEBB")
-        self.assertEqual(tr["zh"].getalltexts("KEY2"), ["VALUE21", "VALUE22"])  # noqa
+        assert tr["bb"].gettext("KEY1") == "VALUEBB"
+        assert tr["zh"].getalltexts("KEY2") == ["VALUE21", "VALUE22"]  # noqa
 
         data = yaml.safe_load(TEST_ALL_DATA)
         with patch(
             "pathlib.io.open",
             mock_open(read_data=yaml.safe_dump({**data, **{"invalid": {}}})),
             create=True,
-        ), self.assertRaises(RuntimeError):
+        ), pytest.raises(RuntimeError):
             i18n.load_translations()
 
     @patch("builtins.open", mock_open(read_data=EMPTY_MO_DATA), create=True)
@@ -102,14 +102,14 @@ class TestI18n(unittest.TestCase):
         tr._catalog["KEY"] = "VALUE"
         tr._catalog[("KEY", 1)] = "VALUES"
         tr._catalog["KEY_PLURAL"] = "VALUES"
-        self.assertEqual(_("KEY"), "KEY")
-        self.assertEqual(_n("KEY", "KEY_PLURAL", 1), "KEY")
-        self.assertEqual(_n("KEY", "KEY_PLURAL", 2), "KEY_PLURAL")
-        self.assertEqual(_a("KEY"), ["KEY"])
+        assert _("KEY") == "KEY"
+        assert _n("KEY", "KEY_PLURAL", 1) == "KEY"
+        assert _n("KEY", "KEY_PLURAL", 2) == "KEY_PLURAL"
+        assert _a("KEY") == ["KEY"]
         with RequestContextVar(request=request.with_translation(tr)):
-            self.assertEqual(_("KEY"), "VALUE")
-            self.assertEqual(_n("KEY", "KEY_PLURAL", 2), "VALUES")
-            self.assertEqual(_a("KEY"), ["KEY"])
+            assert _("KEY") == "VALUE"
+            assert _n("KEY", "KEY_PLURAL", 2) == "VALUES"
+            assert _a("KEY") == ["KEY"]
 
     @patch("subprocess.check_output", return_value=0)
     def test_extract_translations(self, process):
@@ -141,9 +141,9 @@ class TestI18n(unittest.TestCase):
 
         extract_translations(["a.py", "b.my"])
         process.side_effect = FileNotFoundError()
-        self.assertIsNone(extract_translations(["a.py"]))
+        assert extract_translations(["a.py"]) is None
         process.side_effect = subprocess.CalledProcessError(1, cmd="")
-        self.assertIsNone(extract_translations(["a.py"]))
+        assert extract_translations(["a.py"]) is None
 
     @patch("subprocess.check_call", return_value=0)
     def test_init_locales(self, process):
@@ -167,17 +167,18 @@ class TestI18n(unittest.TestCase):
             ]
         )
         process.side_effect = subprocess.CalledProcessError(1, cmd="")
-        self.assertFalse(init_locales(pathlib.Path("template"), ["en", "de"]))
+        assert (init_locales(pathlib.Path("template"), ["en", "de"])) is False
         process.side_effect = FileNotFoundError()
         with patch.object(pathlib.Path, "exists", return_value=True), patch.object(
             pathlib.Path, "unlink"
         ) as unlink_mock:
-            self.assertFalse(
+            assert (
                 init_locales(pathlib.Path("template"), ["en", "de"], force=True)
+                is False
             )
             unlink_mock.assert_called_once()
 
-    def test_update_translations(self):
+    def test_update_translations(self, caplog):
         with patch.object(
             pathlib.Path,
             "open",
@@ -186,19 +187,16 @@ class TestI18n(unittest.TestCase):
             ),
         ):
             result = translate_locale("en", {"TEST": "Test Translation"})
-            self.assertEqual(
-                result,
-                [
-                    'msgid "TEST" \n',
-                    'msgstr "Test Translation"',
-                    "\n",
-                    ' msgid "TEST1" \n',
-                    '  msgstr "" \n',
-                ],
-            )
+            assert result == [
+                'msgid "TEST" \n',
+                'msgstr "Test Translation"',
+                "\n",
+                ' msgid "TEST1" \n',
+                '  msgstr "" \n',
+            ]
 
             # Intentionally using list to raise AttributeError:
-            self.assertIsNone(translate_locale("en", []))
+            assert (translate_locale("en", [])) is None
         with patch.object(
             pathlib.Path,
             "open",
@@ -217,12 +215,6 @@ class TestI18n(unittest.TestCase):
                 ]
             )
 
-            logger = logging.getLogger("skill_sdk.tools.translate")
-            with patch(
-                "skill_sdk.tools.translate.translate_locale", return_value=None
-            ), self.assertLogs(logger, level="INFO"):
-                update_translation("en", {"TEST": "Test Translation"})
-
     def test_strings_escape(self):
         with patch.object(
             pathlib.Path, "open", mock_open(read_data='msgid "TEST" \n  msgstr "" \n\n')
@@ -236,112 +228,104 @@ class TestI18n(unittest.TestCase):
                     ]
                 },
             )
-            self.assertEqual(
-                result,
-                [
-                    'msgid "TEST" \n',
-                    'msgstr "Test Translation with \'quotes\' and \\"doubles\\""',
-                    "\n",
-                ],
-            )
+            assert result == [
+                'msgid "TEST" \n',
+                'msgstr "Test Translation with \'quotes\' and \\"doubles\\""',
+                "\n",
+            ]
+
             result = translate_locale(
                 "en",
                 {"TEST": ["\nMulti-line string\nWith loads of things here and there "]},
             )
-            self.assertEqual(
-                result,
-                [
-                    'msgid "TEST" \n',
-                    'msgstr "Multi-line string"\n"With loads of things here and there"',
-                    "\n",
-                ],
-            )
+            assert result == [
+                'msgid "TEST" \n',
+                'msgstr "Multi-line string"\n"With loads of things here and there"',
+                "\n",
+            ]
 
     @patch("subprocess.run", side_effect=FileNotFoundError)
     def test_compile_locales(self, *args):
-        self.assertIsNone(i18n.compile_locales())
+        assert i18n.compile_locales() is None
 
 
-class TestMessage(unittest.TestCase):
+class TestMessage:
     def test_message_new(self):
-        self.assertFalse(Message(""))
-        self.assertEqual(" ", Message(" "))
+        assert " " == Message(" ")
         message = Message("{a}=={b}", a="1", b="1")
-        self.assertEqual(message, "1==1")
-        self.assertEqual(message.key, "{a}=={b}")
-        self.assertEqual(message.kwargs, {"a": "1", "b": "1"})
+        assert message == "1==1"
+        assert message.key == "{a}=={b}"
+        assert message.kwargs == {"a": "1", "b": "1"}
         message = Message("{0}!={1}", "key", "0", "1")
-        self.assertEqual(message, "0!=1")
-        self.assertEqual(message.key, "key")
-        self.assertEqual(message.args, ("0", "1"))
-        self.assertEqual(message.kwargs, {})
+        assert message == "0!=1"
+        assert message.key == "key"
+        assert message.args == ("0", "1")
+        assert message.kwargs == {}
 
         message = "Chuck Norris can instantiate interfaces"
-        self.assertEqual(Message(message), message)
-        self.assertEqual(Message(message).key, message)
+        assert Message(message) == message
+        assert Message(message).key == message
 
     def test_message_simple_format(self):
         message = Message("{a}=={b}", "key").format(a="1", b="1")
-        self.assertEqual(message, "1==1")
-        self.assertEqual(message.key, "key")
-        self.assertEqual(message.kwargs, {"a": "1", "b": "1"})
+        assert message == "1==1"
+        assert message.key == "key"
+        assert message.kwargs == {"a": "1", "b": "1"}
         message = Message("{0}!={1}", "key").format("0", "1")
-        self.assertEqual(message, "0!=1")
-        self.assertEqual(message.args, ("0", "1"))
-        self.assertEqual(message.kwargs, {})
+        assert message == "0!=1"
+        assert message.args == ("0", "1")
+        assert message.kwargs == {}
 
     def test_message_extended_format(self):
         message1 = Message("{a}=={b}", a="1", b="1")
         message2 = Message("{c}=={d}", c="2", d="2")
         message3 = Message("{e}=={f}", e="3", f="3")
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             Message("").join(None)
-        self.assertEqual("1==1", Message(" ").join((message1,)))
-        self.assertEqual("1==1 2==2", Message(" ").join((message1, message2)))
-        self.assertEqual(
-            "1==1 2==2 3==3", Message(" ").join((message1, message2, message3))
-        )
+        assert "1==1" == Message(" ").join((message1,))
+        assert "1==1 2==2" == Message(" ").join((message1, message2))
+        assert "1==1 2==2 3==3" == Message(" ").join((message1, message2, message3))
 
     def test_strip(self):
-        self.assertEqual("Message", Message(" !Message?!,. ").strip(" !?,."))
+        assert "Message" == Message(" !Message?!,. ").strip(" !?,.")
 
     def test_add(self):
         m = Message("1") + " " + Message("2")
-        self.assertEqual("1 2", m)
-        self.assertEqual('1 " " 2', m.key)
+        assert "1 2" == m
+        assert '1 " " 2' == m.key
         m = Message("1") + " " + "2"
-        self.assertEqual("1 2", m)
-        self.assertEqual('1 " " "2"', m.key)
+        assert "1 2" == m
+        assert '1 " " "2"' == m.key
         m = "1" + " " + Message("2")
-        self.assertEqual("1 2", m)
-        self.assertIsInstance(m, str)
+        assert "1 2" == m
+        assert isinstance(m, str)
 
         m = Message("A", "B") + Message("C", "D")
-        self.assertEqual("AC", m)
-        self.assertEqual("B D", m.key)
+        assert "AC" == m
+        assert "B D" == m.key
         m = Message("Hi!") + Message("By.")
-        self.assertEqual("Hi!By.", m)
-        self.assertEqual("Hi! By.", m.key)
+        assert "Hi!By." == m
+        assert "Hi! By." == m.key
 
         m = Message("MYTAG1") + "some text" + Message("MYTAG2")
-        self.assertEqual("MYTAG1some textMYTAG2", m)
-        self.assertEqual('MYTAG1 "some text" MYTAG2', m.key)
+        assert "MYTAG1some textMYTAG2" == m
+        assert 'MYTAG1 "some text" MYTAG2' == m.key
 
         m = Message("MYTAG1") + " some text " + Message("MYTAG2")
-        self.assertEqual("MYTAG1 some text MYTAG2", m)
-        self.assertEqual('MYTAG1 " some text " MYTAG2', m.key)
+        assert "MYTAG1 some text MYTAG2" == m
+        assert 'MYTAG1 " some text " MYTAG2' == m.key
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             Message("1") + 1
 
         m = Message("1") + ""
-        self.assertEqual("1", m)
-        self.assertEqual("1", m.key)
+        assert "1" == m
+        assert "1" == m.key
 
         m = Message("") + "1"
-        self.assertEqual("1", m)
-        self.assertEqual('"1"', m.key)
+        assert "1" == m
+        assert '"1"' == m.key
 
 
 class TestTranslations(unittest.TestCase):

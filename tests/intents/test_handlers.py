@@ -28,10 +28,10 @@ from skill_sdk import util
 from skill_sdk.util import create_request, mock_datetime_now
 
 
-class TestHandlerDecorator(unittest.TestCase):
+class TestHandlerDecorator:
     def test_handler_no_type_hints(self):
         """Throw exception if no type hints"""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
 
             @intent_handler
             def decorated_test(context, param):
@@ -39,7 +39,7 @@ class TestHandlerDecorator(unittest.TestCase):
 
     def test_handler_no_type_hints_param(self):
         """Throw exception if no type hints"""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
 
             @intent_handler
             def decorated_test(param):
@@ -52,7 +52,7 @@ class TestHandlerDecorator(unittest.TestCase):
 
         r = create_request("TEST_CONTEXT")
         result = decorated_test(r)
-        self.assertEqual(result, (r.context, "Europe/Berlin"))
+        assert result == (r.context, "Europe/Berlin")
 
     def test_handler_param_request(self):
         @intent_handler
@@ -61,7 +61,7 @@ class TestHandlerDecorator(unittest.TestCase):
 
         r = create_request("TEST_CONTEXT")
         result = decorated_test(r)
-        self.assertEqual(result, r)
+        assert result == r
 
     def test_handler_param_session(self):
         @intent_handler
@@ -70,7 +70,7 @@ class TestHandlerDecorator(unittest.TestCase):
 
         r = create_request("TEST_CONTEXT")
         result = decorated_test(r)
-        self.assertEqual(result, r.session)
+        assert result == r.session
 
     def test_handler_array(self):
         """Check simple usage with no conversion"""
@@ -87,13 +87,10 @@ class TestHandlerDecorator(unittest.TestCase):
             ],
         )
         result = decorated_test(r)
-        self.assertEqual(
-            result,
-            [
-                "31-12-2001",
-                "31-12-1001",
-            ],
-        )
+        assert result == [
+            "31-12-2001",
+            "31-12-1001",
+        ]
 
     def test_handler_dates(self):
         """Check handler usage with date conversion"""
@@ -114,7 +111,7 @@ class TestHandlerDecorator(unittest.TestCase):
             ],
         )
         result = decorated_test(r)
-        self.assertEqual(result, ("2001-12-31", datetime.date(2001, 12, 31)))
+        assert result == ("2001-12-31", datetime.date(2001, 12, 31))
 
     def test_handler_date_array(self):
         """Check usage with date array"""
@@ -131,9 +128,7 @@ class TestHandlerDecorator(unittest.TestCase):
             ],
         )
         result = decorated_test(r)
-        self.assertEqual(
-            result, [datetime.date(2001, 12, 31), datetime.date(1001, 12, 31)]
-        )
+        assert result == [datetime.date(2001, 12, 31), datetime.date(1001, 12, 31)]
 
     def test_handler_date_fail(self):
         """Test date conversion of invalid date"""
@@ -143,7 +138,7 @@ class TestHandlerDecorator(unittest.TestCase):
             return date
 
         r = create_request("TEST_CONTEXT", date=["not a date"])
-        with self.assertRaises(EntityValueException):
+        with pytest.raises(EntityValueException):
             result = decorated_test(r)
 
     def test_handler_fail_silent(self):
@@ -155,7 +150,7 @@ class TestHandlerDecorator(unittest.TestCase):
 
         r = create_request("TEST_CONTEXT", date=["not a date"])
         result = date_test(r)
-        self.assertIsInstance(result, EntityValueException)
+        assert isinstance(result, EntityValueException)
 
         @intent_handler
         def int_test(integer: int):
@@ -163,7 +158,7 @@ class TestHandlerDecorator(unittest.TestCase):
 
         r = create_request("TEST_CONTEXT", integer=["not a number"])
         result = int_test(r)
-        self.assertIsInstance(result, EntityValueException)
+        assert isinstance(result, EntityValueException)
 
     def test_stacked_decorators(self):
         import functools
@@ -181,7 +176,7 @@ class TestHandlerDecorator(unittest.TestCase):
         r = create_request("TEST_CONTEXT", date=["2012-12-14"])
         test(r)
         test(r)
-        self.assertEqual(m.call_count, 2)
+        assert m.call_count == 2
 
     def test_with_error_handler(self):
         """Test conversion failure if error_handler provided"""
@@ -197,15 +192,12 @@ class TestHandlerDecorator(unittest.TestCase):
             return None
 
         result = date_test(create_request("TEST_CONTEXT", date=["not a date"]))
-        self.assertEqual(
-            result,
-            (
-                "date",
-                "not a date",
-                str(ValueError("Unknown string format: not a date")),
-            ),
+        assert result == (
+            "date",
+            "not a date",
+            str(ValueError("Unknown string format: not a date")),
         )
-        self.assertIsNone(date_test(create_request("TEST_CONTEXT", date=[])))
+        assert date_test(create_request("TEST_CONTEXT", date=[])) is None
 
     def test_handler_direct_call(self):
         """Test direct call: no conversion"""
@@ -215,7 +207,7 @@ class TestHandlerDecorator(unittest.TestCase):
             return date
 
         result = decorated_test(date="2001-12-31")
-        self.assertEqual(result, "2001-12-31")
+        assert result == "2001-12-31"
 
         @intent_handler
         def decorated_test(date: datetime.date, date_arr: [datetime.date]):
@@ -228,15 +220,12 @@ class TestHandlerDecorator(unittest.TestCase):
                 "1001-12-31",
             ],
         )
-        self.assertEqual(
-            result,
-            (
+        assert result == (
+            "2001-12-31",
+            [
                 "2001-12-31",
-                [
-                    "2001-12-31",
-                    "1001-12-31",
-                ],
-            ),
+                "1001-12-31",
+            ],
         )
 
     @mock_datetime_now(
@@ -251,45 +240,42 @@ class TestHandlerDecorator(unittest.TestCase):
             return tuple(date)
 
         r = create_request("TEST_CONTEXT", date=["2100-12-31", "T13:00:00Z"])
-        self.assertEqual(
-            (
-                datetime.datetime(2100, 12, 31, 0, 0),
-                datetime.datetime(2100, 12, 31, 13, 0, tzinfo=tzutc()),
-            ),
-            date_test(r),
+        assert date_test(r) == (
+            datetime.datetime(2100, 12, 31, 0, 0),
+            datetime.datetime(2100, 12, 31, 13, 0, tzinfo=tzutc()),
         )
 
 
-class TestAttributesV2(unittest.TestCase):
+class TestAttributesV2:
 
     attr_v2 = {"id": 1, "value": "value", "nestedIn": [], "overlapsWith": []}
     request = create_request("TEST_CONTEXT", attr=attr_v2)
 
-    def test_attributesV2(self):
+    def test_attributes_v2(self):
         """Test conversions to AttributesV2"""
 
         @intent_handler
         def attr_v2_test(attr: AttributeV2):
             return attr
 
-        self.assertEqual(attr_v2_test(self.request), AttributeV2(self.attr_v2))
+        assert attr_v2_test(self.request) == AttributeV2(self.attr_v2)
 
-    def test_attributesV2_list(self):
+    def test_attributes_v2_list(self):
         """Test conversions to List of AttributesV2"""
 
         @intent_handler
         def attr_v2_test(attr: [AttributeV2]):
             return attr[0]
 
-        self.assertEqual(attr_v2_test(self.request), AttributeV2(self.attr_v2))
+        assert attr_v2_test(self.request) == AttributeV2(self.attr_v2)
 
         @intent_handler
         def attr_v2_test(attr: List[AttributeV2]):
             return attr[0]
 
-        self.assertEqual(attr_v2_test(self.request), AttributeV2(self.attr_v2))
+        assert attr_v2_test(self.request) == AttributeV2(self.attr_v2)
 
-    def test_attributesV2_subtypes(self):
+    def test_attributes_v2_subtypes(self):
         # Test conversions of AttributesV2 with subtypes
         attr_v2 = {"id": 1, "value": "123456", "nestedIn": [], "overlapsWith": []}
         context = create_request("TEST_CONTEXT", attr=attr_v2)
@@ -298,9 +284,9 @@ class TestAttributesV2(unittest.TestCase):
         def attr_v2_test(attr: AttributeV2[int]):
             return attr
 
-        self.assertEqual(attr_v2_test(context), AttributeV2(attr_v2, int))
+        assert attr_v2_test(context) == AttributeV2(attr_v2, int)
 
-    def test_attributesV2_list_subtypes(self):
+    def test_attributes_v2_list_subtypes(self):
         # Test conversion of List of AttributesV2 with subtypes
         attr_v2 = {"id": 1, "value": "123456", "nestedIn": [], "overlapsWith": []}
         context = create_request("TEST_CONTEXT", attr=attr_v2)
@@ -310,7 +296,7 @@ class TestAttributesV2(unittest.TestCase):
             return attr
 
         result = attr_v2_test(context)
-        self.assertEqual(result, [AttributeV2(attr_v2, int)])
+        assert result == [AttributeV2(attr_v2, int)]
 
 
 @pytest.mark.asyncio

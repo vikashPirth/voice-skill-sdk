@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Features
+
+-   Refactor unit tests from unittest to pytest module. 
+
 ## 1.1.4 - 2021-08-18
 
 ### Features
