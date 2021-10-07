@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 
 -   Refactor unit tests from unittest to pytest module. 
 
+### Bugfixes
+
+-   Fixed uvicorn logging when `--log-level` set to `trace`. 
+
+
 ## 1.1.4 - 2021-08-18
 
 ### Features
