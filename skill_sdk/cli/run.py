@@ -20,7 +20,6 @@ from skill_sdk.cli import (
     add_module_argument,
     import_module_app,
     process_env_file,
-    DEFAULT_MODULE,
 )
 
 logger = logging.getLogger(__name__)

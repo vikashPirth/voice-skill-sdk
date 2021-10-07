@@ -107,20 +107,28 @@ def test_transaction_id(app):
     )
 
 
-def test_uvicorn_patched():
-    from uvicorn.config import LOGGING_CONFIG
+def test_uvicorn_patched(app):
+    from uvicorn.config import Config
+    from skill_sdk.log import CloudGELFFormatter
 
+    Config(app).configure_logging()
     log.setup_logging(logging.DEBUG, config.FormatType.GELF)
-    assert LOGGING_CONFIG["formatters"]["access"]["()"].endswith("CloudGELFFormatter")
-    assert LOGGING_CONFIG["loggers"]["uvicorn"]["level"] == logging.DEBUG
-    assert LOGGING_CONFIG["loggers"]["uvicorn.error"]["level"] == logging.DEBUG
-    assert LOGGING_CONFIG["loggers"]["uvicorn.access"]["level"] == logging.DEBUG
 
+    assert isinstance(
+        logging.getLogger("uvicorn.access").handlers[0].formatter, CloudGELFFormatter
+    )
+    assert logging.getLogger("uvicorn").level == logging.DEBUG
+    assert logging.getLogger("uvicorn.error").level == logging.DEBUG
+    assert logging.getLogger("uvicorn.access").level == logging.DEBUG
+
+    Config(app).configure_logging()
     log.setup_logging(logging.ERROR, config.FormatType.HUMAN)
-    assert LOGGING_CONFIG["formatters"]["access"]["()"].endswith("AccessFormatter")
-    assert LOGGING_CONFIG["loggers"]["uvicorn"]["level"] == logging.ERROR
-    assert LOGGING_CONFIG["loggers"]["uvicorn.error"]["level"] == logging.ERROR
-    assert LOGGING_CONFIG["loggers"]["uvicorn.access"]["level"] == logging.ERROR
+    assert not isinstance(
+        logging.getLogger("uvicorn.access").handlers[0].formatter, CloudGELFFormatter
+    )
+    assert logging.getLogger("uvicorn").level == logging.ERROR
+    assert logging.getLogger("uvicorn.error").level == logging.ERROR
+    assert logging.getLogger("uvicorn.access").level == logging.ERROR
 
 
 def test_gunicorn_logger():
