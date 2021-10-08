@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 -   Fixed uvicorn logging when `--log-level` set to `trace`. 
 
+-   Bump FastAPI from 0.68.0 to 0.70.0.
+
 
 ## 1.1.4 - 2021-08-18
 
