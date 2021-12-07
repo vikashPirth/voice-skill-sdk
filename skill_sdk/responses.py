@@ -125,8 +125,16 @@ class Kit(NamedTuple):
 
 
 class ReferenceType(Text, Enum):
+    """
+    Reference event for the execution.
+    SPEECH_END - end of vocalization of the current response.
+    THIS_RESPONSE - immediately after reception of the current response by the touchpoint
+    MEDIA_CONTENT_END - end of output of a media content attached to the current response, e.g. an audio stream
+    """
+
     SPEECH_END = "SPEECH_END"
     THIS_RESPONSE = "THIS_RESPONSE"
+    MEDIA_CONTENT_END = "MEDIA_CONTENT_END"
 
 
 class ExecuteAfter(NamedTuple):
@@ -189,7 +197,7 @@ class DelayedClientTask(NamedTuple):
     execution_time: ExecutionTime
 
     @staticmethod
-    def invoke(intent: Text, skill_id: Text = None, **kwargs) -> "DelayedClientTask":
+    def invoke(intent: Text, reference: ReferenceType = ReferenceType.SPEECH_END, skill_id: Text = None, **kwargs) -> "DelayedClientTask":
         """
         Create a task to invoke intent
 
@@ -201,12 +209,13 @@ class DelayedClientTask(NamedTuple):
 
 
         @param intent:      Intent name to invoke
+        @param reference    The given reference type
         @param skill_id:    Optional skill Id
         @param kwargs:      Key/values map converted into attributes for skill invocation
         @return:
         """
         invoke_data = InvokeData(intent, skill_id, parameters=kwargs)
-        execution_time = ExecutionTime.after(ReferenceType.SPEECH_END)
+        execution_time = ExecutionTime.after(reference)
 
         return DelayedClientTask(invoke_data=invoke_data, execution_time=execution_time)
 
