@@ -40,6 +40,9 @@ These anchor references are:
 - `ReferenceType.THIS_RESPONSE`: the moment when the response is received by the client 
   (before any text is uttered).
 
+- `ReferenceType.MEDIA_CONTENT_END`: end of output of a media content attached to the current response,
+   e.g. an audio stream
+
 The delay is specified by the `offset` parameter of type `datetime.timedelta`. 
 
 For example, to invoke "WEATHER__INTENT" in 10 seconds after pronouncing
