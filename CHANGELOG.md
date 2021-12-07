@@ -2,7 +2,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [v0.16.0] - 2021-12-07    
 
 ### Features
 -  Add a new ReferenceType called MEDIA_CONTENT_END. 
