@@ -2,7 +2,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [v0.16.1] - 2022-02-07    
     
 ### Features
 -  Upgrade dependencies 
