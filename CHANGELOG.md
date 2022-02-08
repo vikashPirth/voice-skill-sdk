@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.16.2] - 2022-02-08    
+    
+### Bugfixes
+-  Fix issue with pypi
+
+
 ## [v0.16.1] - 2022-02-07    
     
 ### Features
