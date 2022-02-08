@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [v0.16.1] - 2022-02-07    
+    
+### Features
+-  Upgrade dependencies 
+
+
 ## [v0.16.0] - 2021-12-07    
 
 ### Features
