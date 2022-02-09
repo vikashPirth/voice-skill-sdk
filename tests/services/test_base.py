@@ -35,7 +35,7 @@ async def test_base_response():
 @respx.mock
 @pytest.mark.asyncio
 async def test_auth_headers():
-    from skill_sdk.util import test_request
+    from skill_sdk.utils.util import test_request
 
     route = respx.get(SERVICE_URL).mock(
         return_value=Response(200, json=SERVICE_RESPONSE)

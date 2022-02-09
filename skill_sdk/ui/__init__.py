@@ -24,7 +24,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 from pydantic import validator
 
-from skill_sdk.util import CamelModel
+from skill_sdk.utils.util import CamelModel
 from skill_sdk.intents.entities import AttributeV2, TimeRange, TimeSet
 
 logger = logging.getLogger()

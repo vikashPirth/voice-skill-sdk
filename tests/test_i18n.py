@@ -8,7 +8,6 @@
 #
 #
 import datetime
-import logging
 import unittest
 import pathlib
 import subprocess
@@ -16,7 +15,8 @@ from unittest.mock import patch, mock_open, MagicMock
 import yaml
 import pytest
 
-from skill_sdk import i18n, util
+from skill_sdk import i18n
+from skill_sdk.utils import util
 from skill_sdk.i18n import (
     PROGRAM,
     _load_yaml,

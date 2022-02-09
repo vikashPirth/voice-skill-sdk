@@ -17,7 +17,8 @@ from types import MappingProxyType, ModuleType
 from typing import Any, Callable, Dict, Mapping, Text, Union
 from fastapi import FastAPI
 
-from skill_sdk import i18n, util
+from skill_sdk import i18n
+from skill_sdk.utils import util
 from skill_sdk.intents import handlers, invoke
 from skill_sdk.responses import Response
 
@@ -234,7 +235,7 @@ class Skill(FastAPI):
 
         # Get intents and handlers from the application object,
         # if not supplied, the default app is self anyway
-        app: Skill = getattr(self.module, app_str, None)
+        app = getattr(self.module, app_str, None)
         if app is not None:
             self.intents = app.intents
 

@@ -55,6 +55,8 @@ setup(
         "httpx>=0.16, <1",
         "pyyaml",
         "nest-asyncio",
+        "pycryptodome",
+        "Crypto~=1.4.1"
     ],
     extras_require={
         "dev": [

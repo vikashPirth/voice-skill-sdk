@@ -13,7 +13,7 @@
 from enum import Enum
 from warnings import warn
 from typing import List, Optional, Text, Union
-from skill_sdk.util import CamelModel
+from skill_sdk.utils.util import CamelModel
 
 # Supported card version
 CARD_VERSION = 3

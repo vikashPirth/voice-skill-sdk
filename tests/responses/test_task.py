@@ -14,7 +14,7 @@ import asyncio  # noqa
 
 from fastapi.testclient import TestClient
 from skill_sdk import Response
-from skill_sdk.util import Server, create_request
+from skill_sdk.utils.util import Server, create_request
 from skill_sdk.responses.task import ClientTask
 from skill_sdk.skill import Skill
 

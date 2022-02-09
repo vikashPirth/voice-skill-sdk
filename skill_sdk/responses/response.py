@@ -15,7 +15,7 @@ from enum import Enum
 from typing import Any, Dict, Optional, List, Text, Union
 
 from skill_sdk.i18n import Message
-from skill_sdk.util import CamelModel
+from skill_sdk.utils.util import CamelModel
 from skill_sdk.responses.card import Card, ListSection
 from skill_sdk.responses.command import Command
 from skill_sdk.responses.result import Result

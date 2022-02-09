@@ -13,7 +13,8 @@ from unittest.mock import patch
 import jaeger_client.reporter
 import opentracing.scope_managers.asyncio
 from fastapi.testclient import TestClient
-from skill_sdk import init_app, skill, util
+from skill_sdk import init_app, skill
+from skill_sdk.utils import util
 from skill_sdk.middleware import tracing
 
 

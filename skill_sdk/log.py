@@ -213,7 +213,6 @@ try:
                 self._set_handler(self.error_log, cfg.errorlog, CloudGELFFormatter())
                 self._set_handler(self.access_log, cfg.errorlog, CloudGELFFormatter())
 
-
 except ModuleNotFoundError:  # pragma: no cover
     pass
 

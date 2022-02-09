@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Text
 
 import httpx
 
-from skill_sdk.util import CamelModel, root_validator
+from skill_sdk.utils.util import CamelModel, root_validator
 from skill_sdk.services.base import BaseService
 
 logger = logging.getLogger(__name__)

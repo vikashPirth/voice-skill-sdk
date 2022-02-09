@@ -20,7 +20,7 @@ from dateutil import tz
 from pydantic import Field
 
 from skill_sdk.__version__ import __spi_version__
-from skill_sdk.util import CamelModel, DEFAULT_LOCALE
+from skill_sdk.utils.util import CamelModel, DEFAULT_LOCALE
 from skill_sdk.intents import AttributeV2
 from skill_sdk.i18n import _, _n, _a, Translations
 

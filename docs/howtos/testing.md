@@ -165,7 +165,7 @@ We can easily rewrite the previous tests using this helper:
 from unittest.mock import patch
 import pytest
 
-from skill_sdk import util
+from skill_sdk.utils import util
 from weather import weather__status_handler
 
 @pytest.mark.asyncio

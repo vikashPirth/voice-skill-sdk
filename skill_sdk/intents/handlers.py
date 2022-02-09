@@ -27,7 +27,7 @@ from typing import (
 
 from pydantic.utils import lenient_issubclass
 
-from skill_sdk.util import run_in_executor
+from skill_sdk.utils.util import run_in_executor
 from skill_sdk.intents import entities
 from skill_sdk.intents import Context, Request, Session, RequestContextVar
 from skill_sdk.responses import Response, _enrich

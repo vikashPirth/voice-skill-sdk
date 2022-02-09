@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 
 from skill_sdk.config import settings
 from skill_sdk.responses import command, ask, tell
-from skill_sdk.util import create_request
+from skill_sdk.utils.util import create_request
 from skill_sdk.skill import init_app, FALLBACK_INTENT
 from skill_sdk.__version__ import __version__, __spi_version__
 

@@ -19,7 +19,7 @@ from dateutil import tz
 import pytest
 
 from skill_sdk.intents import RequestContextVar, request
-from skill_sdk.util import (
+from skill_sdk.utils.util import (
     create_context,
     create_request,
     mock_datetime_now,

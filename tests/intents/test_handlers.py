@@ -17,6 +17,7 @@ from typing import List
 import pytest
 
 from skill_sdk import Request, Response
+from skill_sdk.utils import util
 from skill_sdk.intents import (
     intent_handler,
     AttributeV2,
@@ -24,8 +25,7 @@ from skill_sdk.intents import (
     Session,
     EntityValueException,
 )
-from skill_sdk import util
-from skill_sdk.util import create_request, mock_datetime_now
+from skill_sdk.utils.util import create_request, mock_datetime_now
 
 
 class TestHandlerDecorator:
