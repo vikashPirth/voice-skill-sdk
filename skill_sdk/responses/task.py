@@ -15,7 +15,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Text, Union
 
 import isodate
-from skill_sdk.util import CamelModel
+from skill_sdk.utils.util import CamelModel
 
 
 class ReferenceType(Text, Enum):

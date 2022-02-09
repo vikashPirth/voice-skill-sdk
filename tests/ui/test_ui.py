@@ -15,7 +15,8 @@ from datetime import date
 
 from fastapi.testclient import TestClient
 
-from skill_sdk import ui, util
+from skill_sdk import ui
+from skill_sdk.utils import util
 from skill_sdk.__version__ import __spi_version__
 
 

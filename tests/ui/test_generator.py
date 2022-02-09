@@ -15,7 +15,8 @@ from distutils.dir_util import copy_tree
 import pytest
 from fastapi.testclient import TestClient
 
-from skill_sdk import cli, util, ui
+from skill_sdk import cli, ui
+from skill_sdk.utils import util
 
 OK = "Ok"
 APP = "app:app"

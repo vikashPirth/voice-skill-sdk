@@ -268,6 +268,9 @@ class Settings(BaseSettings):
         "http://127.0.0.1:4242",
     ]
 
+    # The JWT secret that is used to verify the cvi service-token
+    CVI_SERVICE_TOKEN_SECRET: str = "${CVI_SERVICE_TOKEN_SECRET:False}"
+
     def debug(self) -> bool:
         """
         Tell if skill is in "debug" mode

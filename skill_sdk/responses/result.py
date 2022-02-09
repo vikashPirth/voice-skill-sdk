@@ -11,7 +11,7 @@
 """Skill invoke data response"""
 
 from typing import Dict, Optional, Text
-from skill_sdk.util import CamelModel
+from skill_sdk.utils.util import CamelModel
 from skill_sdk.responses.task import DelayedClientTask
 
 

@@ -94,17 +94,12 @@ def test_transaction_id(app):
     async def index(*a):
         return JSONResponse(tracing_headers())
 
-    assert (
-        TestClient(app)
-        .get(
-            "/transaction",
-            headers={
-                HeaderKeys.magenta_transaction_id: "my-id",
-            },
-        )
-        .json()
-        == {"Baggage-X-Magenta-Transaction-Id": "my-id"}
-    )
+    assert TestClient(app).get(
+        "/transaction",
+        headers={
+            HeaderKeys.magenta_transaction_id: "my-id",
+        },
+    ).json() == {"Baggage-X-Magenta-Transaction-Id": "my-id"}
 
 
 def test_uvicorn_patched(app):

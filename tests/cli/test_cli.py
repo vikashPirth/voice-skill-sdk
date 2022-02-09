@@ -18,7 +18,7 @@ from pytest import CaptureFixture
 
 from skill_sdk.__main__ import main
 from skill_sdk.cli import import_module_app, develop, init, run, version, DEFAULT_MODULE
-from skill_sdk.util import run_until_complete
+from skill_sdk.utils.util import run_until_complete
 
 APP = "app:app"
 

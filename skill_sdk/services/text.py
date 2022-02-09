@@ -17,7 +17,7 @@ from typing import DefaultDict, Dict, List, Optional, Text
 from datetime import datetime
 
 from skill_sdk import i18n
-from skill_sdk.util import CamelModel, validator
+from skill_sdk.utils.util import CamelModel, validator
 from skill_sdk.requests import HTTPError
 from skill_sdk.services.base import BaseService
 

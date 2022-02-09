@@ -14,6 +14,8 @@ All notable changes to this project will be documented in this file.
 
 -   Bump FastAPI from 0.68.0 to 0.70.0.
 
+-   Fix mypy error
+
 
 ## 1.1.4 - 2021-08-18
 

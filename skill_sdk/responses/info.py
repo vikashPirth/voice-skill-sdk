@@ -12,7 +12,7 @@
 
 from typing import Text, Tuple
 
-from skill_sdk.util import CamelModel
+from skill_sdk.utils.util import CamelModel
 from skill_sdk.__version__ import __spi_version__
 
 

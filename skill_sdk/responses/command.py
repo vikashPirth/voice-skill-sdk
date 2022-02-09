@@ -17,7 +17,7 @@ from typing import Dict, Optional, Text
 # Note: client kits are Python:
 #   we use original field names,
 #   not camelCased aliases
-from skill_sdk.util import BaseModel
+from skill_sdk.utils.util import BaseModel
 
 
 class KitType(Text, Enum):

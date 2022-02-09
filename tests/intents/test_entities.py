@@ -21,7 +21,7 @@ from skill_sdk.intents.entities import (
     rank,
     convert,
 )
-from skill_sdk.util import mock_datetime_now
+from skill_sdk.utils.util import mock_datetime_now
 
 
 class TestEntityOnOff:

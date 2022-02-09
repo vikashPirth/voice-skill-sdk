@@ -14,7 +14,7 @@ from skill_sdk.intents import request
 
 
 def test_reprompt_response(monkeypatch):
-    from skill_sdk.util import test_request
+    from skill_sdk.utils.util import test_request
 
     with test_request("SMALLTALK__GREETINGS"):
         assert isinstance(Reprompt("abc123"), Response)

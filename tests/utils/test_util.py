@@ -14,7 +14,12 @@ import unittest
 import pytest
 from fastapi.testclient import TestClient
 from skill_sdk import init_app
-from skill_sdk.util import camel_to_snake, snake_to_camel, Server, run_until_complete
+from skill_sdk.utils.util import (
+    camel_to_snake,
+    snake_to_camel,
+    Server,
+    run_until_complete,
+)
 
 
 class TestUtils(unittest.TestCase):

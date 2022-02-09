@@ -19,7 +19,7 @@ from dateutil.tz import tzutc, gettz
 import isodate
 from pydantic import root_validator
 
-from skill_sdk.util import CamelModel
+from skill_sdk.utils.util import CamelModel
 
 
 logger = logging.getLogger(__name__)
