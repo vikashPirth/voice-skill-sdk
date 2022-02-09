@@ -2,9 +2,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.1.6 - 2022-02-09
 
 ### Features
+
+-   Introduce cvi service-token decryption utility
 
 -   Refactor unit tests from unittest to pytest module. 
 
