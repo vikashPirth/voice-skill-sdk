@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  release:
+    types: [edited]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+    # To check the github context
+    - name: Dump Github context
+      env:
+        GITHUB_CONTEXT: ${{ toJSON(github) }}
+      run: echo "$GITHUB_CONTEXT"
+#    - name: Get release
+#      id: get_release
+#      uses: bruceadams/get-release@v1.2.3
+#      env:
+#        GITHUB_TOKEN: ${{ github.token }}
+#    - name: Slack Notification
+#      id: slack_notification
+##      run: |
+##        echo "Name: ${{ github.event.release.name }} Description: ${{ github.event.release.body }}"
+#      uses: slackapi/slack-github-action@v1.18.0
+#      with:
+#        payload: |
+#          {
+#            "blocks": [
+#              {
+#                "type": "section",
+#                "text": {
+#                  "type": "mrkdwn",
+#                  "text": "*Skill-SDK new version <${{ steps.get_release.outputs.upload_url }}|${{ github.event.release.name }}> just released*
+#                }
+#              }
+#            ]
+#          }
+#      env:
+#        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
