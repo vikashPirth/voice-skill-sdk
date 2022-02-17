@@ -22,7 +22,11 @@ logger = logging.getLogger(__name__)
 
 class ServiceTokenDecryption:
     """
-    Utility class responsible for decrypting the cv service-token
+    Utility class responsible for decrypting the cv service-token.
+
+    NOTE :: Please do not store the user related token claims
+            in any permanent persistence storage due to GDR compliance issues.
+            Currently there is not any existing mechanism for cleaning up any user related data.
     """
 
     CVI_SERVICE_TOKEN_NAME = "cvi"
