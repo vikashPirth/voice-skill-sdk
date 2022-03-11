@@ -21,10 +21,10 @@ def app():
 @pytest.mark.asyncio
 async def test_handle_test_intent(app):
     response = await app.test_intent("Test_Intent")
-    assert response.text == "Hello from Test_Intent"
+    assert response["text"] == "Hello from Test_Intent"
 
 
 @pytest.mark.asyncio
 async def test_handle_another_test_intent(app):
     response = await app.test_intent("Another_Test_Intent")
-    assert response.text == "Hello from Another_Test_Intent"
+    assert response["text"] == "Hello from Another_Test_Intent"

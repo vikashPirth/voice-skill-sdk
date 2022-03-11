@@ -21,5 +21,5 @@ def app():
 @pytest.mark.asyncio
 async def test_{{ intent.function }}(app):
     response = await app.test_intent("{{ intent.name }}")
-    assert response.text == "Hello from {{ intent.name }}"
+    assert response["text"] == "Hello from {{ intent.name }}"
 {% endfor -%}

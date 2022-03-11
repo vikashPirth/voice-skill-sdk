@@ -43,7 +43,7 @@ async def test_fallback_intent(app: skill.Skill):
 
     app.include(skill.FALLBACK_INTENT, handler=lambda: "Hola")
     result = await app.test_intent("INTENT_NOT_HANDLED_BY_THE_SKILL")
-    assert result.text == "Hola"
+    assert result["text"] == "Hola"
 
 
 @pytest.mark.asyncio
@@ -58,7 +58,7 @@ async def test_with_error_handler(app):
         "Another_Test_Intent", handler=handler, error_handler=error_handler  # noqa
     )
     result = await app.test_intent("Another_Test_Intent", number="str")
-    assert result.text == "invalid literal for int() with base 10: 'str'"
+    assert result["text"] == "invalid literal for int() with base 10: 'str'"
 
 
 @pytest.mark.asyncio
@@ -69,16 +69,16 @@ async def test_test_intent_async(app):
     app.include("Test_Intent", handler=lambda: "Hola")
     result = await app.test_intent("Test_Intent")
 
-    assert result.text == "Hola"
-    assert result.type == ResponseType.TELL
+    assert result["text"] == "Hola"
+    assert result["type"] == ResponseType.TELL
 
 
 def test_test_intent_sync(app):
     app.include("Test_Intent", handler=lambda: "Hola")
     result = skill.test_intent("Test_Intent")
 
-    assert result.text == "Hola"
-    assert result.type == ResponseType.TELL
+    assert result["text"] == "Hola"
+    assert result["type"] == ResponseType.TELL
 
 
 def test_technical_endpoints(app):

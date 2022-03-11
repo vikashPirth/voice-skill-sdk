@@ -53,7 +53,7 @@ class EntityValueException(Exception):
         super().__init__(*args)
 
 
-async def invoke(handler: AnyFunc, request: Request) -> Response:
+async def invoke(handler: AnyFunc, request: Request) -> Dict[Text, Any]:
     """
     Invoke intent handler:
 
@@ -80,7 +80,7 @@ async def invoke(handler: AnyFunc, request: Request) -> Response:
         result = _enrich(response)
 
         logger.debug("Intent call result: %s", repr(result))
-        return result
+        return result.dict()
 
 
 def _is_subtype(cls: Any, class_or_tuple: Any) -> bool:

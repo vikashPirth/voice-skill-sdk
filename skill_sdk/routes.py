@@ -122,7 +122,7 @@ async def invoke_intent(
         handler,
         request.with_translation(_get_translation(rq.app, request.context.locale)),
     )
-    return JSONResponse(response.dict())
+    return JSONResponse(response)
 
 
 def api_base():

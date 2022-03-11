@@ -196,7 +196,7 @@ class Skill(FastAPI):
         translation: i18n.Translations = None,
         session: Union[util.CamelModel, Dict[Text, Text]] = None,
         **kwargs,
-    ) -> Response:
+    ) -> Dict[Text, Any]:
         """
         Test an intent implementation
 
@@ -314,7 +314,7 @@ def test_intent(
     translation: i18n.Translations = None,
     session: Union[util.CamelModel, Dict[Text, Text]] = None,
     **kwargs,
-) -> Response:
+) -> Dict[Text, Any]:
     """
     Backward compatible test helper
 

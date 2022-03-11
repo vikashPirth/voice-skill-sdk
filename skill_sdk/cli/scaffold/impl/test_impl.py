@@ -36,7 +36,7 @@ async def test_intent_async(app):
     :return:
     """
     response = await app.test_intent("SMALLTALK__GREETINGS")
-    assert response.text == "HELLOAPP_HELLO"
+    assert response["text"] == "HELLOAPP_HELLO"
 
 
 def test_intent_sync():

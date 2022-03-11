@@ -155,7 +155,7 @@ def test_scaffold(app):
     """Run scaffold project testing suite"""
 
     response = run_until_complete(app.test_intent("SMALLTALK__GREETINGS"))
-    assert response.text == "HELLOAPP_HELLO"
+    assert response["text"] == "HELLOAPP_HELLO"
 
     pytest.main(["tests"])
 

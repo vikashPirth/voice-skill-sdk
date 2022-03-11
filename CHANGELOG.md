@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Bugfixes
+- Reprompts was not working properly in version 1.x.x because global request context is accessed 
+  outside `intents.handlers.invoke` function. In this version we introduced a fix for this malfunction.  
+
 ## 1.1.6 - 2022-02-09
 
 ### Features
