@@ -39,11 +39,13 @@ class Reprompt(SkillInvokeResponse):
     # maximum number of re-prompts
     max_reprompts: int
 
-    @validator('max_reprompts')
+    @validator("max_reprompts")
     def check_max_reprompts(cls, max_reprompts, values):
         # Name of the counter formatted as INTENT_ENTITY_reprompt_count
-        entity = values.get('entity')
-        name = f"{request.context.intent}{'_' + entity if entity else ''}_reprompt_count"
+        entity = values.get("entity")
+        name = (
+            f"{request.context.intent}{'_' + entity if entity else ''}_reprompt_count"
+        )
 
         try:
             reprompt_count = int(request.session.attributes[name]) + 1
@@ -52,8 +54,8 @@ class Reprompt(SkillInvokeResponse):
 
         if reprompt_count > max_reprompts > 0:
             del request.session.attributes[name]
-            values['text'] = values['stop_text']
-            values['type'] = ResponseType.TELL
+            values["text"] = values["stop_text"]
+            values["type"] = ResponseType.TELL
         else:
             request.session.attributes[name] = reprompt_count
 
