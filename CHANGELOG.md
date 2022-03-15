@@ -2,6 +2,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 1.1.7 - 2022-03-15
+
+### Bugfixes
+
+-  Fix error when returning an instance of Reprompt from an intent handler. 
+
+
 ## 1.1.6 - 2022-02-09
 
 ### Features
