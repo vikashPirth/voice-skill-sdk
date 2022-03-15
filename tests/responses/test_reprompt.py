@@ -17,21 +17,22 @@ def test_reprompt_response(monkeypatch):
     from skill_sdk.utils.util import test_request
 
     with test_request("SMALLTALK__GREETINGS"):
-        assert isinstance(Reprompt("abc123"), Response)
+        response = Reprompt("abc123")
+        assert isinstance(response, Response)
 
-        response = Reprompt("abc123").dict()
-        assert response["text"] == "abc123"
-        assert response["type"] == ResponseType.ASK
+        response_dict = response.dict()
+        assert response_dict["text"] == "abc123"
+        assert response_dict["type"] == ResponseType.ASK
         assert request.session["SMALLTALK__GREETINGS_reprompt_count"] == 1
 
-        response = Reprompt("abc123").dict()
-        assert response["text"] == "abc123"
-        assert response["type"] == ResponseType.ASK
+        response_dict = Reprompt("abc123").dict()
+        assert response_dict["text"] == "abc123"
+        assert response_dict["type"] == ResponseType.ASK
         assert request.session["SMALLTALK__GREETINGS_reprompt_count"] == 2
 
-        response = Reprompt("abc123", "321cba", 2).dict()
-        assert response["text"] == "321cba"
-        assert response["type"] == ResponseType.TELL
+        response_dict = Reprompt("abc123", "321cba", 2).dict()
+        assert response_dict["text"] == "321cba"
+        assert response_dict["type"] == ResponseType.TELL
         assert "SMALLTALK_GREETINGS_reprompt_count" not in request.session
 
         monkeypatch.setitem(
