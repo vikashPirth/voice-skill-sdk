@@ -51,7 +51,7 @@ class Location(CamelModel):
     """Location consists of an address and time-zone"""
 
     address: Address
-    timezone: Text = "Europe/Berlin"
+    time_zone: Text = "Europe/Berlin"
 
 
 class FullLocation(GeoLocation, Location):
