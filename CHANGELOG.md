@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 1.1.8 - 2022-03-17
+
+### Bugfixes
+
+-  FIX Rename Locations timezone to time_zone 
+
 ## 1.1.7 - 2022-03-15
 
 ### Bugfixes
