@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Bugfixes
+
+- Making variable postal_code Optional of class AddressComponents due to some cities from location service has no postal code
+
 ## 1.1.8 - 2022-03-17
 
 ### Bugfixes

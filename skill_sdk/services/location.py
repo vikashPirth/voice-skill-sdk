@@ -37,7 +37,7 @@ class AddressComponents(CamelModel):
     """Address components: city and postal code"""
 
     city: Text
-    postal_code: Text
+    postal_code: Optional[Text]
 
 
 class Address(CamelModel):
