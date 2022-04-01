@@ -11,6 +11,7 @@
 """Base for internal services"""
 
 import logging
+from os import environ
 from typing import Dict, Text
 
 from aiobreaker import CircuitBreaker
@@ -101,6 +102,11 @@ class BaseService:
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
+
+        # 'HOSTNAME' is the environment value provided by k8s (actually the pod name)
+        user_agent = environ.get("HOSTNAME") or None
+        if user_agent is not None:
+            _headers.update({"User-Agent": user_agent})
 
         # If inside a request, add "Content-Language"
         if r and r.context:

@@ -69,3 +69,29 @@ async def test_circuit_breaker():
         with pytest.raises(Exception):
             c.get(SERVICE_URL)
         assert not route.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test_user_agent_header():
+    from skill_sdk.utils.util import test_request
+    from os import environ
+
+    route = respx.get(SERVICE_URL).mock(
+        return_value=Response(200, json=SERVICE_RESPONSE)
+    )
+
+    with test_request("", tokens={DEFAULT_AUTH_TOKEN: "eyJ"}):
+        async with BaseService(SERVICE_URL).async_client as client:
+            response = await client.get("")
+            assert route.called
+            assert response.json() == SERVICE_RESPONSE
+            assert "python-httpx" in response.request.headers["User-Agent"]
+
+        hostname = "Skill"
+        environ.setdefault("HOSTNAME", hostname)
+        async with BaseService(SERVICE_URL).async_client as client:
+            response = await client.get("")
+            assert route.called
+            assert response.json() == SERVICE_RESPONSE
+            assert response.request.headers["User-Agent"] == hostname
