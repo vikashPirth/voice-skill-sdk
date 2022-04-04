@@ -26,6 +26,7 @@ and based on [**FastAPI**](https://fastapi.tiangolo.com/) ASGI framework.
 Old stable (Bottle/Gevent) [0.xx branch](https://github.com/telekom/voice-skill-sdk/tree/stable)
 
 ## Installation
+Important note: Consider building the project using Python 3
 
 ### Runtime
 Runtime installation: `python -m pip install skill-sdk`.
@@ -37,18 +38,44 @@ Runtime installation with Prometheus metrics exporter and distributed tracing ad
 Development installation: `python -m pip install skill-sdk[dev]`.
 
 ## Quickstart
-To bootstrap a new project, install SDK for development:
+Setup a virtual environment:
 ```
-pip install skill-sdk[dev]
+python3 -m venv .venv
 ```
 
-Initialize a new project with `vs` command:
+Activate the virtual environment:
+```
+. .venv/bin/activate
+```
+
+Upgrade pip (need to be at the latest pip):
+```
+pip install --upgrade pip
+```
+
+Build project:
+```
+python3 setup.py install
+```
+
+Do a runtime installation:
+```
+python3 -m pip install "skill-sdk[dev]"
+```
+
+Create temp folder inside the project
+```
+mkdir temp
+```
+
+Initialize a new project with `vs` command with the temp folder from the previous step:
 ```
 vs init
 ```
 
-Run the skill in development mode:
+Go to the temporary folder and run the skill in development mode:
 ```
+cd temp
 vs develop
 ```
 
