@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Features
+
+- Enhance User-Agent header to include kubernetes POD name when it comes to SVH cluster requests
+
 ## 1.1.9 - 2022-03-31
 
 ### Bugfixes
