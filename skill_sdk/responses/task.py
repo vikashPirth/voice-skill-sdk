@@ -20,10 +20,11 @@ from skill_sdk.utils.util import CamelModel
 
 class ReferenceType(Text, Enum):
     """
-    Reference event for the execution.
-    SPEECH_END - end of vocalization of the current response.
-    THIS_RESPONSE - immediately after reception of the current response by the touchpoint
-    MEDIA_CONTENT_END - end of output of a media content attached to the current response, e.g. an audio stream
+    Reference event for the execution
+
+        SPEECH_END - end of vocalization of the current response.
+        THIS_RESPONSE - immediately after reception of the current response by the touchpoint
+        MEDIA_CONTENT_END - end of output of a media content attached to the current response, e.g. an audio stream
     """
     SPEECH_END = "SPEECH_END"
     THIS_RESPONSE = "THIS_RESPONSE"
