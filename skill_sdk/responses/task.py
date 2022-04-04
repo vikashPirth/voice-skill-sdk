@@ -23,6 +23,7 @@ class ReferenceType(Text, Enum):
 
     SPEECH_END = "SPEECH_END"
     THIS_RESPONSE = "THIS_RESPONSE"
+    MEDIA_CONTENT_END = "MEDIA_CONTENT_END"
 
 
 class ExecuteAfter(CamelModel):
