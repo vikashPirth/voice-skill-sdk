@@ -10,7 +10,7 @@
 
 """Re-prompt response"""
 
-from typing import Optional, Text
+from typing import Optional, Text, Dict, Any
 from pydantic import validator
 
 from skill_sdk.intents import request
@@ -76,3 +76,6 @@ class Reprompt(SkillInvokeResponse):
             entity=entity,
             **kwargs,
         )
+
+    def dict(self, *args, **kwargs) -> Dict[Text, Any]:
+        return super(Reprompt, self).dict()
