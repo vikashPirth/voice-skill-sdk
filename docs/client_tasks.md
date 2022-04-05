@@ -35,10 +35,11 @@ A task execution can be delayed relatively to a time anchor.
 These anchor references are:
 
 - `ReferenceType.SPEECH_END`: speech end is the moment when the response text utterance is over (completed). 
-  
 
 - `ReferenceType.THIS_RESPONSE`: the moment when the response is received by the client 
   (before any text is uttered).
+
+- `ReferenceType.MEDIA_CONTENT_END` : end of output of a media content attached to the current response, e.g. an audio stream
 
 The delay is specified by the `offset` parameter of type `datetime.timedelta`. 
 
