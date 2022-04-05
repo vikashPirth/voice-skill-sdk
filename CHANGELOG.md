@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Features
 
 - Enhance User-Agent header to include kubernetes POD name when it comes to SVH cluster requests
+- Adding new`ReferenceType` called `MEDIA_CONTENT_END` 
 
 ## 1.1.9 - 2022-03-31
 
