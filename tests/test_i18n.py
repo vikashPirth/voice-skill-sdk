@@ -419,13 +419,19 @@ class TestFormatFunctions(unittest.TestCase):
             self.assertEqual(self.tr.nl_build("Header"), "")
 
         self.assertEqual(
-            "Chuck Norris can: instantiate interfaces",
+            "Chuck Norris can: instantiate interfaces.",
             self.tr.nl_build("Chuck Norris can", ["instantiate interfaces"]),
         )
         self.assertEqual(
-            "Chuck Norris can: instantiate interfaces and jump over the lazy fox",
+            "Chuck Norris can: instantiate interfaces and jump over the lazy fox.",
             self.tr.nl_build(
                 "Chuck Norris can", ["instantiate interfaces", "jump over the lazy fox"]
+            ),
+        )
+        self.assertEqual(
+            "Chuck Norris can: instantiate interfaces, jump over the lazy fox, and play with fox.",
+            self.tr.nl_build(
+                "Chuck Norris can", ["instantiate interfaces", "jump over the lazy fox", "play with fox"]
             ),
         )
 
