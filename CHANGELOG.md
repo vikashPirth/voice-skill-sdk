@@ -2,6 +2,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## Unreleased
+
+### Bugfixes
+
+- Returning text from nl_build with fullstop in the end.
+
 ## 1.2.0 - 2022-04-05
 
 ### Features

@@ -211,7 +211,7 @@ class Translations(support.Translations):
         :param elements:    list elements
         :return:
         """
-        return Message(": ").join((header, self.format_list(elements)))
+        return f'{Message(": ").join((header, self.format_list(elements)))}.'
 
     def format_datetime(self, datetime=None, format="medium", tzinfo=None) -> Text:
         """Format datetime according to the locale"""
