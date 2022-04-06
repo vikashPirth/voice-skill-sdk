@@ -2,6 +2,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Features
+
+- Add data values in the response of version 0
+
 ## 1.2.0 - 2022-04-05
 
 ### Features

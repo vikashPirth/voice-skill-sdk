@@ -14,6 +14,7 @@ import copy
 from enum import Enum
 from typing import Any, Dict, Optional, List, Text, Union
 
+from skill_sdk import i18n
 from skill_sdk.i18n import Message
 from skill_sdk.utils.util import CamelModel
 from skill_sdk.responses.card import Card, ListSection
@@ -100,6 +101,38 @@ class SkillInvokeResponse(CamelModel):
             params.update(result=Result(result["data"] if "data" in result else result))
 
         super().__init__(**{**data, **params})
+
+    def dict(self, *args, **kwargs) -> Dict[Text, Any]:
+        """
+        Dump the request into JSON suitable to be returned to the dialog manager.
+        :param context: the context of the request
+        """
+
+        result = self.result or Result(dict())
+        # Export string key and format parameters from Message object
+        if isinstance(self.text, i18n.Message):
+            result.update(
+                key=self.text.key,
+                value=self.text.value,
+                args=self.text.args,
+                kwargs=self.text.kwargs,
+            )
+
+        # Required properties
+        resp: Dict[Text, Any] = dict()
+        resp.update(type=self.type, text=self.text)
+
+        # Optional properties
+        if self.card:
+            resp.update(card=self.card.dict())
+        if result:
+            resp.update(result=result.dict())
+        if self.push_notification:
+            resp.update(pushNotification=self.push_notification)
+        if self.session:
+            resp.update(session={"attributes": self.session.attributes})
+
+        return resp
 
     def with_card(
         self,
