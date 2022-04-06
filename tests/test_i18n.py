@@ -431,7 +431,8 @@ class TestFormatFunctions(unittest.TestCase):
         self.assertEqual(
             "Chuck Norris can: instantiate interfaces, jump over the lazy fox, and play with fox.",
             self.tr.nl_build(
-                "Chuck Norris can", ["instantiate interfaces", "jump over the lazy fox", "play with fox"]
+                "Chuck Norris can",
+                ["instantiate interfaces", "jump over the lazy fox", "play with fox"]
             ),
         )
 
