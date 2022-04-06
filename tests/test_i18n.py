@@ -432,7 +432,7 @@ class TestFormatFunctions(unittest.TestCase):
             "Chuck Norris can: instantiate interfaces, jump over the lazy fox, and play with fox.",
             self.tr.nl_build(
                 "Chuck Norris can",
-                ["instantiate interfaces", "jump over the lazy fox", "play with fox"]
+                ["instantiate interfaces", "jump over the lazy fox", "play with fox"],
             ),
         )
 

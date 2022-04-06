@@ -59,7 +59,7 @@ class ServiceTokenDecryption:
         cipher = AES.new(decoded_secret, AES.MODE_GCM, decoded_nonce)  # Setup cipher
         # Raw data structure for encryptedPlainToken crypttext[:-16] + auth_tag[-16:] aka default cipher.block_size
         decoded_cipher_text = decoded_encrypted_plain_token[: -cipher.block_size]
-        decoded_auth_tag = decoded_encrypted_plain_token[-cipher.block_size:]
+        decoded_auth_tag = decoded_encrypted_plain_token[-cipher.block_size :]
         try:
             plaintext = cipher.decrypt_and_verify(
                 decoded_cipher_text,
